@@ -55,7 +55,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-//Hello, this is Jeremy.
+//Hello, this is Jeremy. This is not Jeremy
 
 @Autonomous(name="Concept: Compass Calibration", group="Concept")
 @Disabled
