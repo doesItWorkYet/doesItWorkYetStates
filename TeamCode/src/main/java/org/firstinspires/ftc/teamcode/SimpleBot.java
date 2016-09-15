@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="Simple Bot", group="Testing")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Matt is stupid Bot", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class SimpleBot extends LinearOpMode {
 
@@ -62,7 +62,7 @@ public class SimpleBot extends LinearOpMode {
 
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        // leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
@@ -77,8 +77,48 @@ public class SimpleBot extends LinearOpMode {
             telemetry.update();
 
             // eg: Run wheels in tank mode (note: The joystick goes negative when pushed forwards)
-            // leftMotor.setPower(-gamepad1.left_stick_y);
-            // rightMotor.setPower(-gamepad1.right_stick_y);
+            //leftMotor.setPower(-gamepad1.left_stick_y);
+            //rightMotor.setPower(-gamepad1.right_stick_y);
+            double x = gamepad1.left_stick_x;
+            double y = gamepad1.left_stick_y;
+
+            double rightPower = y, leftPower = y;
+            if (x > 0) {
+                double rmotorpower = y - x;
+                rightPower = rmotorpower;
+            } else if (x < 0) {
+                double lmotorpower = y +x;
+                leftPower = lmotorpower;
+            }
+
+
+            if(rightPower > 1){
+                rightPower = 1;
+            }
+            if(rightPower < -1){
+                rightPower = -1;
+            }
+            if(leftPower > 1) {
+                leftPower = 1;
+            }
+            if(leftPower < -1){
+                leftPower = 1;
+            }
+            rightMotor.setPower(rightPower);
+            leftMotor.setPower(leftPower);
+            /*
+            if (y > 0) {
+                double lmotorpower = y - x;
+                rightMotor.setPower(lmotorpower);
+            }
+            else if (y < 0) {
+                double rmotorpower = y - (-x);
+                leftMotor.setPower(rmotorpower);
+            }
+            */
+
+            //leftMotor.setPower();
+            //rightMotor.setPower(gamepad1.left_stick_y);
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
     }
