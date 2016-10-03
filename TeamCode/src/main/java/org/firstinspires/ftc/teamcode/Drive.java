@@ -45,16 +45,28 @@ public class Drive extends LinearOpMode {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     Servo steering = null;
-    DcMotor leftMotor = null;
-    DcMotor rightMotor = null;
+    DcMotor driveMotor = null;
+    Servo leftClaw = null;
+    Servo rightClaw = null;
+    Servo rightScoop = null;
+    Servo leftScoop = null;
+    DcMotor liftScoop = null;
+    DcMotor launcher = null;
+    DcMotor extendOMatic = null;
     public final int TICKS_PER_REV = 1440;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         steering = hardwareMap.servo.get("steering");
-        leftMotor = hardwareMap.dcMotor.get("leftMotor");
-        rightMotor = hardwareMap.dcMotor.get("rightMotor");
+        driveMotor = hardwareMap.dcMotor.get("driveMotor");
+        leftClaw = hardwareMap.servo.get("leftClaw");
+        rightClaw = hardwareMap.servo.get("rightClaw");
+        leftScoop = hardwareMap.servo.get("leftScoop");
+        rightScoop = hardwareMap.servo.get("rightScoop");
+        liftScoop = hardwareMap.dcMotor.get("liftScoop");
+        launcher = hardwareMap.dcMotor.get("launcher");
+        extendOMatic = hardwareMap.dcMotor.get("extendOMatic");
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
@@ -67,9 +79,15 @@ public class Drive extends LinearOpMode {
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
-        //flyMotor.setPower(0.00);
-        moveServo(steering, 90);
-
+        setDcMotorRPM(liftScoop, 0.0);
+        setDcMotorRPM(launcher, 0.0);
+        setDcMotorRPM(extendOMatic, 0.0);
+        setDcMotorRPM(driveMotor, 0.0);
+        moveServo(steering, 90.0);
+        moveServo(leftClaw, 0.0);
+        moveServo(rightClaw, 180.0);
+        moveServo(leftScoop, 0.0);
+        moveServo(rightScoop, 180.0);
         waitForStart();
         runtime.reset();
 
@@ -82,6 +100,118 @@ public class Drive extends LinearOpMode {
             //leftMotor.setPower(-gamepad1.left_stick_y);
             //rightMotor.setPower(-gamepad1.right_stick_y);
             //flyMotor.setPower(gamepad1.left_stick_y);
+
+            double driveRPM = 0.0;
+            if (gamepad1.left_bumper) {
+                driveRPM += 5.0;
+            }
+            if (gamepad1.right_bumper) {
+                driveRPM -= 5.0;
+            }
+            setDcMotorRPM(driveMotor, driveRPM);
+
+            if (gamepad1.a) {
+                setDcMotorRPM(driveMotor, 0.0);
+            }
+
+
+            double clawLPosition = leftClaw.getPosition();
+            if (gamepad1.dpad_up) {
+                if (clawLPosition < 1.00) {
+                    leftClaw.setPosition(clawLPosition + 0.005);
+                }
+            }
+            if (gamepad1.dpad_down) {
+                if (clawLPosition > 0.0) {
+                    leftClaw.setPosition(clawLPosition - 0.005);
+                }
+            }
+            double clawRPosition = rightClaw.getPosition();
+            if (gamepad1.dpad_up) {
+                if (clawRPosition > 0.0) {
+                    rightClaw.setPosition(clawRPosition - 0.005);
+                }
+            }
+            if (gamepad1.dpad_down) {
+                if (clawRPosition < 1.0) {
+                    rightClaw.setPosition(clawRPosition + 0.005);
+                }
+            }
+
+            double scoopLPosition = leftScoop.getPosition();
+            if (gamepad1.dpad_left) {
+                if (scoopLPosition < 1.00) {
+                    leftScoop.setPosition(scoopLPosition + 0.005);
+                }
+            }
+            if (gamepad1.dpad_right) {
+                if (scoopLPosition > 0.0) {
+                    leftScoop.setPosition(scoopLPosition - 0.005);
+                }
+            }
+            double scoopRPosition = rightScoop.getPosition();
+            if (gamepad1.dpad_left) {
+                if (scoopRPosition > 0.0) {
+                    rightScoop.setPosition(scoopRPosition - 0.005);
+                }
+            }
+            if (gamepad1.dpad_right) {
+                if (scoopRPosition < 1.0) {
+                    rightScoop.setPosition(scoopRPosition + 0.005);
+                }
+            }
+
+            boolean launcherState = false;
+
+            if (launcherState == false) {
+                if (gamepad1.x) {
+                    setDcMotorRPM(launcher, 100.0);
+                    launcherState = true;
+                }
+            }
+            if (launcherState == true) {
+                if (gamepad1.x) {
+                    setDcMotorRPM(launcher, 0.0);
+                    launcherState = false;
+                }
+            }
+
+            boolean extendState1 = false;
+            boolean extendState2 = false;
+
+            if (extendState1 == false & extendState2 == false) {
+                if (gamepad1.b) {
+                    setDcMotorRPM(extendOMatic, 50);
+                    wait(1000);
+                    setDcMotorRPM(extendOMatic, 0);
+                    extendState1 = true;
+                }
+            }
+            if (extendState1 == true) {
+                if (gamepad1.b) {
+                    setDcMotorRPMReverse(extendOMatic, 50);
+                    wait(1000);
+                    setDcMotorRPM(extendOMatic, 0);
+                    extendState1 = false;
+                }
+            }
+
+            if (extendState2 == false & extendState1 == false) {
+                if (gamepad1.y) {
+                    setDcMotorRPM(extendOMatic, 50);
+                    wait(2000);
+                    setDcMotorRPM(extendOMatic, 0);
+                    extendState2 = true;
+                }
+            }
+            if (extendState2 == true) {
+                if (gamepad1.y) {
+                    setDcMotorRPMReverse(extendOMatic, 50);
+                    wait(2000);
+                    setDcMotorRPM(extendOMatic, 0);
+                    extendState2 = false;
+                }
+            }
 
             idle();
             }
@@ -111,6 +241,18 @@ public class Drive extends LinearOpMode {
         int rpmToTicksPerMinute = (int) (rpm*TICKS_PER_REV + 0.5);
         motor.setMaxSpeed(rpmToTicksPerMinute);
         motor.setPower(1.0);
+    }
+
+    public void setDcMotorRPMReverse(DcMotor motor, double rpm){
+        if (rpm > 120) {
+            rpm = 120;
+        }
+        else if (rpm < 0) {
+            rpm = 0;
+        }
+        int rpmToTicksPerMinute = (int) (rpm*TICKS_PER_REV + 0.5);
+        motor.setMaxSpeed(rpmToTicksPerMinute);
+        motor.setPower(-1.0);
     }
 
 
