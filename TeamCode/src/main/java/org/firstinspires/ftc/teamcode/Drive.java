@@ -44,8 +44,8 @@ public class Drive extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    Servo steering = null;
-    DcMotor driveMotor = null;
+    DcMotor rightMotor = null;
+    DcMotor leftMotor = null;
     Servo leftClaw = null;
     Servo rightClaw = null;
     Servo rightScoop = null;
@@ -58,8 +58,8 @@ public class Drive extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        steering = hardwareMap.servo.get("steering");
-        driveMotor = hardwareMap.dcMotor.get("driveMotor");
+        rightMotor = hardwareMap.dcMotor.get("leftMotor");
+        leftMotor = hardwareMap.dcMotor.get("rightMotor");
         leftClaw = hardwareMap.servo.get("leftClaw");
         rightClaw = hardwareMap.servo.get("rightClaw");
         leftScoop = hardwareMap.servo.get("leftScoop");
@@ -82,8 +82,8 @@ public class Drive extends LinearOpMode {
         setDcMotorRPM(liftScoop, 0.0);
         setDcMotorRPM(launcher, 0.0);
         setDcMotorRPM(extendOMatic, 0.0);
-        setDcMotorRPM(driveMotor, 0.0);
-        moveServo(steering, 90.0);
+        setDcMotorRPM(leftMotor, 0.0);
+        setDcMotorRPM(rightMotor, 0.0);
         moveServo(leftClaw, 0.0);
         moveServo(rightClaw, 180.0);
         moveServo(leftScoop, 0.0);
@@ -101,18 +101,11 @@ public class Drive extends LinearOpMode {
             //rightMotor.setPower(-gamepad1.right_stick_y);
             //flyMotor.setPower(gamepad1.left_stick_y);
 
-            double driveRPM = 0.0;
-            if (gamepad1.left_bumper) {
-                driveRPM += 5.0;
-            }
-            if (gamepad1.right_bumper) {
-                driveRPM -= 5.0;
-            }
-            setDcMotorRPM(driveMotor, driveRPM);
 
-            if (gamepad1.a) {
-                setDcMotorRPM(driveMotor, 0.0);
-            }
+            double leftStickValue = gamepad1.left_stick_y;
+            double rightStickValue = gamepad1.right_stick_y;
+            leftMotor.setPower (leftStickValue);
+            rightMotor.setPower (rightStickValue);
 
 
             double clawLPosition = leftClaw.getPosition();
