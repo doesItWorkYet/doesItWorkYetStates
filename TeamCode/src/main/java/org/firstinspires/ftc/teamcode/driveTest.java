@@ -35,6 +35,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="DriveTest", group="Testing")  // @Autonomous(...) is the other common choice
@@ -46,35 +47,96 @@ public class driveTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor leftMotor = null;
     DcMotor rightMotor = null;
+    DcMotor flyWheel1 = null;
+    DcMotor flyWheel2 = null;
     public final int TICKS_PER_REV = 1440;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         leftMotor = hardwareMap.dcMotor.get("left motor");
         rightMotor = hardwareMap.dcMotor.get("right motor");
+        flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
+        flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
         leftMotor.setDirection(DcMotor.Direction.REVERSE);
+        flyWheel2.setDirection(DcMotor.Direction.REVERSE);
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
 
 
-
         waitForStart();
         runtime.reset();
-
+        boolean rightReverse = false;
+        boolean leftReverse = false;
+        setDcMotorRPM(leftMotor, 0);
+        setDcMotorRPM(rightMotor, 0);
+        setDcMotorRPM(flyWheel1, 0);
+        setDcMotorRPM(flyWheel2, 0);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Bumper Status", "Right: " + gamepad1.right_bumper + "     Left: " + gamepad1.left_bumper);
+            telemetry.addData("Booleans", "Right: " + rightReverse + "     Left: " + leftReverse);
             telemetry.update();
 
-            double leftStickValue = gamepad1.left_stick_y;
-            double rightStickValue = gamepad1.right_stick_y;
-            leftMotor.setPower (leftStickValue);
-            rightMotor.setPower (rightStickValue);
+            int gearState = 1;
+            if (gamepad1.dpad_up) {
+                if (gearState < 5) {
+                    gearState += 1;
+
+                }
+            }
+            if (gamepad1.dpad_down) {
+                if (gearState > 1) {
+                    gearState -= 1;
+                }
+            }
+
+            if (gamepad1.right_trigger > .2) {
+                rightReverse = true;
+            }
+            else if (gamepad1.right_trigger <= .2) {
+                rightReverse = false;
+            }
+            if (gamepad1.left_trigger > .2) {
+                leftReverse = true;
+            }
+            else if (gamepad1.left_trigger <= .2) {
+                leftReverse = false;
+            }
+            if (gamepad1.right_bumper) {
+                rightMotor.setPower(0.2 * gearState);
+            }
+            if (gamepad1.left_bumper) {
+                leftMotor.setPower(0.2 * gearState);
+            }
+            if (rightReverse) {
+                rightMotor.setPower(-0.2 * gearState);
+            }
+            if (leftReverse) {
+                leftMotor.setPower(-0.2 * gearState);
+            }
+
+            if (gamepad1.right_bumper == false && rightReverse == false) {
+                rightMotor.setPower(0);
+            }
+            if (gamepad1.left_bumper == false && leftReverse == false) {
+                leftMotor.setPower(0);
+            }
+            if (gamepad1.b) {
+                flyWheel2.setPower(0.25);
+                flyWheel1.setPower(0.25);
+            }
+            else if (!gamepad1.b) {
+                flyWheel1.setPower(0.0);
+                flyWheel2.setPower(0.0);
+            }
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
+
     }
 
     public void setDcMotorRPM(DcMotor motor, double rpm){
