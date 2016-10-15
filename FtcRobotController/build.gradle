@@ -3,6 +3,13 @@
 //
 apply plugin: 'com.android.library'
 
+dependencies {
+    compile project(':ftc-visionlib')
+    compile project(':opencv-java')
+
+}
+
+
 android {
 
     defaultConfig {
