@@ -54,14 +54,14 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * Set the beacon analysis method
          * Try them all and see what works!
          */
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
+        beacon.setAnalysisMethod(Beacon.AnalysisMethod.DEFAULT);
 
         /**
          * Set color tolerances
          * 0 is default, -1 is minimum and 1 is maximum tolerance
          */
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
+        beacon.setColorToleranceRed(-0.65);
+        beacon.setColorToleranceBlue(-0.65);
 
         /**
          * Debug drawing
