@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Bitmap;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,7 +23,7 @@ import org.opencv.core.Size;
  */
 
 @TeleOp(name = "DetectBeacon", group = "ZZOpModeCameraPackage")
-//@Disabled
+@Disabled
 public class DetectBeacon extends VisionOpMode {
 
   int ds2 = 2;  // additional downsampling of the image

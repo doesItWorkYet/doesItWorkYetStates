@@ -35,48 +35,89 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="launcherTest", group="Testing")  // @Autonomous(...) is the other common choice
+@TeleOp(name="testCode", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class launcherTest extends LinearOpMode {
+public class testCode extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    DcMotor leftMotor = null;
-    DcMotor rightMotor = null;
+    OpticalDistanceSensor ODP = null;
+    TouchSensor TS = null;
+    DcMotor motor1 = null;
+    DcMotor motor2 = null;
+
     public final int TICKS_PER_REV = 1440;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        leftMotor = hardwareMap.dcMotor.get("left motor");
-        rightMotor = hardwareMap.dcMotor.get("right motor");
-        /* eg: Initialize the hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names assigned during the robot configuration
-         * step (using the FTC Robot Controller app on the phone).
-         */
-
-
-
+        ODP = hardwareMap.opticalDistanceSensor.get("ODP");
+        TS = hardwareMap.touchSensor.get("TS");
+        motor1 = hardwareMap.dcMotor.get("motor1");
+        motor2 = hardwareMap.dcMotor.get("motor2");
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        double time = runtime.time();
         waitForStart();
         runtime.reset();
 
-        // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Optical Distance Sensor", "Value: " + ODP.getLightDetected());
+            telemetry.addData("Touch Sensor", "Value: " + TS.isPressed());
             telemetry.update();
+            boolean motorStates = false;
 
-            setDcMotorRPM(leftMotor, 120);
-            setDcMotorRPMReverse(rightMotor, 120);
 
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            if (TS.isPressed() == true) {
+                motor1.setPower(1);
+                motor2.setPower(1);
+                if (motorStates == false) {
+
+                    //time = runtime.time();
+                    motorStates = true;
+                    //double motorSpeed = 1;
+                    //while (motorSpeed > 0.00) {
+                        //motor1.setPower(motorSpeed);
+                        //motor2.setPower(motorSpeed);
+                        //motorSpeed -= 0.001;
+                        //motorStates = false;
+                    }
+                else {
+
+                }
+            }
+            else {
+                motor1.setPower(0);
+                motor2.setPower(0);
+                motorStates = false;
+            }
+
+            idle();
+            }
+
+
         }
+
+    public void moveServo(Servo servo, double degree){
+        if (degree > 180) {
+            degree = 180;
+        }
+        else if (degree < 0) {
+            degree = 0;
+        }
+        degree = degree/180;
+        servo.setPosition(degree);
     }
 
     public void setDcMotorRPM(DcMotor motor, double rpm){
-        if (rpm > 120) {
-            rpm = 120;
+        if (rpm > 100) {
+            rpm = 100;
         }
         else if (rpm < 0) {
             rpm = 0;
@@ -86,15 +127,27 @@ public class launcherTest extends LinearOpMode {
         motor.setPower(1.0);
     }
 
-    public void setDcMotorRPMReverse(DcMotor motor, double rpm){
-        if (rpm > 120) {
-            rpm = 120;
-        }
-        else if (rpm < 0) {
-            rpm = 0;
-        }
-        int rpmToTicksPerMinute = (int) (rpm*TICKS_PER_REV + 0.5);
-        motor.setMaxSpeed(rpmToTicksPerMinute);
-        motor.setPower(-1.0);
+    public void stopMotor(DcMotor motor) {
+        motor.setPower(0.0);
     }
-}
+
+    public void rotateOnce(DcMotor motor) {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setTargetPosition(TICKS_PER_REV);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(1);
+        while (motor.isBusy()) {
+
+        }
+    }
+
+    public void accelerateTo(DcMotor motor, double time) {
+        if (time>2){
+            time = 2;
+        }
+        double power = Math.pow(10, time)/100.00;
+        motor.setPower(power);
+    }
+
+    }
+

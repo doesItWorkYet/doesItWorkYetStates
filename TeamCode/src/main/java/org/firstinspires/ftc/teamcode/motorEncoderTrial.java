@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,20 +50,18 @@ public class motorEncoderTrial extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    DcMotor testMotor = null;
-    DeviceInterfaceModule module1 = null;
-    TouchSensor touch = null;
-    OpticalDistanceSensor distance = null;
+    DcMotor flyWheelOne = null;
+    DcMotor flywheelTwo = null;
+
     public final int TICKS_PER_REV = 1440;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        testMotor = hardwareMap.dcMotor.get("test Motor");
-        module1 = hardwareMap.deviceInterfaceModule.get("Device Interface Module 1");
-        touch = hardwareMap.touchSensor.get("touch");
-        distance = hardwareMap.opticalDistanceSensor.get("distance");
-        testMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flyWheelOne = hardwareMap.dcMotor.get("flyWheel1");
+        flywheelTwo = hardwareMap.dcMotor.get("flyWheel2");
+
+        //testMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
        // testMotor.setMode(DcMotor.RunMode.RESET_ENCODERS);
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
@@ -74,7 +73,9 @@ public class motorEncoderTrial extends LinearOpMode {
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
-        testMotor.setPower(0.00);
+        //testMotor.setPower(0.00);
+        flyWheelOne.setPower(0.00);
+        flywheelTwo.setPower(0.00);
         waitForStart();
         runtime.reset();
 
@@ -82,23 +83,16 @@ public class motorEncoderTrial extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
-            if(touch.isPressed()){
-                stopMotor(testMotor);
-            }
-            if (gamepad1.right_bumper) {
+           if(gamepad1.a){
+               flyWheelOne.setPower(1);
+               flywheelTwo.setPower(-1);
+           }
+            else if (!gamepad1.a){
+               flyWheelOne.setPower(0);
+               flywheelTwo.setPower(0);
+           }
 
-            }
-            if (gamepad1.left_bumper) {
-                stopMotor(testMotor);
-            }
-            if (gamepad1.a) {
-                rotateOnce(testMotor);
-            }
 
-            if (touch.isPressed()) {
-                telemetry.addData("Button Status", "The Button is Pressed");
-                telemetry.update();
-            }
             //setDcMotorRPM(testMotor, distance.getLightDetected()* 2);
 
             idle();

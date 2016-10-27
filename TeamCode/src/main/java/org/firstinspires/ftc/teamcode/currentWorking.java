@@ -32,15 +32,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="DriveTest", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
-public class driveTest extends LinearOpMode {
+@TeleOp(name="currentWorking", group="Testing")  // @Autonomous(...) is the other common choice
+@Disabled
+public class currentWorking extends LinearOpMode {
 
     /* Declare OpMode members. */
 
@@ -55,8 +56,8 @@ public class driveTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        leftMotor = hardwareMap.dcMotor.get("left motor");
-        rightMotor = hardwareMap.dcMotor.get("right motor");
+        leftMotor = hardwareMap.dcMotor.get("leftMotor");
+        rightMotor = hardwareMap.dcMotor.get("rightMotor");
         flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
         flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
         leftMotor.setDirection(DcMotor.Direction.REVERSE);

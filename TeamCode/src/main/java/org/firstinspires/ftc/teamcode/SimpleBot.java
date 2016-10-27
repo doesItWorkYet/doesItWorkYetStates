@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Matt is stupid Bot", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class SimpleBot extends LinearOpMode {
 
     /* Declare OpMode members. */
