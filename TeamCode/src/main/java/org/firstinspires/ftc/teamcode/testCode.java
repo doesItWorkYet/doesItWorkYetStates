@@ -51,52 +51,101 @@ public class testCode extends LinearOpMode {
     TouchSensor TS = null;
     DcMotor motor1 = null;
     DcMotor motor2 = null;
+    DcMotor leftMotor = null;
+    DcMotor rightMotor = null;
+    Servo loader = null;
+    DcMotor Lift = null;
 
     public final int TICKS_PER_REV = 1440;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        ODP = hardwareMap.opticalDistanceSensor.get("ODP");
-        TS = hardwareMap.touchSensor.get("TS");
+        //ODP = hardwareMap.opticalDistanceSensor.get("ODP");
+        //TS = hardwareMap.touchSensor.get("TS");
         motor1 = hardwareMap.dcMotor.get("motor1");
         motor2 = hardwareMap.dcMotor.get("motor2");
+        leftMotor = hardwareMap.dcMotor.get("leftMotor");
+        rightMotor = hardwareMap.dcMotor.get("rightMotor");
+        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         double time = runtime.time();
         waitForStart();
         runtime.reset();
+        motor1.setPower(0);
+        motor2.setPower(0);
+        boolean leftReverse = false;
+        boolean rightReverse = false;
+        double currentServo = 0;
+        loader.setPosition(0);
 
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Optical Distance Sensor", "Value: " + ODP.getLightDetected());
-            telemetry.addData("Touch Sensor", "Value: " + TS.isPressed());
+            //telemetry.addData("Optical Distance Sensor", "Value: " + ODP.getLightDetected());
+            //telemetry.addData("Touch Sensor", "Value: " + TS.isPressed());
             telemetry.update();
             boolean motorStates = false;
 
 
-            if (TS.isPressed() == true) {
-                motor1.setPower(1);
-                motor2.setPower(1);
-                if (motorStates == false) {
 
-                    //time = runtime.time();
-                    motorStates = true;
-                    //double motorSpeed = 1;
-                    //while (motorSpeed > 0.00) {
-                        //motor1.setPower(motorSpeed);
-                        //motor2.setPower(motorSpeed);
-                        //motorSpeed -= 0.001;
-                        //motorStates = false;
-                    }
-                else {
+            while (gamepad1.a) {
+                motor1.setPower(1);
+                motor1.setPower(1);
+                loader.setPosition(1);
+            }
+            if (!gamepad1.a) {
+                motor1.setPower(0);
+                motor2.setPower(0);
+                loader.setPosition(0.5);
+            }
+
+
+            int gearState = 1;
+            if (gamepad1.dpad_up) {
+                if (gearState < 5) {
+                    gearState += 1;
 
                 }
             }
-            else {
-                motor1.setPower(0);
-                motor2.setPower(0);
-                motorStates = false;
+            if (gamepad1.dpad_down) {
+                if (gearState > 1) {
+                    gearState -= 1;
+                }
             }
+
+            if (gamepad1.right_trigger > .2) {
+                rightReverse = true;
+            }
+            else if (gamepad1.right_trigger <= .2) {
+                rightReverse = false;
+            }
+            if (gamepad1.left_trigger > .2) {
+                leftReverse = true;
+            }
+            else if (gamepad1.left_trigger <= .2) {
+                leftReverse = false;
+            }
+            if (gamepad1.right_bumper) {
+                rightMotor.setPower(0.2 * gearState);
+            }
+            if (gamepad1.left_bumper) {
+                leftMotor.setPower(0.2 * gearState);
+            }
+            if (rightReverse) {
+                rightMotor.setPower(-0.2 * gearState);
+            }
+            if (leftReverse) {
+                leftMotor.setPower(-0.2 * gearState);
+            }
+
+            if (gamepad1.right_bumper == false && rightReverse == false) {
+                rightMotor.setPower(0);
+            }
+            if (gamepad1.left_bumper == false && leftReverse == false) {
+                leftMotor.setPower(0);
+            }
+
+
 
             idle();
             }
@@ -141,12 +190,16 @@ public class testCode extends LinearOpMode {
         }
     }
 
-    public void accelerateTo(DcMotor motor, double time) {
-        if (time>2){
-            time = 2;
+    public void accelerateTo(DcMotor motor, double speed) {
+        for (double i = motor.getPower(); i < speed; i += 0.01 ) {
+            motor.setPower(i);
         }
-        double power = Math.pow(10, time)/100.00;
-        motor.setPower(power);
+    }
+
+    public void deccelerateTo(DcMotor motor, double speed) {
+        for (double i = motor.getPower(); i > speed; i -= 0.01) {
+            motor.setPower(i);
+        }
     }
 
     }
