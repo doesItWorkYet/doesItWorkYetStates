@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.text.method.Touch;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -47,69 +49,73 @@ public class testCode extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    OpticalDistanceSensor ODP = null;
-    TouchSensor TS = null;
-    DcMotor motor1 = null;
-    DcMotor motor2 = null;
+    DcMotor flyWheel1 = null;
+    DcMotor flyWheel2 = null;
     DcMotor leftMotor = null;
     DcMotor rightMotor = null;
-    Servo loader = null;
-    DcMotor Lift = null;
+    DcMotor extendOTron1 = null;
+    DcMotor extendOTron2 = null;
+    DcMotor scoopLift = null;
+    Servo loadingMechanism = null;
+    Servo pushMechanism = null;
+    Servo scoopLeft = null;
+    Servo scoopRight = null;
+    TouchSensor extendOTronLimit1 = null;
+    TouchSensor extendOTronLimit2 = null;
+    TouchSensor scoopLiftLimit = null;
+
 
     public final int TICKS_PER_REV = 1440;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        //ODP = hardwareMap.opticalDistanceSensor.get("ODP");
-        //TS = hardwareMap.touchSensor.get("TS");
-        motor1 = hardwareMap.dcMotor.get("motor1");
-        motor2 = hardwareMap.dcMotor.get("motor2");
+        flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
+        flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendOTron1 = hardwareMap.dcMotor.get("extendOTron1");
+        extendOTron2 = hardwareMap.dcMotor.get("extendOTron2");
+        scoopLift = hardwareMap.dcMotor.get("scoopLift");
+        loadingMechanism = hardwareMap.servo.get("loadingMechanism");
+        pushMechanism = hardwareMap.servo.get("pushMechanism");
+        scoopLeft = hardwareMap.servo.get("scoopLeft");
+        scoopRight = hardwareMap.servo.get("scoopRight");
+        extendOTronLimit1 = hardwareMap.touchSensor.get("extendOTronLimit1");
+        extendOTronLimit2 = hardwareMap.touchSensor.get("extendOTronLimit2");
+        scoopLiftLimit = hardwareMap.touchSensor.get("scoopLiftLimit");
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         double time = runtime.time();
         waitForStart();
         runtime.reset();
-        motor1.setPower(0);
-        motor2.setPower(0);
+        flyWheel1.setPower(0);
+        flyWheel2.setPower(0);
+        loadingMechanism.setPosition(0.5);
         boolean leftReverse = false;
         boolean rightReverse = false;
-        double currentServo = 0;
-        loader.setPosition(0);
 
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            //telemetry.addData("Optical Distance Sensor", "Value: " + ODP.getLightDetected());
-            //telemetry.addData("Touch Sensor", "Value: " + TS.isPressed());
             telemetry.update();
-            boolean motorStates = false;
-
-
 
             while (gamepad1.a) {
-                motor1.setPower(1);
-                motor1.setPower(1);
-                loader.setPosition(1);
+                flyWheel1.setPower(1);
+                flyWheel2.setPower(1);
+                loadingMechanism.setPosition(1);
             }
             if (!gamepad1.a) {
-                motor1.setPower(0);
-                motor2.setPower(0);
-                loader.setPosition(0.5);
+                flyWheel1.setPower(0);
+                flyWheel2.setPower(0);
+                loadingMechanism.setPosition(0.5);
             }
 
 
             int gearState = 1;
-            if (gamepad1.dpad_up) {
+            if (gamepad1.b) {
                 if (gearState < 5) {
                     gearState += 1;
 
-                }
-            }
-            if (gamepad1.dpad_down) {
-                if (gearState > 1) {
-                    gearState -= 1;
                 }
             }
 
@@ -145,6 +151,46 @@ public class testCode extends LinearOpMode {
                 leftMotor.setPower(0);
             }
 
+            if (gamepad2.dpad_left) {
+                if (!extendOTronLimit1.isPressed()) {
+                    extendOTron1.setPower(1);
+                }
+                if (!extendOTronLimit2.isPressed()) {
+                    extendOTron2.setPower(1);
+                }
+            }
+
+            if (gamepad2.dpad_right) {
+                extendOTron1.setPower(-1);
+                extendOTron2.setPower(-1);
+            }
+
+            if (gamepad2.b) {
+                pushMechanism.setPosition(1);
+            }
+            if (!gamepad2.b) {
+                pushMechanism.setPosition(0);
+            }
+
+            while (gamepad1.dpad_up) {
+                scoopLeft.setPosition(scoopLeft.getPosition() - .001);
+                scoopRight.setPosition(scoopRight.getPosition() + .001);
+            }
+
+            while (gamepad1.dpad_down) {
+                scoopLeft.setPosition(scoopLeft.getPosition() + .001);
+                scoopRight.setPosition(scoopRight.getPosition() - .001);
+            }
+
+            while (gamepad1.dpad_right) {
+                if (!scoopLiftLimit.isPressed()) {
+                    scoopLift.setPower(1);
+                }
+            }
+
+            while (gamepad1.dpad_left) {
+                scoopLift.setPower(-1);
+            }
 
 
             idle();
