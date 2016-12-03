@@ -13,6 +13,7 @@ import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.VisionOpMode;
 import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 
 
@@ -22,10 +23,15 @@ import org.opencv.core.Size;
  * Enables control of the robot via the gamepad
  */
 
-@TeleOp(name = "DetectBeacon", group = "ZZOpModeCameraPackage")
-@Disabled
-public class DetectBeacon extends VisionOpMode {
 
+
+@TeleOp(name = "DetectBeacon", group = "ZZOpModeCameraPackage")
+//@Disabled
+public class DetectBeacon extends VisionOpMode {
+  final String LEFT = "left";
+  final String RIGHT = "right";
+  final String BLUE = "blue";
+  final String RED = "red";
   int ds2 = 2;  // additional downsampling of the image
   private int looped = 0;
   private long lastLoopTime = 0;
@@ -59,6 +65,7 @@ public class DetectBeacon extends VisionOpMode {
      **/
     this.setFrameSize(new Size(900, 900));
 
+
     /**
      * Enable extensions. Use what you need.
      * If you turn on the BEACON extension, it's best to turn on ROTATION too.
@@ -71,14 +78,14 @@ public class DetectBeacon extends VisionOpMode {
      * Set the beacon analysis method
      * Try them all and see what works!
      */
-    beacon.setAnalysisMethod(Beacon.AnalysisMethod.FAST);
+    beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
 
     /**
      * Set color tolerances
      * 0 is default, -1 is minimum and 1 is maximum tolerance
      */
-    beacon.setColorToleranceRed(0);
-    beacon.setColorToleranceBlue(0);
+    beacon.setColorToleranceRed(0); //modify this
+    beacon.setColorToleranceBlue(0); //modify this
 
     /**
      * Set analysis boundary
@@ -116,6 +123,8 @@ public class DetectBeacon extends VisionOpMode {
      */
     cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
     cameraControl.setAutoExposureCompensation();
+
+
   }
 
   /*
@@ -124,7 +133,10 @@ public class DetectBeacon extends VisionOpMode {
    */
   @Override
   public void loop() {
-
+    super.loop();
+    Point center = beacon.getAnalysis().getCenter();
+    telemetry.addData("X:", center.x);
+    telemetry.addData("Y:", center.y);
     telemetry.addData("Beacon Color", beacon.getAnalysis().getColorString());
     telemetry.addData("Beacon Center", beacon.getAnalysis().getLocationString());
     telemetry.addData("Beacon Confidence", beacon.getAnalysis().getConfidenceString());
@@ -132,10 +144,41 @@ public class DetectBeacon extends VisionOpMode {
     telemetry.addData("Screen Rotation", rotation.getScreenOrientationActual());
     telemetry.addData("Frame Rate", fps.getFPSString() + " FPS");
     telemetry.addData("Frame Size", "Width: " + width + " Height: " + height);
+    String colorToLookFor = RED;
+    double beaconCenter = getBeaconCenter();
+    String sideToGoTo = getSideToGoTo(colorToLookFor);
   }
 
   @Override
   public void stop() {
     super.stop(); // stops camera functions
   }
+
+  public double getBeaconCenter(){
+    //returns the center of the beacon in range -1 to 1
+    double centerX = (beacon.getAnalysis().getCenter().x/(width/2.0)-1);
+    return centerX;
+  }
+
+  public String getSideToGoTo(String colorToLookFor){
+    //determine which side the desired color is on
+    String leftColor = beacon.getAnalysis().left.toString();
+    String rightColor = beacon.getAnalysis().right.toString();
+    if(leftColor == colorToLookFor) return LEFT;
+    else return RIGHT;
+  }
+
+  /*public double getButtonPosition(String side){
+    //determine the location of the button on the correct side.
+
+  }
+
+  public double scaleToPercent(int min, int max, int value){
+    //scales to the min to max in percent format
+    double range = max-min;
+    double newValue = value-min;
+    double percent = newValue/range;
+
+    return percent;
+  }*/
 }

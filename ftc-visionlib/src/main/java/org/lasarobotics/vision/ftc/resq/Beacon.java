@@ -155,7 +155,6 @@ public final class Beacon {
     public void resetAnalysisBounds(Size frameSize) {
         this.bounds = new Rectangle(new Point(frameSize.width / 2, frameSize.height / 2), frameSize.width, frameSize.height);
     }
-
     /**
      * Set color tolerance for red beacon detector
      *
@@ -280,8 +279,8 @@ public final class Beacon {
      */
     public static class BeaconAnalysis {
         private final double confidence;
-        private final BeaconColor left;
-        private final BeaconColor right;
+        public final BeaconColor left;
+        public final BeaconColor right;
         private final Rectangle location;
         private final Ellipse leftButton;
         private final Ellipse rightButton;

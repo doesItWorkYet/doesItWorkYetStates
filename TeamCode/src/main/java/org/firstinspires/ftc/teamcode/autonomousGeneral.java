@@ -35,33 +35,53 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.lasarobotics.vision.android.Cameras;
+import org.lasarobotics.vision.ftc.resq.Beacon;
+import org.lasarobotics.vision.image.Drawing;
+import org.lasarobotics.vision.opmode.TestableVisionOpMode;
+import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
+import org.lasarobotics.vision.util.ScreenOrientation;
+import org.lasarobotics.vision.util.color.Color;
+import org.lasarobotics.vision.util.color.ColorGRAY;
+import org.lasarobotics.vision.util.color.ColorRGBA;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Size;
 
-@TeleOp(name="screwOffJeremy", group="Testing")  // @Autonomous(...) is the other common choice
-
-public class loadingTest extends LinearOpMode {
+@TeleOp(name="Matt is stupid Bot", group="Testing")  // @Autonomous(...) is the other common choice
+@Disabled
+public class autonomousGeneral extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    Servo screwYou = null;
+    DcMotor leftMotor = null;
+    DcMotor rightMotor = null;
+    DcMotor sweep = null;
 
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        leftMotor = hardwareMap.dcMotor.get("leftMotor");
+        rightMotor = hardwareMap.dcMotor.get("rightMotor");
+        sweep = hardwareMap.dcMotor.get("sweep");
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
-        screwYou = hardwareMap.servo.get("screwYou");
+        // leftMotor  = hardwareMap.dcMotor.get("left motor");
+        // rightMotor = hardwareMap.dcMotor.get("right motor");
+
         // eg: Set the drive motor directions:
         // "Reverse" the motor that runs backwards when connected directly to the battery
-        // Set to REVERSE if using AndyMark motors
+        leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         // Wait for the game to start (driver presses PLAY)
+        leftMotor.setPower(0.00);
+        rightMotor.setPower(0.00);
         waitForStart();
         runtime.reset();
 
@@ -69,23 +89,11 @@ public class loadingTest extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
-            if (gamepad1.a) {
-                screwYou.setPosition(1);
-            }
-            if (gamepad1.a == false) {
-                screwYou.setPosition(0);
-            }
-            /*
-            Drive forward for 3 seconds
-            Turn 90 degrees right
-            Scan image for blue blob
-            turn bot until beacon is in the center of the screen
 
 
 
 
 
-             */
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
     }

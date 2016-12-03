@@ -49,204 +49,189 @@ public class testCode extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    DcMotor flyWheel1 = null;
-    DcMotor flyWheel2 = null;
     DcMotor leftMotor = null;
     DcMotor rightMotor = null;
-    DcMotor extendOTron1 = null;
-    DcMotor extendOTron2 = null;
+    DcMotor flyWheel1 = null;
+    DcMotor flyWheel2 = null;
     DcMotor scoopLift = null;
+    DcMotor scoopTilt = null;
     Servo loadingMechanism = null;
-    Servo pushMechanism = null;
-    Servo scoopLeft = null;
-    Servo scoopRight = null;
-    TouchSensor extendOTronLimit1 = null;
-    TouchSensor extendOTronLimit2 = null;
-    TouchSensor scoopLiftLimit = null;
 
+    //Declare constants, if 1 the motor is normal, if -1 the motor should move in a reversed direction
+    final double LEFT_MOTOR_INVERSE = -1;
+    final double RIGHT_MOTOR_INVERSE = 1;
+    final double FLY_WHEEL_1_INVERSE = 1;
+    final double FLY_WHEEL_2_INVERSE = -1;
+    final double SCOOP_LIFT_INVERSE = 1;
+    final double SCOOP_TILT_INVERSE = 1;
 
+    //Declare constant values for use throughout code, affecting speed, default positions, and measurements.
+    final double CONTINUOUS_SERVO_NO_ROTATION_POSITION = 0.52;
+    final double CONTINUOUS_SERVO_LOAD_POSITION = 0.3;
+    final double SCOOP_LIFT_UP_POWER = 0.4;
+    final double SCOOP_LIFT_DOWN_POWER = -0.4;
+    final double SCOOP_TILT_UP_POWER = -0.3;
+    final double SCOOP_TILT_DOWN_POWER = 0.3;
+    final double TRIGGER_THRESHOLD = 0.2;
     public final int TICKS_PER_REV = 1440;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
-        flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
+        //get motors from hardware map
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        extendOTron1 = hardwareMap.dcMotor.get("extendOTron1");
-        extendOTron2 = hardwareMap.dcMotor.get("extendOTron2");
+        flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
+        flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
         scoopLift = hardwareMap.dcMotor.get("scoopLift");
+        scoopTilt = hardwareMap.dcMotor.get("scoopTilt");
+
+        //get servos from hardware map
         loadingMechanism = hardwareMap.servo.get("loadingMechanism");
-        pushMechanism = hardwareMap.servo.get("pushMechanism");
-        scoopLeft = hardwareMap.servo.get("scoopLeft");
-        scoopRight = hardwareMap.servo.get("scoopRight");
-        extendOTronLimit1 = hardwareMap.touchSensor.get("extendOTronLimit1");
-        extendOTronLimit2 = hardwareMap.touchSensor.get("extendOTronLimit2");
-        scoopLiftLimit = hardwareMap.touchSensor.get("scoopLiftLimit");
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //Set motors to reverse direction if previously declared constant is negative.
+        if (LEFT_MOTOR_INVERSE == -1) {
+            leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        if (RIGHT_MOTOR_INVERSE == -1) {
+            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        if (FLY_WHEEL_1_INVERSE == -1) {
+            flyWheel1.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        if (FLY_WHEEL_2_INVERSE == -1) {
+            flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        if (SCOOP_LIFT_INVERSE == -1) {
+            scoopLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        if (SCOOP_TILT_INVERSE == -1) {
+            scoopTilt.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+
+        //Set the runtime counter then wait for the code to start.
         double time = runtime.time();
         waitForStart();
         runtime.reset();
+
+        //Ensure no motors or servos are moving or in the wrong position
         flyWheel1.setPower(0);
         flyWheel2.setPower(0);
-        loadingMechanism.setPosition(0.5);
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        loadingMechanism.setPosition(CONTINUOUS_SERVO_NO_ROTATION_POSITION);
+
+        //Declaring states for use in drive
         boolean leftReverse = false;
         boolean rightReverse = false;
 
+        //Beginning the opMode while loop
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            while (gamepad1.a) {
+            //If the a button is pressed on the first gamepad, turn on the flywheels.
+            if (gamepad1.a) {
                 flyWheel1.setPower(1);
                 flyWheel2.setPower(1);
-                loadingMechanism.setPosition(1);
             }
+            //If the a button on the first gamepad is not pressed, turn off the flywheels.
             if (!gamepad1.a) {
                 flyWheel1.setPower(0);
                 flyWheel2.setPower(0);
-                loadingMechanism.setPosition(0.5);
             }
 
+            //if the x button on the first gamepad is pressed, begin the loading mechanism rotation
+            if(gamepad1.x){
+                loadingMechanism.setPosition(CONTINUOUS_SERVO_LOAD_POSITION);
+            }
+            //if the x buttn is not pressed, set the loading mechanism to not move.
+            if(!gamepad1.x){
+                loadingMechanism.setPosition(CONTINUOUS_SERVO_NO_ROTATION_POSITION);
+            }
 
+            //Declare a variable which is used to control speed
             int gearState = 1;
+            //If the b button on the first gamepad is pressed, increment the gear by 1, until it hits 5
             if (gamepad1.b) {
                 if (gearState < 5) {
                     gearState += 1;
-
                 }
             }
 
-            if (gamepad1.right_trigger > .2) {
+            //Decide whether or not the triggers are pressed, this is due to the triggers being analog.
+            if (gamepad1.right_trigger > TRIGGER_THRESHOLD) {
                 rightReverse = true;
             }
-            else if (gamepad1.right_trigger <= .2) {
+            else if (gamepad1.right_trigger <= TRIGGER_THRESHOLD) {
                 rightReverse = false;
             }
-            if (gamepad1.left_trigger > .2) {
+            if (gamepad1.left_trigger > TRIGGER_THRESHOLD) {
                 leftReverse = true;
             }
-            else if (gamepad1.left_trigger <= .2) {
+            else if (gamepad1.left_trigger <= TRIGGER_THRESHOLD) {
                 leftReverse = false;
             }
+
+            //If the right bumper is pressed,set the power of the right drive motor to 0.2 times the gear
             if (gamepad1.right_bumper) {
                 rightMotor.setPower(0.2 * gearState);
             }
+            //If the left bumper is pressed, set the power of the left drive motor to 0.2 times the gear
             if (gamepad1.left_bumper) {
                 leftMotor.setPower(0.2 * gearState);
             }
+            //If the right trigger is pressed, set the power of the right drive motor to reverse, 0.2 times the gear
             if (rightReverse) {
                 rightMotor.setPower(-0.2 * gearState);
             }
+            //If the left trigger is pressed, set the power of the left drive motor to reverse, 0.2 times the gear
             if (leftReverse) {
                 leftMotor.setPower(-0.2 * gearState);
             }
 
+            //If neither the right bumper or trigger are pressed send no power to the right motor
             if (gamepad1.right_bumper == false && rightReverse == false) {
                 rightMotor.setPower(0);
             }
+            //If neither the left bumper or trigger are pressed send no power to the right motor
             if (gamepad1.left_bumper == false && leftReverse == false) {
                 leftMotor.setPower(0);
             }
 
-            if (gamepad2.dpad_left) {
-                if (!extendOTronLimit1.isPressed()) {
-                    extendOTron1.setPower(1);
-                }
-                if (!extendOTronLimit2.isPressed()) {
-                    extendOTron2.setPower(1);
-                }
+            //If the dpad up button on the first gamepad is pressed, set the power of scoopLift equal to its upward constant
+            if (gamepad1.dpad_up) {
+                scoopLift.setPower(SCOOP_LIFT_UP_POWER);
+            }
+            //If the dpad down button on the first gamepad is pressed, set the power of scoopLift equal to its downward constant
+            if (gamepad1.dpad_down) {
+                scoopLift.setPower(SCOOP_LIFT_DOWN_POWER);
             }
 
-            if (gamepad2.dpad_right) {
-                extendOTron1.setPower(-1);
-                extendOTron2.setPower(-1);
+            //If neither the dpad up or down on the first gamepad is pressed, set the power of scoopLift to 0.
+            if (!gamepad1.dpad_down && !gamepad1.dpad_up) {
+                scoopLift.setPower(0);
             }
 
-            if (gamepad2.b) {
-                pushMechanism.setPosition(1);
+            //If the dpad right button on the first gamepad is pressed, set the power of scoopTilt equal to its upward constant
+            if (gamepad1.dpad_right) {
+                scoopTilt.setPower(SCOOP_TILT_UP_POWER);
             }
-            if (!gamepad2.b) {
-                pushMechanism.setPosition(0);
-            }
-
-            while (gamepad1.dpad_up) {
-                scoopLeft.setPosition(scoopLeft.getPosition() - .001);
-                scoopRight.setPosition(scoopRight.getPosition() + .001);
+            //If the dpad left button on the first gamepad is pressed, set the power of scoopTilt equal to its downward constant
+            if (gamepad1.dpad_left) {
+                scoopTilt.setPower(SCOOP_TILT_DOWN_POWER);
             }
 
-            while (gamepad1.dpad_down) {
-                scoopLeft.setPosition(scoopLeft.getPosition() + .001);
-                scoopRight.setPosition(scoopRight.getPosition() - .001);
+            //If neither the dpad left or right buttons on the first gamepad are pressed, set the power of scoopTilt to 0.
+            if(!gamepad1.dpad_right & !gamepad1.dpad_left) {
+                scoopTilt.setPower(0);
             }
-
-            while (gamepad1.dpad_right) {
-                if (!scoopLiftLimit.isPressed()) {
-                    scoopLift.setPower(1);
-                }
-            }
-
-            while (gamepad1.dpad_left) {
-                scoopLift.setPower(-1);
-            }
-
 
             idle();
             }
 
-
         }
-
-    public void moveServo(Servo servo, double degree){
-        if (degree > 180) {
-            degree = 180;
-        }
-        else if (degree < 0) {
-            degree = 0;
-        }
-        degree = degree/180;
-        servo.setPosition(degree);
-    }
-
-    public void setDcMotorRPM(DcMotor motor, double rpm){
-        if (rpm > 100) {
-            rpm = 100;
-        }
-        else if (rpm < 0) {
-            rpm = 0;
-        }
-        int rpmToTicksPerMinute = (int) (rpm*TICKS_PER_REV + 0.5);
-        motor.setMaxSpeed(rpmToTicksPerMinute);
-        motor.setPower(1.0);
-    }
-
-    public void stopMotor(DcMotor motor) {
-        motor.setPower(0.0);
-    }
-
-    public void rotateOnce(DcMotor motor) {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setTargetPosition(TICKS_PER_REV);
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setPower(1);
-        while (motor.isBusy()) {
-
-        }
-    }
-
-    public void accelerateTo(DcMotor motor, double speed) {
-        for (double i = motor.getPower(); i < speed; i += 0.01 ) {
-            motor.setPower(i);
-        }
-    }
-
-    public void deccelerateTo(DcMotor motor, double speed) {
-        for (double i = motor.getPower(); i > speed; i -= 0.01) {
-            motor.setPower(i);
-        }
-    }
 
     }
 

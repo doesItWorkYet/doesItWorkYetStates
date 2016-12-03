@@ -37,137 +37,129 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="autonomousLeftStart", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Main Functions", group="User Controlled")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class autonomousLeftStart extends LinearOpMode {
+public class RedTeamLeft extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
+    //Declare motors
     DcMotor leftMotor = null;
     DcMotor rightMotor = null;
-    DcMotor flyWheel1 = null;
-    DcMotor flyWheel2 = null;
-    //Servo scoopLeft = null;
-    //Servo scoopRight = null;
+    DcMotor flyWheel = null;
+    DcMotor sweepMotor = null;
     Servo loadingMechanism = null;
-    final double CONTINUOUS_SERVO_NO_ROTATION_POSITION = .52;
-    final double CONTINUOUS_SERVO_LOAD_POSITION = .45;
-    final double PAN_START_POS = .9;
-    public final int TICKS_PER_REV = 1440;
+    // note: drive motors have encoders
+
+    final double BOT_WIDTH = 9.75;
+    final double WHEEL_CIRCUMFERENCE = 12.44;
+    final int TICKS_PER_REV_ANDYMARK = 1120;
+    final int TICKS_PER_REV_TETRIX = 1440;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        //Map motors
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
-        flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
+        flyWheel = hardwareMap.dcMotor.get("flyWheel");
+        sweepMotor = hardwareMap.dcMotor.get("sweepMotor");
         loadingMechanism = hardwareMap.servo.get("loadingMechanism");
-        //scoopLeft = hardwareMap.servo.get("scoopLeft");
-        //scoopRight = hardwareMap.servo.get("scoopRight");
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        loadingMechanism.setPosition(CONTINUOUS_SERVO_NO_ROTATION_POSITION);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        sweepMotor.setPower(1);
+        flyWheel.setPower(0);
+        loadingMechanism.setPosition(0);
 
         waitForStart();
         runtime.reset();
 
 
-        driveForward(rightMotor, 48, 5);
-        driveForward(leftMotor, 48, 5);
-        while (rightMotor.isBusy() || leftMotor.isBusy()) {
-
-        }
-        turnReverse(rightMotor, 30, 5);
-        while (rightMotor.isBusy()) {
-
-        }
-        flyWheel1.setPower(1);
-        flyWheel2.setPower(1);
-        Thread.sleep(2000);
-        loadingMechanism.setPosition(CONTINUOUS_SERVO_LOAD_POSITION);
-        Thread.sleep(4000);
-        loadingMechanism.setPosition(CONTINUOUS_SERVO_NO_ROTATION_POSITION);
-        flyWheel1.setPower(0);
-        flyWheel2.setPower(0);
-
-        turnForward(rightMotor, 50, 5);
-        while (rightMotor.isBusy()) {
-
-        }
-
-        driveForward(rightMotor, 30, 5);
-        driveForward(leftMotor, 30, 5);
-
-
-/*
-
+        // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
 
 
-            idle();
-            }
-*/
 
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
+    }
 
+    public void distance(int distance){
+
+    }
+
+    public void turnDegrees(String direction, int degrees) {
+        if (direction == "left") {
+            rightMotor.setPower(1);
+            leftMotor.setPower(-1);
+            double distanceToTravel = 0;
+        }
+        else if(direction == "right"){
+            rightMotor.setPower(-1);
+            leftMotor.setPower(1);
+            sleepQuietly(2000);
+        }
+    }
+
+    //Function to have a drive motor move forward a distance in inches at a speed, ranging from 1 to 5
     public void driveForward(DcMotor motor, double distance, double speed) {
-        //diameter 4.035 inches circumfirance 12.68 inches
-        motor.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        //Reset the encoders and ensure the motor is in run to position mode
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        double x = distance / 12.68;
-        int z = (int) x;
-        int dist = z * 1440;
+        //Find the number of revolutions needed to achieve distance
+        double x = distance / WHEEL_CIRCUMFERENCE;
+        //Find the number of ticks needed to achieve distance
+        int dist = (int) x * TICKS_PER_REV_ANDYMARK;
+        //Set the target position
         motor.setTargetPosition(motor.getCurrentPosition() + dist);
+        //Filter out speed values which are too large or small
         if (speed > 5) {
             speed = 5;
         }
         if (speed < 0) {
             speed = 0;
         }
+        //Begin motor movement
         motor.setPower(speed * 0.2);
     }
 
-    public void turnForward(DcMotor motor, double angle, double speed) {
-        double x = angle/360;
-        x=x*Math.PI*17;
-        driveForward(motor, x, speed);
-    }
-
-    public void turnReverse(DcMotor motor, double angle, double speed) {
-        double x = angle/360;
-        x=x*Math.PI*17;
-        driveReverse(motor, x, speed);
-    }
-
+    //Function to have a drive motor move back a distance in inches at a speed, ranging from 1 to 5
     public void driveReverse(DcMotor motor, double distance, double speed) {
-        //diameter 4.035 inches circumfirance 12.68 inches
-        motor.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        //Reset the encoders and ensure the motor is in run to position mode\
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        double x = distance / 12.68;
-        int z = (int) x;
-        int dist = z * 1440;
+        //Find the number of revolutions needed to achieve distance
+        double x = distance / WHEEL_CIRCUMFERENCE;
+        //Find the number of ticks needed to achieve distance
+        int dist = (int) x * TICKS_PER_REV_ANDYMARK;
+        //Set the target position
         motor.setTargetPosition(motor.getCurrentPosition() - dist);
+        //Filter out speed values which are too large or small
         if (speed > 5) {
             speed = 5;
         }
         if (speed < 0) {
             speed = 0;
         }
+        //Begin motor movement
         motor.setPower(-speed * 0.2);
     }
 
-
+    private void sleepQuietly(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // intentionally empty
+        }
     }
+}
+
 
