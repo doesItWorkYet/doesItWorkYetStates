@@ -32,6 +32,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,6 +54,16 @@ public class autonomousScrimmageDoNothing extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
+        SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        sensorService.getOrientation(){
+
+        }
+        if (sensorService != null) {
+            Sensor magField = sensorService.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            if (magField != null) {
+
+            }
+        }
         runtime.reset();
 
         }

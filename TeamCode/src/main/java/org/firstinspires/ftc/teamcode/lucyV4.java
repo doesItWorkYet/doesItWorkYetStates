@@ -46,38 +46,53 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class lucyV4 extends LinearOpMode {
 
     /* Declare OpMode members. */
-    final double ACCELERATION_OF_MAIN_MOTORS = 1;
-    final double ACCELERATION_OF_FLY_WHEEL = .25;
     private ElapsedTime runtime = new ElapsedTime();
-    //Declare motors
+    //Declare Motors
     DcMotor driveLeft = null;
     DcMotor driveRight = null;
     DcMotor flyWheel1 = null;
     DcMotor flyWheel2 = null;
     DcMotor sweep = null;
+    DcMotor claw = null;
+    //Declare Servos
     Servo indexer = null;
+    Servo leftButtonPusher = null;
+    Servo rightButtonPusher = null;
 
+    //Constant rates of acceleration
+    final double ACCELERATION_OF_MAIN_MOTORS = 1;
+    final double ACCELERATION_OF_FLY_WHEEL = .25;
 
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        //Map motors
+        //Map Motors
         driveLeft = hardwareMap.dcMotor.get("leftMotor");
         driveRight = hardwareMap.dcMotor.get("rightMotor");
         flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
         flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
-        sweep = hardwareMap.dcMotor.get("vaccuum");
+        claw = hardwareMap.dcMotor.get("claw");
+        sweep = hardwareMap.dcMotor.get("sweep");
+        //Map Servos
         indexer = hardwareMap.servo.get("indexer");
+        leftButtonPusher = hardwareMap.servo.get("leftButtonPusher");
+        rightButtonPusher = hardwareMap.servo.get("rightButtonPusher");
+
+        //Change necessary motor directions
         flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         driveRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //Ensure no motors begin with power allocated
         driveLeft.setPower(0);
         driveRight.setPower(0);
         sweep.setPower(0);
+        claw.setPower(0);
 
         waitForStart();
         runtime.reset();
 
+        //Declare variables for use in runtime loop
         double timeStartAcceleratingLeftMotor = 0;
         double timeStartAcceleratingRightMotor = 0;
         double timeStartAcceleratingFlyWheel = 0;
@@ -88,164 +103,198 @@ public class lucyV4 extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Controller ", "Left Joystick: "+gamepad1.left_stick_y);
-            telemetry.addData("Controller", "Right Trigger: "+gamepad1.right_trigger);
-            telemetry.addData("Controller", "Right Bumper: "+gamepad1.right_bumper);
-            telemetry.addData("Controller", "Left Trigger: "+gamepad1.left_trigger);
-            telemetry.addData("Controller", "Left Bumper: "+gamepad1.left_bumper);
             telemetry.update();
 
-            if(gamepad1.right_trigger >= 1){
+            //When the right trigger is fully pressed, turn on the flywheel motors
+            if(gamepad1.right_trigger == 1){
                 flyWheel1.setPower(1);
                 flyWheel2.setPower(1);
             }
 
+            //If the right trigger is not fully pressed, ensure the flywheel motors are turned off
             if(gamepad1.right_trigger < 1){
                 flyWheel1.setPower(0);
                 flyWheel2.setPower(0);
             }
 
+
+            //Move the indexer into the load position
             if(gamepad1.y){
                 indexer.setPosition(40/180);
             }
-            else if(gamepad1.y != true){
-                indexer.setPosition(0/180);
+            //Move the indexer back to default position
+            else if(!gamepad1.y) {
+                indexer.setPosition(0 / 180);
             }
-
-            /*if(gamepad1.right_bumper){
-                rightPower = 1;
-            }
-            else if(gamepad1.right_bumper != true){
-                rightPower = 0;
-            }
-
-            if(gamepad1.left_bumper){
-                leftPower = 1;
-            }
-            else if(gamepad1.left_bumper != true){
-                leftPower = 0;
-            }*/
 
 
             if(gamepad1.x){
-                // check if accel is on
+                //Check to see if the flywheels are currently accelerating
                 if(hasFlyWheelBeenAccelerating){
-                    // determine acceleration
+                    //Determine what the current velocity should be based on time since start of accelerate
                     double currentTime = System.currentTimeMillis();
                     double flyWheelPower = determineVelocity(ACCELERATION_OF_FLY_WHEEL,currentTime-timeStartAcceleratingFlyWheel);
+                    //Limit the power from being higher than motors can go
                     if(flyWheelPower > 1){
                         flyWheelPower = 1;
                     }
+                    //Set power
                     flyWheel1.setPower(flyWheelPower);
                 }
                 else{
-                    // turn on accel and add time stamp
+                    //Begin the acceleration of the flywheels and determine time of start
                     hasFlyWheelBeenAccelerating = true;
                     timeStartAcceleratingFlyWheel = System.currentTimeMillis();
                 }
             }
+
             else{
-                // turn off accel
+                //The flywheels are not acceleration
                 hasFlyWheelBeenAccelerating = false;
             }
 
+
             if(gamepad1.left_bumper){
-                // check if accel is on
+                //Check to see if the left drive motor is currently accelerating
                 if(hasLeftBeenAccelerating){
-                    // determine acceleration power
+                    //Determine what the current velocity should be based on the time since start of accelerate
                     double currentTime = System.currentTimeMillis();
                     double leftPower = determineVelocity(ACCELERATION_OF_MAIN_MOTORS,currentTime-timeStartAcceleratingLeftMotor);
+                    //Limit the power from being higher than the motors can go
                     if(leftPower > 1){
                         leftPower = 1;
                     }
+                    //Set power
                     driveLeft.setPower(leftPower);
                 }
                 else {
-                    // turn on left accel and add time stamp
+                    //Begin the acceleration of the left drive motor and determine time of start
                     hasLeftBeenAccelerating = true;
                     timeStartAcceleratingLeftMotor = System.currentTimeMillis();
                 }
             }
+
             else{
-                // turn left accel off
+                //The left drive motor is not accelerating
                 hasLeftBeenAccelerating = false;
             }
+
             if(gamepad1.right_bumper){
-                // check if accel is on
+                //Check to see if the right drive motor is current accelerating
                 if(hasRightBeenAccelerating){
-                    // determine acceleration power
+                    //Determine what the current velocity should be based on the time since start of accelerate
                     double currentTime = System.currentTimeMillis();
                     double rightPower = determineVelocity(ACCELERATION_OF_MAIN_MOTORS,currentTime-timeStartAcceleratingRightMotor);
+                    //Limit the power from going higher than the motor can go
                     if(rightPower > 1){
                         rightPower = 1;
                     }
+                    //Set power
                     driveRight.setPower(rightPower);
                 }
                 else{
-                    // turn on right accel and add time stamp
+                    //Begin the acceleration of the right drive motor and determine the time of start
                     hasRightBeenAccelerating = true;
                     timeStartAcceleratingRightMotor = System.currentTimeMillis();
                 }
             }
             else{
-                // turn right accel off
+                //The right drive motor is not accelerating
                 hasRightBeenAccelerating = false;
             }
-            if(gamepad1.left_trigger>0){
-                // check if accel is on
+
+            if(gamepad1.left_trigger > 0){
+                //Check to see if the left drive motor is currently accelerating
                 if(hasLeftBeenAccelerating){
-                    // determine acceleration power
+                    //Determine what the current velocity should be based on the time since start of accelerate and make it negative
                     double currentTime = System.currentTimeMillis();
                     double leftPower = (determineVelocity(ACCELERATION_OF_MAIN_MOTORS,currentTime-timeStartAcceleratingLeftMotor))*-1;
-                    if(leftPower > -1){
+                    //Limit the power from going lower than the motor can go
+                    if(leftPower < -1){
                         leftPower = -1;
                     }
+                    //Set power
                     driveLeft.setPower(leftPower);
                 }
                 else{
-                    // turn on accel and add time stamp
+                    //Begin the acceleration of the left drive motor and determine the time of start
                     hasLeftBeenAccelerating = true;
                     timeStartAcceleratingLeftMotor = System.currentTimeMillis();
                 }
             }
             else{
-                // turn off accel
+                //The left drive motor is not accelerating
                 hasLeftBeenAccelerating = false;
             }
-            if(gamepad1.right_trigger>0){
-                // check if accel is on
+
+            if(gamepad1.right_trigger > 0){
+                //Check to see if the right drive motor is currently accelerating
                 if(hasRightBeenAccelerating){
-                    // determine acceleration power
+                    //Determine what the current velocity should be based on the time since start of accelerate and make it negative
                     double currentTime = System.currentTimeMillis();
                     double rightPower = (determineVelocity(ACCELERATION_OF_MAIN_MOTORS,currentTime-timeStartAcceleratingRightMotor))*-1;
-                    if(rightPower>-1){
+                    //Limit the power from going lower than the motor can go
+                    if(rightPower < -1){
                         rightPower = -1;
                     }
+                    //Set power
                     driveRight.setPower(rightPower);
                 }
                 else{
-                    // turn on accel and add time stamp
+                    // Begin the acceleration of the right drive motor and determine the time of start
                     hasRightBeenAccelerating = true;
                     timeStartAcceleratingRightMotor = System.currentTimeMillis();
                 }
             }
             else{
-                // turn off accel
+                //The right drive motor is not accelerating
                 hasRightBeenAccelerating = false;
             }
 
 
-
-            if(gamepad1.a)
+            //When the A button is pressed, turn the sweep motor in the positive direction
+            if(gamepad1.a) {
                 sweep.setPower(1);
-            if(gamepad1.b)
+            }
+            //When the B button is pressed, turn the sweep motor in the negative direction
+            if(gamepad1.b) {
                 sweep.setPower(-1);
-            if(!gamepad1.a & !gamepad1.b)
+            }
+            //If neither the A or B button are pressed, turn off the sweep motor
+            if(!gamepad1.a & !gamepad1.b) {
                 sweep.setPower(0);
+            }
 
-            //driveLeft.setPower(leftPower);
-            //driveRight.setPower(rightPower);
-            //flyWheel1.setPower(1);
+            //If the dpad up button is pressed, move the claw motor in the positive direction
+            if(gamepad1.dpad_up) {
+                claw.setPower(0.1);
+            }
+            //If the dpad down button is pressed, move the claw motor in the negative direction
+            if(gamepad1.dpad_down) {
+                claw.setPower(-0.1);
+            }
+            //If neither the dpad up or down buttons are pressed, turn off the claw motor
+            if(!gamepad1.dpad_down && !gamepad1.dpad_up) {
+                claw.setPower(0);
+            }
+
+            //If the dpad left button is pressed, move the left button pusher to the down position
+            if(gamepad1.dpad_left) {
+                leftButtonPusher.setPosition(90/180);
+            }
+            //If the dpad left button is not pressed, move the left button pusher to the standby position
+            if(!gamepad1.dpad_left) {
+                leftButtonPusher.setPosition(0/180);
+            }
+            //If the dpad right button is pressed, move the right button pusher to the down position
+            if(gamepad1.dpad_right) {
+                rightButtonPusher.setPosition(90/180);
+            }
+            //If the dpad right button is not pressed, move the right button pusher to the standby position
+            if(!gamepad1.dpad_right) {
+                rightButtonPusher.setPosition(0/180);
+            }
+
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
@@ -257,19 +306,4 @@ public class lucyV4 extends LinearOpMode {
         double velocity = acceleration*time;
         return velocity;
     }
-    /*public void accelerationRight(boolean hasRightBeenAccelerating, double timeStartAccelerationRight){
-        // right forward
-        if(gamepad1.right_bumper){
-            // check if accel is on
-            if(hasRightBeenAccelerating){
-
-            }
-        }
-    }
-    public void accelerationLeft(){
-
-    }
-    public void accelerationFlyWheel(){
-
-    }*/
 }
