@@ -34,8 +34,10 @@ package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -44,29 +46,63 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="autonomousScrimmageDoNothing", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class autonomousScrimmageDoNothing extends LinearOpMode {
-
+public class autonomousScrimmageDoNothing extends LinearOpMode implements SensorEventListener{
+    private final float[] accelerometerReading = new float[3];
+    private final float[] magnetometerReading = new float[3];
+    SensorManager sensorService;
+    Sensor mag;
+    Sensor accel;
+    String toPost;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        accel = sensorService.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mag = sensorService.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        waitForStart();
-        SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        sensorService.getOrientation(){
+       waitForStart();
+        double orientation[] = getOrientation();
+        //z is in orientation[0]!!!!!!
 
-        }
-        if (sensorService != null) {
-            Sensor magField = sensorService.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            if (magField != null) {
 
-            }
-        }
         runtime.reset();
 
         }
 
+    public double[] getOrientation(){
+        //returns in an array [z,x,y]
+
+
+        // Rotation matrix based on current readings from accelerometer and magnetometer.
+        // Rotation matrix based on current readings from accelerometer and magnetometer.
+        final float[] rotationMatrix = new float[9];
+        float I[] = new float[9];
+        sensorService.getRotationMatrix(rotationMatrix, I, accelerometerReading, magnetometerReading);
+        // Express the updated rotation matrix as three orientation angles.
+        final float[] orientationAngles = new float[3];
+        sensorService.getOrientation(rotationMatrix, orientationAngles);
+        final double[] myOrientaion = {(int) Math.round(Math.toDegrees(orientationAngles[0])),orientationAngles[1]*180.0/Math.PI,orientationAngles[2]*180.0/Math.PI};
+        return myOrientaion;
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            //Log.d("Accel", "1");
+            System.arraycopy(event.values, 0, accelerometerReading,0, accelerometerReading.length);
+        }
+        if(event.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD){
+            System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
+            //Log.d("MAG", "1");
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+}
 

@@ -106,13 +106,13 @@ public class lucyV4 extends LinearOpMode {
             telemetry.update();
 
             //When the right trigger is fully pressed, turn on the flywheel motors
-            if(gamepad1.right_trigger == 1){
+            if(gamepad1.x){
                 flyWheel1.setPower(1);
                 flyWheel2.setPower(1);
             }
 
             //If the right trigger is not fully pressed, ensure the flywheel motors are turned off
-            if(gamepad1.right_trigger < 1){
+            if(!gamepad1.x){
                 flyWheel1.setPower(0);
                 flyWheel2.setPower(0);
             }
@@ -120,14 +120,14 @@ public class lucyV4 extends LinearOpMode {
 
             //Move the indexer into the load position
             if(gamepad1.y){
-                indexer.setPosition(40/180);
+                indexer.setPosition(40.0/180.0);
             }
             //Move the indexer back to default position
             else if(!gamepad1.y) {
-                indexer.setPosition(0 / 180);
+                indexer.setPosition(0.0/180.0);
             }
 
-
+            /*
             if(gamepad1.x){
                 //Check to see if the flywheels are currently accelerating
                 if(hasFlyWheelBeenAccelerating){
@@ -250,49 +250,94 @@ public class lucyV4 extends LinearOpMode {
                 //The right drive motor is not accelerating
                 hasRightBeenAccelerating = false;
             }
+            */
+
+            boolean fastOrSlow = false;
+            if (gamepad1.dpad_up) {
+                fastOrSlow = true;
+            }
+            if (gamepad1.right_bumper) {
+                if (fastOrSlow) {
+                    driveRight.setPower(1);
+                }
+                if (!fastOrSlow) {
+                    driveRight.setPower(0.5);
+                }
+            }
+            if (gamepad1.right_trigger > 0) {
+                if (fastOrSlow) {
+                    driveRight.setPower(-1);
+                }
+                if (!fastOrSlow) {
+                    driveRight.setPower(-0.5);
+                }
+            }
+            if (!gamepad1.right_bumper && gamepad1.right_trigger == 0) {
+                driveRight.setPower(0);
+            }
+            if (gamepad1.left_bumper) {
+                if (fastOrSlow) {
+                    driveLeft.setPower(1);
+                }
+                if (!fastOrSlow) {
+                    driveLeft.setPower(0.5);
+                }
+            }
+            if (gamepad1.left_trigger > 0) {
+                if (fastOrSlow) {
+                    driveLeft.setPower(-1);
+                }
+                if (!fastOrSlow) {
+                    driveLeft.setPower(-0.5);
+                }
+            }
+            if (!gamepad1.left_bumper && gamepad1.left_trigger == 0) {
+                driveLeft.setPower(0);
+            }
+
 
 
             //When the A button is pressed, turn the sweep motor in the positive direction
-            if(gamepad1.a) {
+            if(gamepad2.a) {
                 sweep.setPower(1);
             }
             //When the B button is pressed, turn the sweep motor in the negative direction
-            if(gamepad1.b) {
+            if(gamepad2.b) {
                 sweep.setPower(-1);
             }
             //If neither the A or B button are pressed, turn off the sweep motor
-            if(!gamepad1.a & !gamepad1.b) {
+            if(!gamepad2.a & !gamepad2.b) {
                 sweep.setPower(0);
             }
 
             //If the dpad up button is pressed, move the claw motor in the positive direction
-            if(gamepad1.dpad_up) {
-                claw.setPower(0.1);
+            if(gamepad2.dpad_up) {
+                claw.setPower(1);
             }
             //If the dpad down button is pressed, move the claw motor in the negative direction
-            if(gamepad1.dpad_down) {
-                claw.setPower(-0.1);
+            if(gamepad2.dpad_down) {
+                claw.setPower(-1);
             }
             //If neither the dpad up or down buttons are pressed, turn off the claw motor
-            if(!gamepad1.dpad_down && !gamepad1.dpad_up) {
+            if(!gamepad2.dpad_down && !gamepad2.dpad_up) {
                 claw.setPower(0);
             }
 
             //If the dpad left button is pressed, move the left button pusher to the down position
             if(gamepad1.dpad_left) {
-                leftButtonPusher.setPosition(90/180);
+                leftButtonPusher.setPosition(180.0/180.0);
             }
             //If the dpad left button is not pressed, move the left button pusher to the standby position
             if(!gamepad1.dpad_left) {
-                leftButtonPusher.setPosition(0/180);
+                leftButtonPusher.setPosition(0.0/180.0);
             }
             //If the dpad right button is pressed, move the right button pusher to the down position
             if(gamepad1.dpad_right) {
-                rightButtonPusher.setPosition(90/180);
+                rightButtonPusher.setPosition(0.0/180.0);
             }
             //If the dpad right button is not pressed, move the right button pusher to the standby position
             if(!gamepad1.dpad_right) {
-                rightButtonPusher.setPosition(0/180);
+                rightButtonPusher.setPosition(180.0/180.0);
             }
 
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
