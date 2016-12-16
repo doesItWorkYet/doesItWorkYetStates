@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -58,6 +59,10 @@ public class lucyV4 extends LinearOpMode {
     Servo indexer = null;
     Servo leftButtonPusher = null;
     Servo rightButtonPusher = null;
+
+    //Constants for use in encoders
+    final int TICKS_PER_REV_ANDYMARK = 1120;
+    final int TICKS_PER_REV_TETRIX = 1440;
 
     //Constant rates of acceleration
     final double ACCELERATION_OF_MAIN_MOTORS = 1;
@@ -82,6 +87,10 @@ public class lucyV4 extends LinearOpMode {
         //Change necessary motor directions
         flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         driveRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //Turn on encoders where needed
+        claw.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        claw.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
         //Ensure no motors begin with power allocated
         driveLeft.setPower(0);
@@ -252,6 +261,52 @@ public class lucyV4 extends LinearOpMode {
             }
             */
 
+
+            //--------------------------------------------------------------------------------------
+            /*
+            double currentAccel = 0.1;
+            double currentPower = 0.0;
+            if (gamepad1.dpad_up) {
+                currentAccel += 0.001;
+            }
+            else {
+                currentAccel = 0.1;
+            }
+
+            if (currentAccel < 1.0 && currentAccel > 0.1) {
+                currentPower = currentAccel;
+            }
+
+            else if (currentAccel > 1.0 || currentAccel == 1.0) {
+                currentPower = 1.0;
+            }
+
+            else {
+                currentPower = 0.1;
+            }
+
+            if (gamepad1.right_bumper) {
+                driveRight.setPower(currentPower);
+            }
+            if (gamepad1.right_trigger > 0.5) {
+                driveRight.setPower(-currentPower);
+            }
+            if (!gamepad1.right_bumper && gamepad1.right_trigger < 0.5) {
+                driveRight.setPower(0);
+            }
+
+            if (gamepad1.left_bumper) {
+                driveLeft.setPower(currentPower);
+            }
+            if (gamepad1.left_trigger > 0.5) {
+                driveLeft.setPower(-currentPower);
+            }
+            if (!gamepad1.left_bumper && gamepad1.left_trigger < 0.5) {
+                driveLeft.setPower(0);
+            }
+            */
+            //--------------------------------------------------------------------------------------
+
             boolean fastOrSlow = false;
             if (gamepad1.dpad_up) {
                 fastOrSlow = true;
@@ -309,6 +364,20 @@ public class lucyV4 extends LinearOpMode {
             if(!gamepad2.a & !gamepad2.b) {
                 sweep.setPower(0);
             }
+
+            //--------------------------------------------------------------------------------------
+            /*
+            if (gamepad2.dpad_up) {
+                claw.setPower(1);
+                claw.setTargetPosition(claw.getCurrentPosition() + 10);
+            }
+
+            if (gamepad2.dpad_down) {
+                claw.setPower(-1);
+                claw.setTargetPosition(claw.getCurrentPosition() - 10);
+            }
+            */
+            //--------------------------------------------------------------------------------------
 
             //If the dpad up button is pressed, move the claw motor in the positive direction
             if(gamepad2.dpad_up) {

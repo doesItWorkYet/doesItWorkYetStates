@@ -33,16 +33,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.qualcomm.ftccommon.Device;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 
 @Autonomous(name="autonomousScrimmageDoNothing", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
@@ -54,6 +60,8 @@ public class autonomousScrimmageDoNothing extends LinearOpMode implements Sensor
     Sensor accel;
     String toPost;
     /* Declare OpMode members. */
+    ColorSensor SensorRGB = null;
+    DeviceInterfaceModule cdim = null;
     private ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
@@ -62,11 +70,27 @@ public class autonomousScrimmageDoNothing extends LinearOpMode implements Sensor
         sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         accel = sensorService.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mag = sensorService.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
+        SensorRGB = hardwareMap.colorSensor.get("color");
+        cdim = hardwareMap.deviceInterfaceModule.get("dim");
        waitForStart();
+        float hsvValues[] = {0F, 0F, 0F};
+        final float values[] = hsvValues;
         double orientation[] = getOrientation();
         //z is in orientation[0]!!!!!!
 
+        /*
+        while (opModeIsActive()) {
+            Color.RGBToHSV((SensorRGB.red() * 255) / 800, (SensorRGB.green() * 255) / 800, (SensorRGB.blue() * 255) / 800, hsvValues);
+            telemetry.addData("Clear", SensorRGB.alpha());
+            telemetry.addData("Red ", SensorRGB.red());
+            telemetry.addData("Green", SensorRGB.green());
+            telemetry.addData("Blue ", SensorRGB.blue());
+            telemetry.addData("Hue", hsvValues[0]);
+            telemetry.update();
+
+            idle();
+        }
+        */
 
         runtime.reset();
 
