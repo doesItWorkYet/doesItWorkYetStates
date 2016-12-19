@@ -42,6 +42,7 @@ import android.util.Log;
 
 import com.qualcomm.ftccommon.Device;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -51,7 +52,7 @@ import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 
 @Autonomous(name="autonomousScrimmageDoNothing", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class autonomousScrimmageDoNothing extends LinearOpMode implements SensorEventListener{
     private final float[] accelerometerReading = new float[3];
     private final float[] magnetometerReading = new float[3];
@@ -76,7 +77,7 @@ public class autonomousScrimmageDoNothing extends LinearOpMode implements Sensor
         float hsvValues[] = {0F, 0F, 0F};
         final float values[] = hsvValues;
         double orientation[] = getOrientation();
-        //z is in orientation[0]!!!!!!
+        //z is in Orientation[0]!!!!!!
 
         /*
         while (opModeIsActive()) {
@@ -105,7 +106,7 @@ public class autonomousScrimmageDoNothing extends LinearOpMode implements Sensor
         final float[] rotationMatrix = new float[9];
         float I[] = new float[9];
         sensorService.getRotationMatrix(rotationMatrix, I, accelerometerReading, magnetometerReading);
-        // Express the updated rotation matrix as three orientation angles.
+        // Express the updated rotation matrix as three Orientation angles.
         final float[] orientationAngles = new float[3];
         sensorService.getOrientation(rotationMatrix, orientationAngles);
         final double[] myOrientaion = {(int) Math.round(Math.toDegrees(orientationAngles[0])),orientationAngles[1]*180.0/Math.PI,orientationAngles[2]*180.0/Math.PI};

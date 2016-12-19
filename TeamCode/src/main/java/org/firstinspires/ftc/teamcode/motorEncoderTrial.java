@@ -45,7 +45,7 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="encoder Test", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class motorEncoderTrial extends LinearOpMode {
 
     /* Declare OpMode members. */

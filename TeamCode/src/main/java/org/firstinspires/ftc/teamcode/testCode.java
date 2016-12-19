@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.text.method.Touch;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -44,7 +45,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="testCode", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class testCode extends LinearOpMode {
 
     /* Declare OpMode members. */

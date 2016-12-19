@@ -32,61 +32,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+import android.hardware.SensorManager;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="screwOffJeremy", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class loadingTest extends LinearOpMode {
-
-    /* Declare OpMode members. */
-    private ElapsedTime runtime = new ElapsedTime();
-    Servo screwYou = null;
-
+public class followHeadingTrial extends LinearOpMode {
+    SensorManager manager;
+    Orientation orientation;
     @Override
     public void runOpMode() throws InterruptedException {
+        //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        /* eg: Initialize the hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names assigned during the robot configuration
-         * step (using the FTC Robot Controller app on the phone).
-         */
-        screwYou = hardwareMap.servo.get("screwYou");
-        // eg: Set the drive motor directions:
-        // "Reverse" the motor that runs backwards when connected directly to the battery
-        // Set to REVERSE if using AndyMark motors
-        // rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        orientation = new Orientation(manager);
 
-        // Wait for the game to start (driver presses PLAY)
+        //Wait for start and reset the runtime count
         waitForStart();
-        runtime.reset();
-
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
-            if (gamepad1.a) {
-                screwYou.setPosition(1);
-            }
-            if (gamepad1.a == false) {
-                screwYou.setPosition(0);
-            }
-            /*
-            Drive forward for 3 seconds
-            Turn 90 degrees right
-            Scan image for blue blob
-            turn bot until beacon is in the center of the screen
+       while(opModeIsActive()){
 
 
+           idle();
+       }
 
-
-
-             */
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
     }
+
 }
+

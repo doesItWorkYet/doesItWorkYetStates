@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.lasarobotics.vision.android.Cameras;
@@ -24,7 +25,7 @@ import org.opencv.core.Size;
  */
 
 @Autonomous(name = "LinearDetectColor", group = "ZZOpModeCameraPackage")
-
+@Disabled
 
 public class LinearVisionSample extends LinearVisionOpMode {
 
@@ -96,9 +97,9 @@ public class LinearVisionSample extends LinearVisionOpMode {
          * It's a good idea to disable global auto rotate in Android settings. You can do this
          * by calling disableAutoRotate() or enableAutoRotate().
          *
-         * It's also a good idea to force the phone into a specific orientation (or auto rotate) by
+         * It's also a good idea to force the phone into a specific Orientation (or auto rotate) by
          * calling either setActivityOrientationAutoRotate() or setActivityOrientationFixed(). If
-         * you don't, the camera reader may have problems reading the current orientation.
+         * you don't, the camera reader may have problems reading the current Orientation.
          */
         rotation.setIsUsingSecondaryCamera(false);
         rotation.disableAutoRotate();

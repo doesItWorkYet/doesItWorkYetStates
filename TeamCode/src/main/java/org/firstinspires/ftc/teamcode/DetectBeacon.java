@@ -26,7 +26,7 @@ import org.opencv.core.Size;
 
 
 @TeleOp(name = "DetectBeacon", group = "ZZOpModeCameraPackage")
-//@Disabled
+@Disabled
 public class DetectBeacon extends VisionOpMode {
   final String LEFT = "left";
   final String RIGHT = "right";
@@ -107,9 +107,9 @@ public class DetectBeacon extends VisionOpMode {
      * It's a good idea to disable global auto rotate in Android settings. You can do this
      * by calling disableAutoRotate() or enableAutoRotate().
      *
-     * It's also a good idea to force the phone into a specific orientation (or auto rotate) by
+     * It's also a good idea to force the phone into a specific Orientation (or auto rotate) by
      * calling either setActivityOrientationAutoRotate() or setActivityOrientationFixed(). If
-     * you don't, the camera reader may have problems reading the current orientation.
+     * you don't, the camera reader may have problems reading the current Orientation.
      */
     rotation.setIsUsingSecondaryCamera(false);
     rotation.disableAutoRotate();

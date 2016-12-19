@@ -35,15 +35,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Lucile User Controlled", group="User Controlled")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class lucyV4 extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -53,8 +51,12 @@ public class lucyV4 extends LinearOpMode {
     DcMotor driveRight = null;
     DcMotor flyWheel1 = null;
     DcMotor flyWheel2 = null;
+    RPMCounter flyWheel1Counter = null;
+    RPMCounter flyWheel2Counter = null;
+    motorController driveLeftController = null;
+    motorController driveRightController = null;
     DcMotor sweep = null;
-    DcMotor claw = null;
+    //DcMotor claw = null;
     //Declare Servos
     Servo indexer = null;
     Servo leftButtonPusher = null;
@@ -65,9 +67,10 @@ public class lucyV4 extends LinearOpMode {
     final int TICKS_PER_REV_TETRIX = 1440;
 
     //Constant rates of acceleration
-    final double ACCELERATION_OF_MAIN_MOTORS = 1;
+    final double ACCELERATION_OF_MAIN_MOTORS = .1;
     final double ACCELERATION_OF_FLY_WHEEL = .25;
-
+    final double ACCELERATION_EXPONENT = 2;
+    final double ACCELERATION_COEFFICIENT = .2;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
@@ -77,7 +80,11 @@ public class lucyV4 extends LinearOpMode {
         driveRight = hardwareMap.dcMotor.get("rightMotor");
         flyWheel1 = hardwareMap.dcMotor.get("flyWheel1");
         flyWheel2 = hardwareMap.dcMotor.get("flyWheel2");
-        claw = hardwareMap.dcMotor.get("claw");
+        driveLeftController = new motorController(driveLeft, ACCELERATION_COEFFICIENT, .1);
+        driveRightController = new motorController(driveRight, ACCELERATION_COEFFICIENT, .1);
+        flyWheel1Counter = new RPMCounter(flyWheel1, TICKS_PER_REV_TETRIX);
+        flyWheel2Counter = new RPMCounter(flyWheel2, TICKS_PER_REV_TETRIX);
+        //claw = hardwareMap.dcMotor.get("claw");
         sweep = hardwareMap.dcMotor.get("sweep");
         //Map Servos
         indexer = hardwareMap.servo.get("indexer");
@@ -89,14 +96,16 @@ public class lucyV4 extends LinearOpMode {
         driveRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Turn on encoders where needed
-        claw.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-        claw.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        //claw.setMode(DcMotorController.RunMode.RESET_ENCODERS);
+        //claw.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
         //Ensure no motors begin with power allocated
         driveLeft.setPower(0);
         driveRight.setPower(0);
         sweep.setPower(0);
-        claw.setPower(0);
+        //claw.setPower(0);
+        leftButtonPusher.setPosition(180.0);
+        rightButtonPusher.setPosition(180.0);
 
         waitForStart();
         runtime.reset();
@@ -105,6 +114,8 @@ public class lucyV4 extends LinearOpMode {
         double timeStartAcceleratingLeftMotor = 0;
         double timeStartAcceleratingRightMotor = 0;
         double timeStartAcceleratingFlyWheel = 0;
+        int rps1 = 1;
+        int rps2 = 1;
         boolean hasLeftBeenAccelerating = false;
         boolean hasRightBeenAccelerating = false;
         boolean hasFlyWheelBeenAccelerating = false;
@@ -112,12 +123,14 @@ public class lucyV4 extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
+            telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.update();
 
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad1.x){
-                flyWheel1.setPower(1);
-                flyWheel2.setPower(1);
+                flyWheel1.setPower(rps1);
+                flyWheel2.setPower(rps2);
             }
 
             //If the right trigger is not fully pressed, ensure the flywheel motors are turned off
@@ -126,14 +139,13 @@ public class lucyV4 extends LinearOpMode {
                 flyWheel2.setPower(0);
             }
 
-
             //Move the indexer into the load position
             if(gamepad1.y){
-                indexer.setPosition(40.0/180.0);
+                indexer.setPosition(80.0/360.0);
             }
             //Move the indexer back to default position
             else if(!gamepad1.y) {
-                indexer.setPosition(0.0/180.0);
+                indexer.setPosition(0.0);
             }
 
             /*
@@ -161,8 +173,9 @@ public class lucyV4 extends LinearOpMode {
                 //The flywheels are not acceleration
                 hasFlyWheelBeenAccelerating = false;
             }
+            */
 
-
+/*
             if(gamepad1.left_bumper){
                 //Check to see if the left drive motor is currently accelerating
                 if(hasLeftBeenAccelerating){
@@ -259,11 +272,12 @@ public class lucyV4 extends LinearOpMode {
                 //The right drive motor is not accelerating
                 hasRightBeenAccelerating = false;
             }
-            */
+
 
 
             //--------------------------------------------------------------------------------------
             /*
+
             double currentAccel = 0.1;
             double currentPower = 0.0;
             if (gamepad1.dpad_up) {
@@ -305,9 +319,10 @@ public class lucyV4 extends LinearOpMode {
                 driveLeft.setPower(0);
             }
             */
+
             //--------------------------------------------------------------------------------------
 
-            boolean fastOrSlow = false;
+            /*boolean fastOrSlow = false;
             if (gamepad1.dpad_up) {
                 fastOrSlow = true;
             }
@@ -348,20 +363,42 @@ public class lucyV4 extends LinearOpMode {
             }
             if (!gamepad1.left_bumper && gamepad1.left_trigger == 0) {
                 driveLeft.setPower(0);
+            }*/
+
+            if(gamepad1.left_trigger > .1){
+                driveLeftController.accelationRuntime(true);
             }
 
+            if(gamepad1.right_trigger > .1){
+                driveRightController.accelationRuntime(true);
+            }
 
+            if(gamepad1.left_bumper){
+                driveLeftController.accelationRuntime(false);
+            }
 
+            if(gamepad1.right_bumper){
+                driveRightController.accelationRuntime(false);
+            }
+
+            if(gamepad1.left_trigger <= .1 && !gamepad1.left_bumper){
+                driveLeftController.stationaryRuntime();
+            }
+
+            if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
+                driveRightController.stationaryRuntime();
+            }
+            //else driveRightController.stop();
             //When the A button is pressed, turn the sweep motor in the positive direction
-            if(gamepad2.a) {
+            if(gamepad1.a) {
                 sweep.setPower(1);
             }
             //When the B button is pressed, turn the sweep motor in the negative direction
-            if(gamepad2.b) {
+            if(gamepad1.b) {
                 sweep.setPower(-1);
             }
             //If neither the A or B button are pressed, turn off the sweep motor
-            if(!gamepad2.a & !gamepad2.b) {
+            if(!gamepad1.a & !gamepad2.b) {
                 sweep.setPower(0);
             }
 
@@ -378,7 +415,7 @@ public class lucyV4 extends LinearOpMode {
             }
             */
             //--------------------------------------------------------------------------------------
-
+            /*
             //If the dpad up button is pressed, move the claw motor in the positive direction
             if(gamepad2.dpad_up) {
                 claw.setPower(1);
@@ -391,33 +428,126 @@ public class lucyV4 extends LinearOpMode {
             if(!gamepad2.dpad_down && !gamepad2.dpad_up) {
                 claw.setPower(0);
             }
-
-            //If the dpad left button is pressed, move the left button pusher to the down position
-            if(gamepad1.dpad_left) {
-                leftButtonPusher.setPosition(180.0/180.0);
+            */
+            if(gamepad1.dpad_right){
+                rightButtonPusher.setPosition(0.0);
             }
-            //If the dpad left button is not pressed, move the left button pusher to the standby position
-            if(!gamepad1.dpad_left) {
-                leftButtonPusher.setPosition(0.0/180.0);
+            if(gamepad1.dpad_left){
+                leftButtonPusher.setPosition(0.0);
             }
-            //If the dpad right button is pressed, move the right button pusher to the down position
-            if(gamepad1.dpad_right) {
-                rightButtonPusher.setPosition(0.0/180.0);
+            if(gamepad1.left_stick_button){
+                leftButtonPusher.setPosition(180.0);
             }
-            //If the dpad right button is not pressed, move the right button pusher to the standby position
-            if(!gamepad1.dpad_right) {
-                rightButtonPusher.setPosition(180.0/180.0);
+            if(gamepad1.right_stick_button){
+                rightButtonPusher.setPosition(180.0);
             }
 
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
-
-
-
     }
 
     public double determineVelocity(double acceleration, double time){
         double velocity = acceleration*time;
         return velocity;
     }
+
+    long oneSecond = 1000;
+    class motorController{
+        DcMotor motor;
+        double accelerationCoefficient;
+        double startPower;
+        double maxPower = 0.5;
+        double currentVelocity;
+        long lastAccelerationCall = 0;
+        double accelerationExponent = 2;
+        boolean decelerating = false;
+        int decelerateDirection = 1;
+        double decelerateSeconds = 2.0;
+        double decelerateStartPower = 0.0;
+
+        public motorController(DcMotor motor, double accelerationCoefficient, double startVelocity){
+            this.motor = motor;
+            this.accelerationCoefficient = accelerationCoefficient;
+            this.startPower = startVelocity;
+        }
+
+        public void setPower(double amount) {
+            if (amount > maxPower) amount = maxPower;
+            if (amount < -maxPower) amount = -maxPower;
+            motor.setPower(amount);
+        }
+
+        public void setAccelerationExponent(double exponent){
+            this.accelerationExponent = exponent;
+        }
+
+        public void startAcceleration(){
+            decelerating = false;
+            lastAccelerationCall = System.currentTimeMillis();
+            setPower(startPower);
+        }
+
+        public void stop(){
+            //setPower(0);
+            lastAccelerationCall = 0;
+        }
+
+        public void stationaryRuntime() {
+            if (!decelerating) {
+                lastAccelerationCall = System.currentTimeMillis();
+                double motorPower = motor.getPower();
+                decelerateStartPower = Math.abs(motorPower);
+                decelerateDirection = motorPower < 0 ? -1 : 1;
+                decelerating = true;
+            }
+            else {
+                double time = (System.currentTimeMillis() - lastAccelerationCall) / 1000.0;
+                double power = decelerateStartPower * (1.0 - (1.0 / decelerateSeconds) * time);
+                power = Math.max(0.0, power);
+                setPower(decelerateDirection * power);
+            }
+        }
+
+        public void accelationRuntime(boolean isReversed){
+            if(lastAccelerationCall == 0) this.startAcceleration();
+            else {
+                double time = (System.currentTimeMillis() - lastAccelerationCall) / 1000.0;
+                double power = Math.pow(time, accelerationExponent) * accelerationCoefficient + startPower;
+                if (power > maxPower) power = maxPower;
+                if (isReversed) power *= -1;
+                this.motor.setPower(power);
+            }
+        }
+
+        public void setStartPower(double velocity){
+            this.startPower = velocity;
+        }
+
+        public void setAccelerationCoefficient(double coefficient){
+            this.accelerationCoefficient = coefficient;
+        }
+    }
+
+    class RPMCounter{
+        private DcMotor motor;
+        private int ticksPerRevolution = 0;
+        private int lastPosition = 0;
+        long lastTimeCalled;
+        public RPMCounter(DcMotor motor, int ticksPerRevolution){
+           this.motor = motor;
+            this.ticksPerRevolution = ticksPerRevolution;
+            lastTimeCalled = System.currentTimeMillis();
+       }
+
+        public int getRPS(){
+            long deltaTime = System.currentTimeMillis() - lastTimeCalled;
+            long deltaPostion = motor.getCurrentPosition() - lastPosition;
+            int ticksPerSecond = (int)(deltaPostion/(double)(deltaTime));
+            int rps = (int)(ticksPerSecond/(double)(ticksPerRevolution));
+            lastPosition = motor.getCurrentPosition();
+            lastTimeCalled = System.currentTimeMillis();
+            return rps;
+        }
+    }
+
 }
