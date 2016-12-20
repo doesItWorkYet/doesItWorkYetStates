@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannelController;
 /**
  * Created by root on 12/19/16.
  */
-public class rgbSensor {
+public class RGBSensor {
     private boolean ledOn;
     private DeviceInterfaceModule dim;
     private int ledPin;
@@ -16,7 +16,7 @@ public class rgbSensor {
     private float hsvValues[] = {0F,0F,0F};
     final float values[] = hsvValues;
 
-    rgbSensor(ColorSensor colorSensor, DeviceInterfaceModule dim, int ledPin, boolean ledValue){
+    RGBSensor(ColorSensor colorSensor, DeviceInterfaceModule dim, int ledPin, boolean ledValue){
         this.colorSensor = colorSensor;
         this.ledPin = ledPin;
         this.ledOn = ledValue;

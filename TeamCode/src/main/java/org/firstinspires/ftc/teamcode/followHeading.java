@@ -32,17 +32,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+import android.hardware.SensorManager;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class baseLineAutonomous extends LinearOpMode {
+public class followHeading extends LinearOpMode {
     HardwareLucyV2 robot;
+    Orientation orientation;
+    SensorManager manager;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -51,10 +53,27 @@ public class baseLineAutonomous extends LinearOpMode {
         robot = new HardwareLucyV2();
         robot.init(hardwareMap);
         robot.zero();
+        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        orientation = new Orientation(manager);
+        double[] rawOrientation = orientation.getOrientation();
+        double startOrientation = rawOrientation[0];
+        double leftPower = robot.DEFAULT_POWER;
+        double rightPower = robot.DEFAULT_POWER;
         //Wait for start and reset the runtime count
         waitForStart();
        while(opModeIsActive()){
+           double[] currentOrientation = orientation.getOrientation();
+           if(currentOrientation[0]>= startOrientation+3){
+               leftPower = robot.INCREASED_POWER;
+               rightPower = robot.DEFAULT_POWER;
+           }
+           else if(currentOrientation[0]<=startOrientation-3){
+               rightPower = robot.INCREASED_POWER;
+               leftPower = robot.DEFAULT_POWER;
+           }
 
+           robot.rightMotor.setPower(rightPower);
+           robot.leftMotor.setPower(leftPower);
 
            idle();
        }

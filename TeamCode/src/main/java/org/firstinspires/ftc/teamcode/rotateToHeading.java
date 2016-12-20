@@ -35,14 +35,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class baseLineAutonomous extends LinearOpMode {
+public class rotateToHeading extends LinearOpMode {
     HardwareLucyV2 robot;
+    double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -51,15 +49,53 @@ public class baseLineAutonomous extends LinearOpMode {
         robot = new HardwareLucyV2();
         robot.init(hardwareMap);
         robot.zero();
+        baseLineColorAverage = getBaseLineColorState();
+        double rightPower;
+        double leftPower;
         //Wait for start and reset the runtime count
         waitForStart();
        while(opModeIsActive()){
-
-
+           double[] currentColor = getColor();
+           if(!checkIfWhite(currentColor)){
+               rightPower = 1;
+               leftPower = 1;
+           }
+           else{
+               rightPower = 0;
+               leftPower = 0;
+           }
+           robot.rightMotor.setPower(rightPower);
+           robot.leftMotor.setPower(leftPower);
            idle();
        }
 
     }
+    public double[] getColor(){
+        double[] colorRGB = robot.colorSensor.getRGBColor();
+        return colorRGB;
+    }
+    public boolean checkIfWhite(double[] rgbValuesToCheck) {
+        if (rgbValuesToCheck[0] > baseLineColorAverage[0] * (1 + robot.WHITE_FUDGE_FACTOR)) {
+            if (rgbValuesToCheck[1] > baseLineColorAverage[1] *(1 + robot.WHITE_FUDGE_FACTOR)) {
+                if (rgbValuesToCheck[2] > baseLineColorAverage[2] * (1 + robot.WHITE_FUDGE_FACTOR)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public double[] getBaseLineColorState() {
+        double[] toReturn = {0,0,0};
+        double[] rgbValues = getColor();
+        toReturn = rgbValues;
+        for(int i = 0; i < robot.COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR; i ++){
+            rgbValues = getColor();
+            toReturn[0] = (toReturn[0] + rgbValues[0])/2.0;
+            toReturn[1] = (toReturn[1] + rgbValues[1])/2.0;
+            toReturn[2] = (toReturn[2] + rgbValues[2])/2.0;
+        }
+        return toReturn;
+    }
 
 }
-

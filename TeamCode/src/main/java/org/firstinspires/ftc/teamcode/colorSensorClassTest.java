@@ -32,12 +32,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -53,14 +47,14 @@ public class colorSensorClassTest extends LinearOpMode {
     ColorSensor SensorRGB = null;
     DeviceInterfaceModule cdim = null;
     private ElapsedTime runtime = new ElapsedTime();
-    rgbSensor colorSensor1;
+    RGBSensor colorSensor1;
     double[] baseLineColorAverage = {0.0,0};
     final int NUM_TIMES_TO_CHECK = 10;
     @Override
     public void runOpMode() throws InterruptedException {
     cdim = hardwareMap.deviceInterfaceModule.get("dim");
         SensorRGB = hardwareMap.colorSensor.get("colorSensor");
-        colorSensor1 = new rgbSensor(SensorRGB,cdim,rgbSensorLED,rgbSensorLedState);
+        colorSensor1 = new RGBSensor(SensorRGB,cdim,rgbSensorLED,rgbSensorLedState);
 
         waitForStart();
         //get baseline state
@@ -78,7 +72,7 @@ public class colorSensorClassTest extends LinearOpMode {
 
     }
 
-    private boolean checkIfWhite(double[] rgbValuesToCheck) {
+    public boolean checkIfWhite(double[] rgbValuesToCheck) {
         if (rgbValuesToCheck[0] > baseLineColorAverage[0] * (1 + WHITE_FUDGE_FACTOR)) {
             if (rgbValuesToCheck[1] > baseLineColorAverage[1] *(1 + WHITE_FUDGE_FACTOR)) {
                 if (rgbValuesToCheck[2] > baseLineColorAverage[2] * (1 + WHITE_FUDGE_FACTOR)) {
@@ -89,7 +83,7 @@ public class colorSensorClassTest extends LinearOpMode {
         return false;
     }
 
-    private double[] getBaseLineColorState() {
+    public double[] getBaseLineColorState() {
        double[] toReturn = {0,0,0};
         double[] rgbValues = colorSensor1.getRGBColor();
         toReturn = rgbValues;

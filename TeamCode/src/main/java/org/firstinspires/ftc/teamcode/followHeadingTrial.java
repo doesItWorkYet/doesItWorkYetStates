@@ -44,6 +44,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class followHeadingTrial extends LinearOpMode {
     SensorManager manager;
     Orientation orientation;
+    colorSensorClassTest color;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -56,6 +57,8 @@ public class followHeadingTrial extends LinearOpMode {
         waitForStart();
        while(opModeIsActive()){
 
+           color.getBaseLineColorState();
+           //while(!color.checkIfWhite(());
 
            idle();
        }

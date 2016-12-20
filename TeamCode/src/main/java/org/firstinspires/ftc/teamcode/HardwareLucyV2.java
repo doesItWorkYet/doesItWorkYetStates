@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.hardware.Sensor;
+import android.content.Context;
+import android.hardware.SensorManager;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -14,6 +17,8 @@ public class HardwareLucyV2 {
     //drive motors
     public DcMotor leftMotor = null;
     public DcMotor rightMotor = null;
+    public MotorController leftMotorController = null;
+    public MotorController rightMotorController = null;
 
     //shooter motors
     public DcMotor flyWheel1 = null;
@@ -35,7 +40,7 @@ public class HardwareLucyV2 {
     public Servo beaconPresserRight = null;
 
 
-    final int BEACON_PRESSER_STORE_POSITION = 0;
+    final int BEACON_PRESSER_STORE_POSITION = 30;
     final int BEACON_PRESSER_PRESS_POSITION = 90;
 
     final int INDEXER_LOAD_POSITON = 0;
@@ -50,12 +55,19 @@ public class HardwareLucyV2 {
     final double ACCELERATION_COEFFICIENT = .2;
     final double START_VELOCITY = .1;
     final double MAIN_MOTOR_MAX_POWER = .5;
+    final double WHITE_FUDGE_FACTOR = .2;
+    final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
+    final double DEFAULT_POWER = 0.50;
+    final double INCREASED_POWER = 0.53;
 
-
-    Sensor colorSensor = null;
-
-
+    //sensors
+    private DeviceInterfaceModule sensorController = null;
+    private ColorSensor rawColorSensor = null;
+    private SensorManager manager;
+    public Orientation orientation;
+    public RGBSensor colorSensor;
     HardwareMap hwMap = null;
+    final int COLOR_SENSOR_LED_PIN = 5;
 
 
     public HardwareLucyV2(){
@@ -68,10 +80,12 @@ public class HardwareLucyV2 {
         //movement init
         leftMotor = hwMap.dcMotor.get("leftMotor");
         rightMotor = hwMap.dcMotor.get("rightMotor");
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftMotorController = new MotorController(leftMotor, ACCELERATION_COEFFICIENT, START_VELOCITY);
+        rightMotorController = new MotorController(rightMotor, ACCELERATION_COEFFICIENT, START_VELOCITY);
 
         //flywheel init
         flyWheel1 = hwMap.dcMotor.get("flyWheel1");
@@ -82,12 +96,12 @@ public class HardwareLucyV2 {
 
 
         //extendotron init
-        //extendotronLeft = hwMap.dcMotor.get("");
-        //extendotronRight = hwMap.dcMotor.get("");
+        extendotronLeft = hwMap.dcMotor.get("liftLeft");
+        extendotronRight = hwMap.dcMotor.get("liftRight");
         //leftClawDeployer = hwMap.servo.get("");
         //rightClawDeployer = hwMap.servo.get("");
-        //extendotronLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        //extendotronRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        extendotronLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendotronRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //beacon pressing init
         beaconPresserLeft = hwMap.servo.get("leftBeaconPresser");
@@ -96,6 +110,17 @@ public class HardwareLucyV2 {
         beaconPresserRight.setDirection(Servo.Direction.REVERSE);
 
         sweep = hwMap.dcMotor.get("sweep");
+        sweep.setDirection(DcMotor.Direction.REVERSE);
+
+        //sensors
+        sensorController = hwMap.deviceInterfaceModule.get("DIM");
+        rawColorSensor = hwMap.colorSensor.get("rawColorSensor");
+        manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        orientation = new Orientation(manager);
+        colorSensor = new RGBSensor(rawColorSensor, sensorController, COLOR_SENSOR_LED_PIN, true);
+
+
+
     }
     public void zero(){
         beaconPresserLeft.setPosition(BEACON_PRESSER_STORE_POSITION/180.0);

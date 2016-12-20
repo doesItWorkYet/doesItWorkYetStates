@@ -55,7 +55,7 @@ public class orientationClassTrial extends LinearOpMode {
         waitForStart();
        while(opModeIsActive()){
             double rotation = orientation.getOrientation()[0];
-           telemetry.addData("Rotation: " , rotation);
+            telemetry.addData("Rotation: " , rotation);
             telemetry.update();
            idle();
        }
@@ -63,4 +63,3 @@ public class orientationClassTrial extends LinearOpMode {
     }
 
 }
-
