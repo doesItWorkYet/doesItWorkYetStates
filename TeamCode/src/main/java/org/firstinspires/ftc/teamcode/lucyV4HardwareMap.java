@@ -35,14 +35,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Lucile User Controlled", group="User Controlled")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class lucyV4HardwareMap extends LinearOpMode {
-    HardwareLucyV2 robot;
+    HardwareMapLucyV4 robot;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private motorController driveLeftController, driveRightController;
@@ -50,7 +48,7 @@ public class lucyV4HardwareMap extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        robot = new HardwareLucyV2();
+        robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
         driveLeftController = new motorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);

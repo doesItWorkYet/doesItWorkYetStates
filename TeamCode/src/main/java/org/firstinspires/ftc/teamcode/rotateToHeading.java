@@ -39,14 +39,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
 public class rotateToHeading extends LinearOpMode {
-    HardwareLucyV2 robot;
+    HardwareMapLucyV4 robot;
     double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        robot = new HardwareLucyV2();
+        robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
         baseLineColorAverage = getBaseLineColorState();

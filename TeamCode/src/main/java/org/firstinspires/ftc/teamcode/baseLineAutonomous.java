@@ -35,20 +35,17 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
 public class baseLineAutonomous extends LinearOpMode {
-    HardwareLucyV2 robot;
+    HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        robot = new HardwareLucyV2();
+        robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
         //Wait for start and reset the runtime count

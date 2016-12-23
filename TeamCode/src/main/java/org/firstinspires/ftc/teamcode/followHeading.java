@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
 public class followHeading extends LinearOpMode {
-    HardwareLucyV2 robot;
+    HardwareMapLucyV4 robot;
     Orientation orientation;
     SensorManager manager;
     @Override
@@ -50,7 +50,7 @@ public class followHeading extends LinearOpMode {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        robot = new HardwareLucyV2();
+        robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
         manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);

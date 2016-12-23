@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Created by root on 12/19/16.
  */
-public class HardwareLucyV2 {
+public class HardwareMapLucyV4 {
     //drive motors
     public DcMotor leftMotor = null;
     public DcMotor rightMotor = null;
@@ -66,11 +66,21 @@ public class HardwareLucyV2 {
     private SensorManager manager;
     public Orientation orientation;
     public RGBSensor colorSensor;
+
+    //beacon detection
+    public BeaconDetector beaconDetection;
+    public final double RED_THREASHOLD = 1;
+    public final double BLUE_THREASHOLD = 1;
+
     HardwareMap hwMap = null;
     final int COLOR_SENSOR_LED_PIN = 5;
 
 
-    public HardwareLucyV2(){
+    public final int BLUE = 1;
+    public final int RED = -1;
+    public final int UNKOWN_COLOR = 0;
+
+    public HardwareMapLucyV4(){
 
     }
 
@@ -119,6 +129,9 @@ public class HardwareLucyV2 {
         orientation = new Orientation(manager);
         colorSensor = new RGBSensor(rawColorSensor, sensorController, COLOR_SENSOR_LED_PIN, true);
 
+        //beacon detection
+        beaconDetection = new BeaconDetector();
+        beaconDetection.beginDetection(RED_THREASHOLD,BLUE_THREASHOLD);
 
 
     }
@@ -132,4 +145,15 @@ public class HardwareLucyV2 {
         flyWheel2.setPower(0);
         sweep.setPower(0);
     }
+
+    public double degreeToRadian(int degree){
+        return degree/180.0;
+    }
+
+    public double radianToDegree(double radians){
+        return radians*180;
+    }
+
+
+
 }
