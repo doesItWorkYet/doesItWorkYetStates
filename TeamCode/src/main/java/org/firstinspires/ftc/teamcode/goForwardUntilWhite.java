@@ -65,14 +65,17 @@ public class goForwardUntilWhite extends LinearOpMode {
            telemetry.update();
 
            if(!checkIfWhite(newColor) && !runTimes) {
-
-               robot.leftMotorController.accelationRuntime(false);
-               robot.rightMotorController.accelationRuntime(false);
+               robot.leftMotor.setPower(.1);
+               robot.rightMotor.setPower(.1);
+               //robot.leftMotorController.accelationRuntime(false);
+               //robot.rightMotorController.accelationRuntime(false);
            }
            else {
                runTimes = true;
-               robot.leftMotorController.stationaryRuntime();
-               robot.rightMotorController.stationaryRuntime();
+               //robot.leftMotorController.stationaryRuntime();
+               //robot.rightMotorController.stationaryRuntime();
+               robot.leftMotor.setPower(0);
+               robot.rightMotor.setPower(0);
            }
            idle();
        }
@@ -96,7 +99,9 @@ public class goForwardUntilWhite extends LinearOpMode {
 
     public double[] getBaseLineColorState() {
         double[] toReturn = {0,0,0};
+        while(getColor()[0] == 0) telemetry.addData("Color","WaitingForColor....");
         double[] rgbValues = getColor();
+
         toReturn = rgbValues;
         for(int i = 0; i < robot.COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR; i ++){
             rgbValues = getColor();

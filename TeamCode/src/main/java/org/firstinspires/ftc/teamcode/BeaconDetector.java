@@ -24,26 +24,32 @@ public class BeaconDetector extends LinearVisionOpMode {
     public void beginDetection(double red, double blue){
         this.redTolerance = red;
         this.blueTolerance = blue;
+        telemetry.addData("Vars", "Set");
+        telemetry.update();
         try {
             waitForVisionStart();
         }
         catch (Exception e){
             telemetry.addData("Exception: ", e.getMessage());
         }
+
+        super.init();
         /**
          * Set the camera used for detection
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
         this.setCamera(Cameras.PRIMARY);
-
+        telemetry.addData("Cameras", "Set");
+        telemetry.update();
         /**
          * Set the frame size
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
         this.setFrameSize(new Size(900, 900));
-
+        telemetry.addData("Frame", "set");
+        telemetry.update();
         /**
          * Enable extensions. Use what you need.
          * If you turn on the BEACON extension, it's best to turn on ROTATION too.
@@ -123,15 +129,15 @@ public class BeaconDetector extends LinearVisionOpMode {
     }
 
     public int getLeftColor(){
-        if(getAnalysis().isLeftBlue()) return HardwareMapLucyV4.BLUE;
-        if(getAnalysis().isLeftRed()) return HardwareMapLucyV4.RED;
-        else return HardwareMapLucyV4.UNKOWN_COLOR;
+        if(getAnalysis().isLeftBlue()) return 1;
+        if(getAnalysis().isLeftRed()) return 2;
+        else return 0;
     }
 
 
     public int getRightColor(){
-        if(getAnalysis().isRightBlue()) return HardwareMapLucyV4.BLUE;
-        if(getAnalysis().isRightRed()) return HardwareMapLucyV4.RED;
-        else return HardwareMapLucyV4.UNKOWN_COLOR;
+        if(getAnalysis().isRightBlue()) return 1;
+        if(getAnalysis().isRightRed()) return 2;
+        else return 0;
     }
 }

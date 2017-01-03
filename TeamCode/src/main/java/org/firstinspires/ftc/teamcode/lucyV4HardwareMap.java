@@ -46,11 +46,17 @@ public class lucyV4HardwareMap extends LinearOpMode {
     private motorController driveLeftController, driveRightController;
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Hello World!");
         telemetry.update();
         robot = new HardwareMapLucyV4();
+        telemetry.addData("Status", " hw map init");
+        telemetry.update();
         robot.init(hardwareMap);
+        telemetry.addData("Status", "Robot init");
+        telemetry.update();
         robot.zero();
+        telemetry.addData("Status", "Robot zeros");
+        telemetry.update();
         driveLeftController = new motorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
         driveRightController = new motorController(robot.rightMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
         RPMCounter flyWheel1Counter = new RPMCounter(robot.flyWheel1, robot.TICKS_PER_REV_ANDYMARK);
@@ -89,7 +95,10 @@ public class lucyV4HardwareMap extends LinearOpMode {
                 robot.indexer.setPosition(0.0);
             }
 
-
+            if(gamepad2.dpad_up){
+                robot.armletRight.setPosition(robot.ARMLET_DEPLOY_POSITION);
+                robot.armletLeft.setPosition(robot.ARMLET_DEPLOY_POSITION);
+            }
 
             if(gamepad1.left_trigger > .1){
                 driveLeftController.accelationRuntime(true);

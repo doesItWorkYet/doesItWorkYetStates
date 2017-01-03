@@ -33,7 +33,7 @@ public class Orientation implements SensorEventListener {
         // Express the updated rotation matrix as three Orientation angles.
         final float[] orientationAngles = new float[3];
         sensorService.getOrientation(rotationMatrix, orientationAngles);
-        final double[] myOrientaion = {(double) (Math.toDegrees(orientationAngles[0])+360)%360,orientationAngles[1]*180.0/Math.PI,orientationAngles[2]*180.0/Math.PI};
+        final double[] myOrientaion = {(double) (Math.toDegrees(orientationAngles[0])+360)%360,(Math.toDegrees(orientationAngles[1])+360)%360,(Math.toDegrees(orientationAngles[2])+360)%360};
         return myOrientaion;
     }
 

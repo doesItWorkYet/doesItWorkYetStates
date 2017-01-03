@@ -62,18 +62,7 @@ public class followHeading extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
        while(opModeIsActive()){
-           double[] currentOrientation = orientation.getOrientation();
-           if(currentOrientation[0]>= startOrientation+3){
-               leftPower = robot.INCREASED_POWER;
-               rightPower = robot.DEFAULT_POWER;
-           }
-           else if(currentOrientation[0]<=startOrientation-3){
-               rightPower = robot.INCREASED_POWER;
-               leftPower = robot.DEFAULT_POWER;
-           }
 
-           robot.rightMotor.setPower(rightPower);
-           robot.leftMotor.setPower(leftPower);
 
            idle();
        }

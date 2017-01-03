@@ -32,36 +32,65 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="rotationTest", group="Testing")  // @Autonomous(...) is the other common choice
-
-public class orientationClassTrial extends LinearOpMode {
-    SensorManager manager;
-    Orientation orientation;
+@Autonomous(name="rotateAndGoToHeading", group="Testing")  // @Autonomous(...) is the other common choice
+@Disabled
+public class rotateToHeadingGoUntilWhite extends LinearOpMode {
+    HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        orientation = new Orientation(manager);
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero();
+        //wait for good orientation data
+        while(robot.orientation.getOrientation()[0] == 0);
+        //zero
+        robot.setZeroHeading(robot.orientation.getOrientation()[0]);
+        //
         //Wait for start and reset the runtime count
+        double headingToApproach = robot.ADVANCE_TO_BEACON_HEADING;
+        double currentHeading;
+        boolean hasFinishedTurn = false;
         waitForStart();
        while(opModeIsActive()){
-            double[] rotation = orientation.getOrientation();
-            telemetry.addData("Rotation: " , rotation[0]);
-            telemetry.addData("Rotation2:", rotation[1]);
-            telemetry.addData("Rotation3:", rotation[2]);
-            telemetry.update();
+            currentHeading = robot.orientation.getOrientation()[0];
+            if(Math.abs(headingToApproach - currentHeading) <= robot.HEADING_ACCURACY){
+                robot.stop();
+                hasFinishedTurn = true;
+                moveUntilWhite();
+            }
+
+           else{
+                double directionToTurn = robot.decideDriectionToTurn(currentHeading, headingToApproach);
+                if(Math.abs(headingToApproach - currentHeading) <= 20){
+                    if(directionToTurn < 0) {
+                        robot.turn(-robot.ROTATION_TURNING_SPEED/2.0);
+                    }
+                    if(directionToTurn > 0){
+                        robot.turn(robot.ROTATION_TURNING_SPEED/2.0);
+                    }
+                }
+                if(directionToTurn < 0) {
+                   robot.turn(-robot.ROTATION_TURNING_SPEED);
+                }
+                if(directionToTurn > 0){
+                    robot.turn(robot.ROTATION_TURNING_SPEED);
+                }
+            }
+
            idle();
        }
 
     }
+    public void moveUntilWhite(){
+
+    }
 
 }
+

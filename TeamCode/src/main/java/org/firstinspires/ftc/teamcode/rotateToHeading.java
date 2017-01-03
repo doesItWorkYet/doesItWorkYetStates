@@ -36,10 +36,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
+@Autonomous(name="rotateToHeading", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
 public class rotateToHeading extends LinearOpMode {
     HardwareMapLucyV4 robot;
+    final double headingToRotateTo = 90;
+    final double accuracy = 5;
     double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
@@ -49,53 +51,36 @@ public class rotateToHeading extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
-        baseLineColorAverage = getBaseLineColorState();
+
         double rightPower;
         double leftPower;
         //Wait for start and reset the runtime count
         waitForStart();
        while(opModeIsActive()){
-           double[] currentColor = getColor();
-           if(!checkIfWhite(currentColor)){
-               rightPower = 1;
-               leftPower = 1;
+           double orientation = robot.orientation.getOrientation()[0];
+           double directionToTurn = robot.decideDriectionToTurn(orientation, headingToRotateTo);
+           telemetry.addData("CurrentHeading: ", orientation );
+           telemetry.addData("desired heading: ", headingToRotateTo);
+           telemetry.update();
+           if(Math.abs(orientation - headingToRotateTo) <= accuracy){
+               robot.rightMotor.setPower(0);
+               robot.leftMotor.setPower(0);
            }
-           else{
-               rightPower = 0;
-               leftPower = 0;
+           else {
+               if (directionToTurn < 0) {
+                   robot.leftMotor.setPower(-.3);
+                   robot.rightMotor.setPower(.3);
+               }
+               if (directionToTurn > 0) {
+                   robot.leftMotor.setPower(.3);
+                   robot.rightMotor.setPower(-.3);
+               }
            }
-           robot.rightMotor.setPower(rightPower);
-           robot.leftMotor.setPower(leftPower);
            idle();
        }
 
     }
-    public double[] getColor(){
-        double[] colorRGB = robot.colorSensor.getRGBColor();
-        return colorRGB;
-    }
-    public boolean checkIfWhite(double[] rgbValuesToCheck) {
-        if (rgbValuesToCheck[0] > baseLineColorAverage[0] * (1 + robot.WHITE_FUDGE_FACTOR)) {
-            if (rgbValuesToCheck[1] > baseLineColorAverage[1] *(1 + robot.WHITE_FUDGE_FACTOR)) {
-                if (rgbValuesToCheck[2] > baseLineColorAverage[2] * (1 + robot.WHITE_FUDGE_FACTOR)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
-    public double[] getBaseLineColorState() {
-        double[] toReturn = {0,0,0};
-        double[] rgbValues = getColor();
-        toReturn = rgbValues;
-        for(int i = 0; i < robot.COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR; i ++){
-            rgbValues = getColor();
-            toReturn[0] = (toReturn[0] + rgbValues[0])/2.0;
-            toReturn[1] = (toReturn[1] + rgbValues[1])/2.0;
-            toReturn[2] = (toReturn[2] + rgbValues[2])/2.0;
-        }
-        return toReturn;
-    }
+
 
 }
