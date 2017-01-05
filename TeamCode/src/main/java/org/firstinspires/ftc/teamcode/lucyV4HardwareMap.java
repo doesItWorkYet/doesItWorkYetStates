@@ -138,15 +138,16 @@ public class lucyV4HardwareMap extends LinearOpMode {
             }
 
             if(gamepad2.dpad_right){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_PRESS_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_PRESS_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
             }
             if(gamepad2.dpad_left){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_STORE_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_STORE_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
             }
 
             //cap ball lift controls:
+            /*NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
             if(gamepad2.right_bumper){
                 robot.extendotronRight.setPower(1);
             }
@@ -167,6 +168,27 @@ public class lucyV4HardwareMap extends LinearOpMode {
             }
             if(gamepad2.left_trigger>0){
                 robot.extendotronLeft.setPower(-1);
+            }
+            else{
+                robot.extendotronLeft.setPower(0);
+            }
+            */
+            if(gamepad2.right_bumper){
+                robot.extendotronRight.setPower(robot.EXTENDORTON_LIFT_SPEED);
+            }
+            else if(gamepad2.right_trigger > 0){
+                robot.extendotronRight.setPower(-robot.EXTENDORTON_LIFT_SPEED);
+            }
+            else{
+                robot.extendotronRight.setPower(0);
+            }
+
+
+            if(gamepad2.left_bumper){
+                robot.extendotronLeft.setPower(robot.EXTENDORTON_LIFT_SPEED);
+            }
+            else if(gamepad2.left_trigger > 0){
+                robot.extendotronLeft.setPower(-robot.EXTENDORTON_LIFT_SPEED);
             }
             else{
                 robot.extendotronLeft.setPower(0);

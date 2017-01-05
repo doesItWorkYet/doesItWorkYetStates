@@ -32,38 +32,41 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class followHeadingTrial extends LinearOpMode {
-    SensorManager manager;
-    Orientation orientation;
-    colorSensorClassTest color;
+@Autonomous(name="beacon color tester" , group="Testing")  // @Autonomous(...) is the other common choice
+
+public class beaconDetection extends LinearOpMode {
+    HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        orientation = new Orientation(manager);
-
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero();
         //Wait for start and reset the runtime count
         waitForStart();
+        //deploy beacon servos
+        robot.deployBeaconPressers();
+        robot.beaconColorSensor.waitForInitialization();
+        if(robot.beaconColorSensor == null){
+            telemetry.addData("color sensor", "null");
+
+        }
+        robot.beaconColorSensor.turnLedOn();
        while(opModeIsActive()){
-
-           color.getBaseLineColorState();
-           //while(!color.checkIfWhite(());
-
+           double color[] = robot.beaconColorSensor.getAverageRGBColor(10);
+           telemetry.addData("R:", color[0]);
+           telemetry.addData("G:", color[1]);
+           telemetry.addData("B:", color[2]);
+           telemetry.addData("L:", robot.beaconColorSensor.getBrightness());
+           telemetry.update();
            idle();
        }
-
     }
-
 }
 

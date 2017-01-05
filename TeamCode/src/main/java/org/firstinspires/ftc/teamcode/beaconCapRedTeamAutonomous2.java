@@ -13,15 +13,88 @@ import org.opencv.core.Size;
 /**
  * Created by root on 12/23/16.
  */
-public class BeaconDetector extends LinearVisionOpMode {
+public class beaconCapRedTeamAutonomous2 extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
+    HardwareMapLucyV4 robot;
+
     @Override
     public void runOpMode() throws InterruptedException {
+        //initialize hardware map
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero();
+        waitForStart();
+        //dirve forward from wall
+        telemetry.addData("Action", "Driving Forward");
+        telemetry.update();
+
+        robot.driveDistance(1*robot.FOOT_TO_METERS, .5);
+        //turn to approach wall
+        telemetry.addData("Action", "Turning");
+        telemetry.update();
+        robot.turnToDegree(45);
+        //got to white line
+        telemetry.addData("Action", "Moving until white detected");
+        telemetry.update();
+        robot.goForwardUntilWhite(robot.USE_BRIGHTNESS);
+        //turn to face wall
+        telemetry.addData("Action", "Turning");
+        telemetry.update();
+        robot.turnToDegree(45);
+        //determine which side is red
+        int redSide = getRedSide();
+        if(redSide == robot.BEACON_RED){
+            telemetry.addData("Beacon on Right is Team: ", "RED");
+        }
+        else telemetry.addData("Beacon on Right is Team: ", "BLUE");
+        telemetry.update();
+        //go until the beacon is captured
+        while(!isBeaconCaptured()) {
+            telemetry.addData("Beacon Captured Status: " , "False");
+            telemetry.update();
+            if (redSide == robot.BEACON_RED)
+                robot.beaconApproach(robot.BEACON_RIGHT);
+            else robot.beaconApproach(robot.BEACON_LEFT);
+            //if not still captured, back up and try again
+            if(!isBeaconCaptured()){
+                robot.driveDistance(-.5, .5);
+            }
+        }
+        telemetry.addData("Beacon Captured Status: " , "True");
+
+        //back up, turn and approach next
+
+        robot.driveDistance(-1,.5);
+        robot.turnToDegree(-90);
+        /*
+        robot.goForwardUntilWhiteRGB();
+        robot.turnToDegree(90);
+        redSide = getRedSide();
+        //go until the beacon is captured
+        while(!isBeaconCaptured()) {
+            if (redSide == robot.BEACON_RED)
+                robot.beaconApproach(robot.BEACON_RIGHT);
+            else robot.beaconApproach(robot.BEACON_LEFT);
+            //if not still captured, back up and try again
+            if(!isBeaconCaptured()){
+                robot.driveDistance(-.5);
+            }
+        }
+        robot.driveDistance(-1);
+        */
+
+
 
 
     }
 
+    public int getRedSide(){
+        //determine which side is red
+        int leftSideColor = getLeftColor();
+        if(leftSideColor == robot.BEACON_RED) return robot.BEACON_LEFT;
+        else return  robot.BEACON_RIGHT;
+    }
 
     public void beginDetection(double red, double blue){
         this.redTolerance = red;
@@ -131,15 +204,15 @@ public class BeaconDetector extends LinearVisionOpMode {
     }
 
     public int getLeftColor(){
-        if(getAnalysis().isLeftBlue()) return 1;
-        if(getAnalysis().isLeftRed()) return 2;
+        if(getAnalysis().isLeftBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isLeftRed()) return robot.BEACON_RED;
         else return 0;
     }
 
 
     public int getRightColor(){
-        if(getAnalysis().isRightBlue()) return 1;
-        if(getAnalysis().isRightRed()) return 2;
+        if(getAnalysis().isRightBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isRightRed()) return robot.BEACON_RED;
         else return 0;
     }
 }

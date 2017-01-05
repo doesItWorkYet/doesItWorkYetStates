@@ -32,19 +32,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class followHeading extends LinearOpMode {
+@Autonomous(name="RunToWhiteBRIGHTNESS", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class goForwardUntilWhiteBrightness extends LinearOpMode {
     HardwareMapLucyV4 robot;
-    Orientation orientation;
-    SensorManager manager;
+    private MotorController driveLeftController, driveRightController;
+    double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -53,18 +49,18 @@ public class followHeading extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
-        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        orientation = new Orientation(manager);
-        double[] rawOrientation = orientation.getOrientation();
-        double startOrientation = rawOrientation[0];
-        double leftPower = robot.DEFAULT_POWER;
-        double rightPower = robot.DEFAULT_POWER;
         //Wait for start and reset the runtime count
+        //turn off beacon sensor
+        robot.beaconColorSensor.turnSensorOff();
+        robot.groundColorSensor.waitForInitialization();
+        robot.groundColorSensor.turnLedOn();
         waitForStart();
+        boolean runTimes = false;
        while(opModeIsActive()){
+           //use default
+           robot.goForwardUntilWhite(robot.USE_BRIGHTNESS);
 
 
-           idle();
        }
 
     }

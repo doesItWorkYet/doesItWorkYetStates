@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -13,11 +15,19 @@ import org.opencv.core.Size;
 /**
  * Created by root on 12/23/16.
  */
-public class BeaconDetector extends LinearVisionOpMode {
+public class baseLineCameraAutonomous extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
+    HardwareMapLucyV4 robot;
+
     @Override
     public void runOpMode() throws InterruptedException {
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero();
+
+
+
 
 
     }
@@ -131,15 +141,15 @@ public class BeaconDetector extends LinearVisionOpMode {
     }
 
     public int getLeftColor(){
-        if(getAnalysis().isLeftBlue()) return 1;
-        if(getAnalysis().isLeftRed()) return 2;
+        if(getAnalysis().isLeftBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isLeftRed()) return robot.BEACON_RED;
         else return 0;
     }
 
 
     public int getRightColor(){
-        if(getAnalysis().isRightBlue()) return 1;
-        if(getAnalysis().isRightRed()) return 2;
+        if(getAnalysis().isRightBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isRightRed()) return robot.BEACON_RED;
         else return 0;
     }
 }
