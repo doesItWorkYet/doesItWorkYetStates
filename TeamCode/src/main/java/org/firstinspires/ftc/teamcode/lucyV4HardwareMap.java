@@ -68,6 +68,9 @@ public class lucyV4HardwareMap extends LinearOpMode {
         int rps1 = 1;
         int rps2 = 1;
         boolean reverse = false;
+        boolean sweepForwardOnOrOff = false;
+        boolean sweepReverseOnOrOff = false;
+        boolean driveDirection = false;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -100,6 +103,11 @@ public class lucyV4HardwareMap extends LinearOpMode {
                 robot.armletLeft.setPosition(robot.ARMLET_DEPLOY_POSITION);
             }
 
+            if(gamepad2.dpad_down){
+                robot.armletRight.setPosition(robot.ARMLET_STORE_POSITION);
+                robot.armletLeft.setPosition(robot.ARMLET_STORE_POSITION);
+            }
+
             if(gamepad1.left_trigger > .1){
                 driveLeftController.accelationRuntime(true);
             }
@@ -124,6 +132,7 @@ public class lucyV4HardwareMap extends LinearOpMode {
                 driveRightController.stationaryRuntime();
             }
             //else driveRightController.stop();
+            /*
             //When the A button is pressed, turn the sweep motor in the positive direction
             if(gamepad2.a) {
                 robot.sweep.setPower(1);
@@ -136,12 +145,40 @@ public class lucyV4HardwareMap extends LinearOpMode {
             if(!gamepad2.a & !gamepad2.b) {
                 robot.sweep.setPower(0);
             }
+            */
 
-            if(gamepad2.dpad_right){
+            if (!sweepForwardOnOrOff) {
+                if (gamepad1.a) {
+                    robot.sweep.setPower(1);
+                    sweepForwardOnOrOff = true;
+                }
+            }
+            if (!sweepReverseOnOrOff) {
+                if (gamepad1.b) {
+                    robot.sweep.setPower(-1);
+                    sweepReverseOnOrOff = true;
+                }
+            }
+
+            if (sweepForwardOnOrOff) {
+                if (gamepad1.b) {
+                    robot.sweep.setPower(0);
+                    sweepForwardOnOrOff = false;
+                }
+            }
+
+            if (sweepReverseOnOrOff) {
+                if (gamepad1.a) {
+                    robot.sweep.setPower(0);
+                    sweepReverseOnOrOff = false;
+                }
+            }
+
+            if(gamepad1.dpad_up){
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
             }
-            if(gamepad2.dpad_left){
+            if(gamepad1.dpad_down){
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
             }
@@ -173,10 +210,10 @@ public class lucyV4HardwareMap extends LinearOpMode {
                 robot.extendotronLeft.setPower(0);
             }
             */
-            if(gamepad2.right_bumper){
+            if (gamepad2.right_bumper){
                 robot.extendotronRight.setPower(robot.EXTENDORTON_LIFT_SPEED);
             }
-            else if(gamepad2.right_trigger > 0){
+            else if (gamepad2.right_trigger > 0){
                 robot.extendotronRight.setPower(-robot.EXTENDORTON_LIFT_SPEED);
             }
             else{
@@ -195,13 +232,19 @@ public class lucyV4HardwareMap extends LinearOpMode {
             }
 
             //drive settings
-            if(gamepad1.a){
-                robot.rightMotor.setDirection(DcMotor.Direction.REVERSE);
-                robot.leftMotor.setDirection(DcMotor.Direction.FORWARD);
+            if (!driveDirection) {
+                if (gamepad1.x) {
+                    robot.rightMotor.setDirection(DcMotor.Direction.REVERSE);
+                    robot.leftMotor.setDirection(DcMotor.Direction.FORWARD);
+                    driveDirection = true;
+                }
             }
-            else if(gamepad1.b){
-                robot.rightMotor.setDirection(DcMotor.Direction.FORWARD);
-                robot.leftMotor.setDirection(DcMotor.Direction.REVERSE);
+            if (driveDirection) {
+                if (gamepad1.x) {
+                    robot.rightMotor.setDirection(DcMotor.Direction.FORWARD);
+                    robot.leftMotor.setDirection(DcMotor.Direction.REVERSE);
+                    driveDirection = false;
+                }
             }
 
 

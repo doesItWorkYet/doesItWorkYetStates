@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -13,6 +15,7 @@ import org.opencv.core.Size;
 /**
  * Created by root on 12/23/16.
  */
+@Autonomous(name="autonomousBeacons", group="Testing")  // @Autonomous(...) is the other common choice
 public class beaconCapRedTeamAutonomous2 extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
@@ -67,6 +70,33 @@ public class beaconCapRedTeamAutonomous2 extends LinearVisionOpMode {
 
         robot.driveDistance(-1,.5);
         robot.turnToDegree(-90);
+
+        telemetry.addData("Action", "Moving until white detected");
+        telemetry.update();
+        robot.goForwardUntilWhite(robot.USE_BRIGHTNESS);
+        //turn to face wall
+        telemetry.addData("Action", "Turning");
+        telemetry.update();
+        robot.turnToDegree(45);
+        //determine which side is red
+        int secondRedSide = getRedSide();
+        if(secondRedSide == robot.BEACON_RED){
+            telemetry.addData("Beacon on Right is Team: ", "RED");
+        }
+        else telemetry.addData("Beacon on Right is Team: ", "BLUE");
+        telemetry.update();
+        //go until the beacon is captured
+        while(!isBeaconCaptured()) {
+            telemetry.addData("Beacon Captured Status: " , "False");
+            telemetry.update();
+            if (secondRedSide == robot.BEACON_RED)
+                robot.beaconApproach(robot.BEACON_RIGHT);
+            else robot.beaconApproach(robot.BEACON_LEFT);
+            //if not still captured, back up and try again
+            if(!isBeaconCaptured()){
+                robot.driveDistance(-.5, .5);
+            }
+        }
         /*
         robot.goForwardUntilWhiteRGB();
         robot.turnToDegree(90);
