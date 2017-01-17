@@ -51,7 +51,7 @@ public class goForwardUntilWhiteBrightness extends LinearOpMode {
         robot.zero();
         //Wait for start and reset the runtime count
         //turn off beacon sensor
-        robot.beaconColorSensor.turnSensorOff();
+        //robot.beaconColorSensor.turnSensorOff();
         robot.groundColorSensor.waitForInitialization();
         robot.groundColorSensor.turnLedOn();
         waitForStart();

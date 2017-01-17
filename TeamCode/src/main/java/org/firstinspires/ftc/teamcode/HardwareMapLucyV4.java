@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.provider.Settings;
 
 import com.qualcomm.robotcore.hardware.*;
 
@@ -20,6 +19,8 @@ public class HardwareMapLucyV4 {
 
     public final double ROBOT_WHEEL_CIRCUMFERENCE = ROBOT_WHEEL_RADIUS * 2 * Math.PI;
 
+    public final double CAP_BALL_DIST = 1.8;
+
     // vars for Mat (special)
     public final double FOOT_TO_METERS = 12.0*2.54/100;
 
@@ -36,8 +37,8 @@ public class HardwareMapLucyV4 {
     public double ROTATION_TURNING_SPEED = .1;
     public double COLOR_APPROACHING_SPEED = .2;
 
-    public final int ULTRASONIC_SENSOR_READ_PIN = 3;
-    public final int ULTRASONIC_SENSOR_TRIG_PIN = 4;
+    public final int ULTRASONIC_SENSOR_READ_PIN = 4;
+    public final int ULTRASONIC_SENSOR_TRIG_PIN = 5;
 
 
     //drive motors
@@ -57,7 +58,7 @@ public class HardwareMapLucyV4 {
     //cap ball lifter motors
     public DcMotor extendotronLeft = null;
     public DcMotor extendotronRight = null;
-    public final double EXTENDORTON_LIFT_SPEED = .5;
+    public final double EXTENDORTON_LIFT_SPEED = .75;
     public Servo leftClawDeployer = null;
     public Servo rightClawDeployer = null;
 
@@ -73,20 +74,25 @@ public class HardwareMapLucyV4 {
     public Servo beaconPresserRight = null;
 
 
-    final int BEACON_PRESSER_LEFT_STORE_POSITION = 70;
-    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 70;
+    final int BEACON_PRESSER_LEFT_STORE_POSITION = 60;
+    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 60;
+    //final int BEACON_PRESSER_LEFT_UP_POSITION = 0;
+    //final int BEACON_PRESSER_RIGHT_UP_POSITION = 0;
     final int BEACON_PRESSER_LEFT_PRESS_POSITION = 100;
-    final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 90;
+    final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 100;
 
 
     final double BEACON_PRESSING_POWER = .5;//speed at which to ram wall
 
-    final int INDEXER_LOAD_POSITON = 0;
-    final int INDEXER_FIRE_POSITION = 90;
+    final double INDEXER_LOAD_POSITION = 0.0;
+    final double INDEXER_FIRE_POSITION = 65.0;
 
     final int TICKS_PER_REV_ANDYMARK = 1120;
     final int TICKS_PER_REV_TETRIX = 1440;
 
+    final double PROPELLER_ON = 1;
+    final double MOTOR_OFF = 0;
+    final double FLY_WHEEL_POWER = 1;
     final double ACCELERATION_OF_MAIN_MOTORS = .1;
     final double ACCELERATION_OF_FLY_WHEEL = .25;
     final double ACCELERATION_EXPONENT = 2;
@@ -96,10 +102,10 @@ public class HardwareMapLucyV4 {
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final int GROUND_COLOR_SENSOR_LED_PIN = 5;
-    final int BEACON_COLOR_SENSOR_LED_PIN = 6;
-    final int GROUND_COLOR_SENSOR_POWER_PIN = 4; //used to turn sensor on and off
-    final int BEACON_COLOR_SENSOR_POWER_PIN = 3;
+    final int GROUND_COLOR_SENSOR_LED_PIN = 2;
+    //final int BEACON_COLOR_SENSOR_LED_PIN = 3;
+    //final int GROUND_COLOR_SENSOR_POWER_PIN = 1; //used to turn sensor on and off
+    //final int BEACON_COLOR_SENSOR_POWER_PIN = 5;
     final int BRIGHTNESS_WHITE_THREASHOLD = 4000;
     final int MIN_RED_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final int MIN_BLUE_VALUE_FOR_DETECTION = 80; //used to differentiate from background
@@ -117,32 +123,33 @@ public class HardwareMapLucyV4 {
 
 
     //sensors
-    private DeviceInterfaceModule sensorController = null;
+    public DeviceInterfaceModule dim = null;
     private ColorSensor rawGroundColorSensor = null;
-    private ColorSensor rawBeaconColorSensor = null;
+    //private ColorSensor rawBeaconColorSensor = null;
     private SensorManager manager;
     public Orientation orientation;
     public RGBSensor groundColorSensor = null;
-    public RGBSensor beaconColorSensor = null;
+    //public RGBSensor beaconColorSensor = null;
 
     public TouchSensor leftBeaconPresserSensor = null;
     public TouchSensor rightBeaconPresserSensor = null;
     public UltrasonicSensor ultrasonicSensor;
 
     //beacon detection
-    public BeaconDetector beaconDetection;
+
     public double RED_THREASHOLD = 1;
     public double BLUE_THREASHOLD = 1;
-
+    public int CAMERA_FRAME_WIDTH = 600;
+    public int CAMERA_FRAME_HEIGHT = 600;
+    String BLUE = "Blue";
+    String RED = "Red";
     HardwareMap hwMap = null;
 
 
-    final int ARMLET_STORE_POSITION =  50;
-    final int ARMLET_DEPLOY_POSITION = 140;
+    final int ARMLET_STORE_POSITION =  0;
+    final int ARMLET_DEPLOY_POSITION = 150;
 
-    public final int BLUE = 1;
-    public final int RED = -1;
-    public final int UNKOWN_COLOR = 0;
+    public OpticalDistanceSensor distSensor = null;
 
     public HardwareMapLucyV4(){
 
@@ -178,13 +185,13 @@ public class HardwareMapLucyV4 {
             extendotronRight = hwMap.dcMotor.get("liftRight");
             //leftClawDeployer = hwMap.servo.get("");
             //rightClawDeployer = hwMap.servo.get("");
-            extendotronLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+            extendotronLeft.setDirection(DcMotorSimple.Direction.FORWARD);
             extendotronRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
             //armlets
             armletLeft = hwMap.servo.get("armletLeft");
             armletRight = hwMap.servo.get("armletRight");
-            //armletRight.setDirection(Servo.Direction.REVERSE);
+            armletLeft.setDirection(Servo.Direction.REVERSE);
 
             //beacon pressing init
             beaconPresserLeft = hwMap.servo.get("leftBeaconPresser");
@@ -196,13 +203,23 @@ public class HardwareMapLucyV4 {
             sweep.setDirection(DcMotor.Direction.REVERSE);
 
             //sensors
-            sensorController = hwMap.deviceInterfaceModule.get("DIM");
-            rawGroundColorSensor = hwMap.colorSensor.get("rawGroundColorSensor");
-            rawBeaconColorSensor = hwMap.colorSensor.get("rawBeaconColorSensor");
-            beaconColorSensor = new RGBSensor(rawBeaconColorSensor, sensorController, BEACON_COLOR_SENSOR_LED_PIN, true,BEACON_COLOR_SENSOR_POWER_PIN);
-            groundColorSensor = new RGBSensor(rawGroundColorSensor, sensorController, GROUND_COLOR_SENSOR_LED_PIN, true,GROUND_COLOR_SENSOR_POWER_PIN);
+            dim = hwMap.deviceInterfaceModule.get("DIM");
+
+            distSensor = hwMap.opticalDistanceSensor.get("distSensor");
+
+
+            //ultrasonicSensor = new UltrasonicSensor(ULTRASONIC_SENSOR_READ_PIN,ULTRASONIC_SENSOR_TRIG_PIN, dim);
+            leftBeaconPresserSensor = hwMap.touchSensor.get("safetyLeft");
+            rightBeaconPresserSensor = hwMap.touchSensor.get("safetyRight");
+
+
+            //rawGroundColorSensor = hwMap.colorSensor.get("rawGroundColorSensor");
+            //rawBeaconColorSensor = hwMap.colorSensor.get("rawBeaconColorSensor");
+            //beaconColorSensor = new RGBSensor("rawBeaconColorSensor",hwMap, dim, BEACON_COLOR_SENSOR_LED_PIN, true,BEACON_COLOR_SENSOR_POWER_PIN);
+            groundColorSensor = new RGBSensor("rawGroundColorSensor",hwMap, dim, GROUND_COLOR_SENSOR_LED_PIN, true);
             manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
             orientation = new Orientation(manager);
+
 
 
 
@@ -215,14 +232,14 @@ public class HardwareMapLucyV4 {
     public void zero(){
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-        indexer.setPosition(INDEXER_LOAD_POSITON/180.0);
+        indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         flyWheel1.setPower(0);
         flyWheel2.setPower(0);
         sweep.setPower(0);
-        armletLeft.setPosition(ARMLET_STORE_POSITION);
-        armletRight.setPosition(ARMLET_STORE_POSITION);
+        armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
+        armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
         propeller.setPower(0);
     }
 
@@ -326,7 +343,7 @@ public class HardwareMapLucyV4 {
 
     public double[] getBaseLineColorState() {
         //assume we are using the ground sensor
-        beaconColorSensor.turnSensorOff();
+        //groundColorSensor.turnSensorOff();
         groundColorSensor.waitForInitialization();
         double[] toReturn = {0,0,0};
         double[] rgbValues = groundColorSensor.getRGBColor();
@@ -343,29 +360,37 @@ public class HardwareMapLucyV4 {
 
     public void goForwardUntilWhite(int typeToUse) {
         //assume using ground sensor
-        beaconColorSensor.turnSensorOff();
+        //.turnSensorOff();
+        boolean safetyLeft = leftBeaconPresserSensor.isPressed();
+        boolean safetyRight = rightBeaconPresserSensor.isPressed();
         groundColorSensor.waitForInitialization();
         if(typeToUse == USE_RGB) {
             baseLineColorAverage = getBaseLineColorState();
             groundColorSensor.turnLedOn();
             boolean runTimes = false;
             double[] newColor = groundColorSensor.getRGBColor();
-            while (!runTimes) {
-                if (!checkIfWhite(newColor)) {
+            while (!runTimes && !safetyLeft && !safetyRight) {
+                if (!checkIfWhite(newColor)&& !safetyLeft && !safetyRight) {
                     driveDistance(DISTANCE_INCREMEANT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER);
                 } else {
                     runTimes = true;
+                }
+                if(safetyLeft||safetyRight){
+                    brakeTemporarily();
                 }
             }
         }
         else if(typeToUse == USE_BRIGHTNESS){
             boolean hasCrossed = false;
-            while(!hasCrossed){
+            while(!hasCrossed && !safetyLeft && !safetyRight){
                 double brightness = groundColorSensor.getBrightness();
-                if(brightness < BRIGHTNESS_WHITE_THREASHOLD){
+                if(brightness < BRIGHTNESS_WHITE_THREASHOLD && !safetyLeft && !safetyRight){
                     driveDistance(DISTANCE_INCREMEANT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER);
                 }
                 else hasCrossed = true;
+                if(safetyRight||safetyLeft){
+                    brakeTemporarily();
+                }
             }
         }
         brakeTemporarily(); //stop hard
@@ -407,6 +432,16 @@ public class HardwareMapLucyV4 {
     public void deployBeaconPressers(){
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_PRESS_POSITION);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_PRESS_POSITION);
+    }
+
+    public void deployArmlets(){
+        armletRight.setPosition(ARMLET_DEPLOY_POSITION);
+        armletLeft.setPosition(ARMLET_DEPLOY_POSITION);
+    }
+
+    public void storeArmlets(){
+        armletLeft.setPosition(ARMLET_STORE_POSITION);
+        armletRight.setPosition(ARMLET_STORE_POSITION);
     }
 
 }

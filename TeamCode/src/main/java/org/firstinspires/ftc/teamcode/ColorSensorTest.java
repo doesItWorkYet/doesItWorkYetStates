@@ -33,13 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="beacon color tester with servo arms" , group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="beacon color tester" , group="Testing")  // @Autonomous(...) is the other common choice
 
-public class beaconDetectionSetArms extends LinearOpMode {
+public class ColorSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
-
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -49,57 +49,26 @@ public class beaconDetectionSetArms extends LinearOpMode {
         robot.init(hardwareMap);
         robot.zero();
         //Wait for start and reset the runtime count
-        boolean hasMovedArms = false;
         waitForStart();
         //deploy beacon servos
         robot.deployBeaconPressers();
-        robot.beaconColorSensor.waitForInitialization();
-        if (robot.beaconColorSensor == null) {
+        robot.groundColorSensor.waitForInitialization();
+        if(robot.groundColorSensor == null){
             telemetry.addData("color sensor", "null");
 
         }
-        robot.beaconColorSensor.turnLedOn();
-        while (opModeIsActive()) {
-            double color[] = robot.beaconColorSensor.getAverageRGBColor(10);
-            telemetry.addData("R:", color[0]);
-            telemetry.addData("G:", color[1]);
-            telemetry.addData("B:", color[2]);
-            telemetry.addData("L:", robot.beaconColorSensor.getBrightness());
-            int colorOfBeacon = determineColor(color);
-            if(colorOfBeacon != robot.BEACON_COLOR_UNKOWN){
-                if(!hasMovedArms) {
-                    if (colorOfBeacon == robot.BEACON_RED) {
-                        telemetry.addData("Color of right: ", "RED" );
-                        //assume color sensor is on right arm and we are red team
-                        robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
-                    } else {
-                        telemetry.addData("Color of right: ", "BLUE" );
-                        robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
-                    }
-                    wait(2000);
-                }
-
-            }
-            else{
-                telemetry.addData("Color of right: ", "Unkown");
-            }
-            telemetry.update();
-            idle();
-        }
-    }
-
-
-    public int determineColor(double[] rgb) {
-        if (rgb[0] > robot.MIN_RED_VALUE_FOR_DETECTION) {
-            if (rgb[2] > robot.MIN_BLUE_VALUE_FOR_DETECTION) {
-                if (rgb[0] > rgb[2] * robot.MIN_COLOR_MULTIPLIER) {
-                    return robot.BEACON_RED;
-                } else if (rgb[2] > rgb[0] * robot.MIN_COLOR_MULTIPLIER) {
-                    return robot.BEACON_BLUE;
-                }
-            }
-        }
-        return robot.BEACON_COLOR_UNKOWN;
-
+        //robot.dim.isI2cPortInReadMode()
+        robot.groundColorSensor.turnLedOn();
+       while(opModeIsActive()){
+           double color[] = robot.groundColorSensor.getRGBColor();
+           telemetry.addData("R:", color[0]);
+           telemetry.addData("G:", color[1]);
+           telemetry.addData("B:", color[2]);
+           telemetry.addData("L:", robot.groundColorSensor.getBrightness());
+           telemetry.update();
+           robot.delay(1000);
+           idle();
+       }
     }
 }
+

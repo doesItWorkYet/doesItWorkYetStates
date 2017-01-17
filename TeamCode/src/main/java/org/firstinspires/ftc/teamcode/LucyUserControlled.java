@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Lucile User Controlled", group="User Controlled")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class lucyV4HardwareMap extends LinearOpMode {
+public class LucyUserControlled extends LinearOpMode {
     HardwareMapLucyV4 robot;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -71,14 +71,25 @@ public class lucyV4HardwareMap extends LinearOpMode {
         boolean sweepForwardOnOrOff = false;
         boolean sweepReverseOnOrOff = false;
         boolean driveDirection = false;
+        boolean armletsDeployed = false;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
             telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.update();
+
+            if(armletsDeployed){
+                if(gamepad2.a){
+                    robot.propeller.setPower(robot.PROPELLER_ON);
+                }
+                else if(gamepad2.b){
+                    robot.propeller.setPower(robot.MOTOR_OFF);
+                }
+            }
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad2.x){
+                robot.sweep.setPower(0);
                 robot.flyWheel1.setPower(rps1);
                 robot.flyWheel2.setPower(rps2);
             }
@@ -91,21 +102,23 @@ public class lucyV4HardwareMap extends LinearOpMode {
 
             //Move the indexer into the load position
             if(gamepad2.y){
-                robot.indexer.setPosition(80.0/360.0);
+                robot.indexer.setPosition(robot.INDEXER_FIRE_POSITION/180.0);
             }
             //Move the indexer back to default position
             else if(!gamepad2.y) {
-                robot.indexer.setPosition(0.0);
+                robot.indexer.setPosition(robot.INDEXER_LOAD_POSITION/180.0);
             }
 
             if(gamepad2.dpad_up){
-                robot.armletRight.setPosition(robot.ARMLET_DEPLOY_POSITION);
-                robot.armletLeft.setPosition(robot.ARMLET_DEPLOY_POSITION);
+                robot.armletRight.setPosition(robot.ARMLET_DEPLOY_POSITION/180.0);
+                robot.armletLeft.setPosition(robot.ARMLET_DEPLOY_POSITION/180.0);
+                armletsDeployed = true;
             }
 
             if(gamepad2.dpad_down){
-                robot.armletRight.setPosition(robot.ARMLET_STORE_POSITION);
-                robot.armletLeft.setPosition(robot.ARMLET_STORE_POSITION);
+                robot.armletRight.setPosition(robot.ARMLET_STORE_POSITION/180.0);
+                robot.armletLeft.setPosition(robot.ARMLET_STORE_POSITION/180.0);
+                armletsDeployed = true;
             }
 
             if(gamepad1.left_trigger > .1){
@@ -132,48 +145,52 @@ public class lucyV4HardwareMap extends LinearOpMode {
                 driveRightController.stationaryRuntime();
             }
             //else driveRightController.stop();
-            /*
+
             //When the A button is pressed, turn the sweep motor in the positive direction
-            if(gamepad2.a) {
+            if(gamepad1.a) {
                 robot.sweep.setPower(1);
             }
             //When the B button is pressed, turn the sweep motor in the negative direction
-            if(gamepad2.b) {
+            if(gamepad1.b) {
                 robot.sweep.setPower(-1);
             }
             //If neither the A or B button are pressed, turn off the sweep motor
-            if(!gamepad2.a & !gamepad2.b) {
+            if(!gamepad1.a & !gamepad1.b) {
                 robot.sweep.setPower(0);
             }
-            */
+            /*
 
             if (!sweepForwardOnOrOff) {
-                if (gamepad1.a) {
+                if (gamepad1.a || gamepad1.b) {
                     robot.sweep.setPower(1);
                     sweepForwardOnOrOff = true;
+                    while(gamepad1.a);
                 }
             }
             if (!sweepReverseOnOrOff) {
-                if (gamepad1.b) {
+                if (gamepad1.b || gamepad1.a) {
                     robot.sweep.setPower(-1);
                     sweepReverseOnOrOff = true;
+                    while(gamepad1.b);
                 }
             }
 
             if (sweepForwardOnOrOff) {
-                if (gamepad1.b) {
+                if (gamepad1.b || gamepad1.a) {
                     robot.sweep.setPower(0);
                     sweepForwardOnOrOff = false;
+                    while(gamepad1.b);
                 }
             }
 
             if (sweepReverseOnOrOff) {
-                if (gamepad1.a) {
+                if (gamepad1.a || gamepad1.b) {
                     robot.sweep.setPower(0);
                     sweepReverseOnOrOff = false;
+                    while(gamepad1.a);
                 }
             }
-
+*/
             if(gamepad1.dpad_up){
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);

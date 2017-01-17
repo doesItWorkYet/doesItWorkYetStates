@@ -40,7 +40,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(900, 900));
+        this.setFrameSize(new Size(600, 600));
 
         /**
          * Enable extensions. Use what you need.
@@ -60,9 +60,9 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * Set color tolerances
          * 0 is default, -1 is minimum and 1 is maximum tolerance
          */
-        beacon.setColorToleranceRed(-0.055);
-        beacon.setColorToleranceBlue(-0.25);
-
+        beacon.setColorToleranceRed(.5);
+        beacon.setColorToleranceBlue(.5);
+/////// //df/a fd/f /sa /dsa
         /**
          * Debug drawing
          * Enable this only if you're running test app - otherwise, you should turn it off

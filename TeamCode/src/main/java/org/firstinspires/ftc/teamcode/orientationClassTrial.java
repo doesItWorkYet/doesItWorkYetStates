@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="rotationTest", group="Testing")  // @Autonomous(...) is the other common choice
-
+@Disabled
 public class orientationClassTrial extends LinearOpMode {
     SensorManager manager;
     Orientation orientation;

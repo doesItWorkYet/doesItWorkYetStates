@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -15,7 +13,7 @@ import org.opencv.core.Size;
 /**
  * Created by root on 12/23/16.
  */
-public class baseLineCameraAutonomous extends LinearVisionOpMode {
+public class autonomousCompiledTest extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -28,9 +26,36 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
         robot.zero();
         beginDetection(robot.RED_THREASHOLD, robot.BLUE_THREASHOLD,robot.CAMERA_FRAME_HEIGHT, robot.CAMERA_FRAME_WIDTH);
         waitForStart();
-        while(opModeIsActive()){
-            //execute tasks
+        robot.driveDistance(3, 1);
+        robot.turnToDegree(45);
+        robot.goForwardUntilWhite(robot.USE_BRIGHTNESS);
+        double dist = robot.distSensor.getLightDetected();
+        while(dist>.1 && opModeIsActive()){
+            robot.driveDistance(.05,.1);
+            dist = robot.distSensor.getLightDetected();
         }
+        robot.brakeTemporarily();
+        robot.deployBeaconPressers();
+        //telemetry.addData("Color Left:",getRightColor());
+        if(getRightColor()==robot.BEACON_RED){
+            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+            telemetry.addData("Red On:","Right");
+            //robot.driveDistance(.04, 1);
+        }
+        if(getLeftColor()==robot.BEACON_RED){
+            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+            telemetry.addData("Red On:","Left");
+            //robot.driveDistance(.04, 1);
+        }
+        robot.driveDistance(.02, 1);
+        robot.driveDistance(5, -1);
+        robot.turnToDegree(135);
+        robot.driveDistance(5, 1);
+        //robot.flyWheel1.setPower(robot.FLY_WHEEL_POWER);
+        //robot.flyWheel2.setPower(robot.FLY_WHEEL_POWER);
+        //robot.indexer.setPosition(robot.INDEXER_FIRE_POSITION);
+        //robot.indexer.setPosition(robot.INDEXER_LOAD_POSITION);
+        telemetry.update();
     }
 
 

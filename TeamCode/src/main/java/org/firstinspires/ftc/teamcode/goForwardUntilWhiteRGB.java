@@ -33,10 +33,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="RunToWhiteRGB", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class goForwardUntilWhiteRGB extends LinearOpMode {
     HardwareMapLucyV4 robot;
     private MotorController driveLeftController, driveRightController;
@@ -51,7 +52,7 @@ public class goForwardUntilWhiteRGB extends LinearOpMode {
         robot.zero();
         //Wait for start and reset the runtime count
         //turn off beacon sensor
-        robot.beaconColorSensor.turnSensorOff();
+        //robot.beaconColorSensor.turnSensorOff();
         robot.groundColorSensor.waitForInitialization();
         robot.groundColorSensor.turnLedOn();
         waitForStart();

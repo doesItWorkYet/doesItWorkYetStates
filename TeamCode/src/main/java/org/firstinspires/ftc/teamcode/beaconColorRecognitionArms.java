@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -13,19 +15,23 @@ import org.opencv.core.Size;
 /**
  * Created by root on 12/23/16.
  */
-public class BeaconDetector extends LinearVisionOpMode {
+@Autonomous(name="Beacon Color Recognition Arms", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+
+
+public class beaconColorRecognitionArms extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
+
+    HardwareMapLucyV4 robot;
+
+
+
     @Override
     public void runOpMode() throws InterruptedException {
-
-
-    }
-
-
-    public void beginDetection(double red, double blue){
-        this.redTolerance = red;
-        this.blueTolerance = blue;
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero();
         telemetry.addData("Vars", "Set");
         telemetry.update();
         try {
@@ -35,7 +41,7 @@ public class BeaconDetector extends LinearVisionOpMode {
             telemetry.addData("Exception: ", e.getMessage());
         }
 
-        super.init();
+
         /**
          * Set the camera used for detection
          * PRIMARY = Front-facing, larger camera
@@ -49,7 +55,7 @@ public class BeaconDetector extends LinearVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(900, 900));
+        this.setFrameSize(new Size(height, width));
         telemetry.addData("Frame", "set");
         telemetry.update();
         /**
@@ -70,45 +76,45 @@ public class BeaconDetector extends LinearVisionOpMode {
          * Set color tolerances
          * 0 is default, -1 is minimum and 1 is maximum tolerance
          */
-        beacon.setColorToleranceRed(redTolerance);
-        beacon.setColorToleranceBlue(blueTolerance);
+        beacon.setColorToleranceRed(0);
+        beacon.setColorToleranceBlue(0);
 
-        /**
-         * Set analysis boundary
-         * You should comment this to use the entire screen and uncomment only if
-         * you want faster analysis at the cost of not using the entire frame.
-         * This is also particularly useful if you know approximately where the beacon is
-         * as this will eliminate parts of the frame which may cause problems
-         * This will not work on some methods, such as COMPLEX
-         **/
-        //beacon.setAnalysisBounds(new Rectangle(new Point(width / 2, height / 2), width - 200, 200));
-
-        /**
-         * Set the rotation parameters of the screen
-         * If colors are being flipped or output appears consistently incorrect, try changing these.
-         *
-         * First, tell the extension whether you are using a secondary camera
-         * (or in some devices, a front-facing camera that reverses some colors).
-         *
-         * It's a good idea to disable global auto rotate in Android settings. You can do this
-         * by calling disableAutoRotate() or enableAutoRotate().
-         *
-         * It's also a good idea to force the phone into a specific Orientation (or auto rotate) by
-         * calling either setActivityOrientationAutoRotate() or setActivityOrientationFixed(). If
-         * you don't, the camera reader may have problems reading the current Orientation.
-         */
         rotation.setIsUsingSecondaryCamera(false);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
 
-        /**
-         * Set camera control extension preferences
-         *
-         * Enabling manual settings will improve analysis rate and may lead to better results under
-         * tested conditions. If the environment changes, expect to change these values.
-         */
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
+        //beginDetection(robot.RED_THREASHOLD, robot.BLUE_THREASHOLD,robot.CAMERA_FRAME_HEIGHT, robot.CAMERA_FRAME_WIDTH);
+        waitForStart();
+        robot.deployBeaconPressers();
+        getLeftColor();
+        robot.delay(1000);
+        //while(opModeIsActive()){
+        while(robot.distSensor.getLightDetected()<.1 && opModeIsActive()){
+            robot.driveDistance(.05, .5);
+        }
+        robot.brakeTemporarily();
+           if(getLeftColor() == robot.BEACON_RED) {
+               robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+               telemetry.addData("Red on:", "Left");
+               telemetry.update();
+           }
+            if(getRightColor() == robot.BEACON_RED) {
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+                telemetry.addData("Red on:", "Right");
+                telemetry.update();
+            }
+        //}
+
+        //telemetry.update();
+    }
+
+
+    public void beginDetection(double redTolerance, double blueTolerance, int height, int width){
+        this.redTolerance = redTolerance;
+        this.blueTolerance = blueTolerance;
+
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){
@@ -131,15 +137,15 @@ public class BeaconDetector extends LinearVisionOpMode {
     }
 
     public int getLeftColor(){
-        if(getAnalysis().isLeftBlue()) return 1;
-        if(getAnalysis().isLeftRed()) return 2;
-        else return 0;
+        if(getAnalysis().isLeftBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isLeftRed()) return robot.BEACON_RED;
+        else return robot.BEACON_COLOR_UNKOWN;
     }
 
 
     public int getRightColor(){
-        if(getAnalysis().isRightBlue()) return 1;
-        if(getAnalysis().isRightRed()) return 2;
-        else return 0;
+        if(getAnalysis().isRightBlue()) return robot.BEACON_BLUE;
+        if(getAnalysis().isRightRed()) return robot.BEACON_RED;
+        else return robot.BEACON_COLOR_UNKOWN;
     }
 }

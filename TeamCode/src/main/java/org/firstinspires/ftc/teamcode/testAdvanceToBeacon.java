@@ -35,10 +35,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="beacon color tester" , group="Testing")  // @Autonomous(...) is the other common choice
-
-public class beaconDetection extends LinearOpMode {
+@Autonomous(name="Advance to Beacon", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class testAdvanceToBeacon extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,23 +51,14 @@ public class beaconDetection extends LinearOpMode {
         robot.zero();
         //Wait for start and reset the runtime count
         waitForStart();
-        //deploy beacon servos
-        robot.deployBeaconPressers();
-        robot.beaconColorSensor.waitForInitialization();
-        if(robot.beaconColorSensor == null){
-            telemetry.addData("color sensor", "null");
-
+        double dist = robot.distSensor.getLightDetected();
+        while(dist<.1 && opModeIsActive()){
+            robot.driveDistance(.005, 1);
+            dist = robot.distSensor.getLightDetected();
         }
-        robot.beaconColorSensor.turnLedOn();
-       while(opModeIsActive()){
-           double color[] = robot.beaconColorSensor.getAverageRGBColor(10);
-           telemetry.addData("R:", color[0]);
-           telemetry.addData("G:", color[1]);
-           telemetry.addData("B:", color[2]);
-           telemetry.addData("L:", robot.beaconColorSensor.getBrightness());
-           telemetry.update();
-           idle();
-       }
+        robot.brakeTemporarily();
+        idle();
     }
+
 }
 

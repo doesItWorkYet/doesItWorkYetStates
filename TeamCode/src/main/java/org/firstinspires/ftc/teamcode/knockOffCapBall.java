@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="rotateAndGoToHeading", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class rotateToHeadingGoUntilWhite extends LinearOpMode {
+@Autonomous(name="Knock Cap Ball test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class knockOffCapBall extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,47 +48,20 @@ public class rotateToHeadingGoUntilWhite extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
-        //wait for good orientation data
-        while(robot.orientation.getOrientation()[0] == 0);
-        //zero
-        robot.setZeroHeading(robot.orientation.getOrientation()[0]);
-        //
+
         //Wait for start and reset the runtime count
-        double headingToApproach = robot.ADVANCE_TO_BEACON_HEADING;
-        double currentHeading;
-        boolean hasFinishedTurn = false;
+
+        //boolean ballHasBeenKnocked = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
         waitForStart();
-       while(opModeIsActive()){
-            currentHeading = robot.orientation.getOrientation()[0];
-            if(Math.abs(headingToApproach - currentHeading) <= robot.HEADING_ACCURACY){
-                robot.stop();
-                hasFinishedTurn = true;
-                moveUntilWhite();
-            }
+        robot.deployBeaconPressers();
+        robot.delay(1000);
+        while((!robot.leftBeaconPresserSensor.isPressed() && !robot.rightBeaconPresserSensor.isPressed()) && opModeIsActive()){
+            robot.setDriveMotorPower(.5);
+            //ballHasBeenKnocked = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
+            idle();
+        }
+        robot.brakeTemporarily();
 
-           else{
-                double directionToTurn = robot.decideDirectionToTurn(currentHeading, headingToApproach);
-                if(Math.abs(headingToApproach - currentHeading) <= 20){
-                    if(directionToTurn < 0) {
-                        robot.turn(-robot.ROTATION_TURNING_SPEED/2.0);
-                    }
-                    if(directionToTurn > 0){
-                        robot.turn(robot.ROTATION_TURNING_SPEED/2.0);
-                    }
-                }
-                if(directionToTurn < 0) {
-                   robot.turn(-robot.ROTATION_TURNING_SPEED);
-                }
-                if(directionToTurn > 0){
-                    robot.turn(robot.ROTATION_TURNING_SPEED);
-                }
-            }
-
-           idle();
-       }
-
-    }
-    public void moveUntilWhite(){
 
     }
 

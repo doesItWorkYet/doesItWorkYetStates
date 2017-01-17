@@ -33,15 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="rotateToHeading", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class rotateToHeading extends LinearOpMode {
+public class distSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
-    final double headingToRotateTo = 90;
-    final double accuracy = 5;
-    double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -50,36 +48,16 @@ public class rotateToHeading extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero();
-
-        double rightPower;
-        double leftPower;
         //Wait for start and reset the runtime count
         waitForStart();
        while(opModeIsActive()){
-           double orientation = robot.orientation.getOrientation()[0];
-           double directionToTurn = robot.decideDirectionToTurn(orientation, headingToRotateTo);
-           telemetry.addData("CurrentHeading: ", orientation );
-           telemetry.addData("desired heading: ", headingToRotateTo);
-           telemetry.update();
-           if(Math.abs(orientation - headingToRotateTo) <= accuracy){
-               robot.rightMotor.setPower(0);
-               robot.leftMotor.setPower(0);
-           }
-           else {
-               if (directionToTurn < 0) {
-                   robot.leftMotor.setPower(-.3);
-                   robot.rightMotor.setPower(.3);
-               }
-               if (directionToTurn > 0) {
-                   robot.leftMotor.setPower(.3);
-                   robot.rightMotor.setPower(-.3);
-               }
-           }
+            telemetry.addData("Light:", robot.distSensor.getLightDetected());
+            telemetry.update();
+
            idle();
        }
 
     }
 
-
-
 }
+
