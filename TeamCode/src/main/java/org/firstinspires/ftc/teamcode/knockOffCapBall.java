@@ -36,6 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.opencv.core.Point;
+
 @Autonomous(name="Knock Cap Ball test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class knockOffCapBall extends LinearOpMode {
@@ -47,7 +49,7 @@ public class knockOffCapBall extends LinearOpMode {
         telemetry.update();
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
 
         //Wait for start and reset the runtime count
 
@@ -66,4 +68,8 @@ public class knockOffCapBall extends LinearOpMode {
     }
 
 }
+
+
+
+
 

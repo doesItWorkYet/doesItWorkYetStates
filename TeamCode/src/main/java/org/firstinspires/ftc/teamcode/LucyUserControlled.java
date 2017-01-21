@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@Disabled
 public class LucyUserControlled extends LinearOpMode {
     HardwareMapLucyV4 robot;
+    boolean slowModeToggle = false;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private motorController driveLeftController, driveRightController;
@@ -54,7 +55,10 @@ public class LucyUserControlled extends LinearOpMode {
         robot.init(hardwareMap);
         telemetry.addData("Status", "Robot init");
         telemetry.update();
-        robot.zero();
+        robot.zero(this);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        idle();
         telemetry.addData("Status", "Robot zeros");
         telemetry.update();
         driveLeftController = new motorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
@@ -72,6 +76,7 @@ public class LucyUserControlled extends LinearOpMode {
         boolean sweepReverseOnOrOff = false;
         boolean driveDirection = false;
         boolean armletsDeployed = false;
+        boolean samDriveMode = false;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -79,6 +84,7 @@ public class LucyUserControlled extends LinearOpMode {
             telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.update();
 
+            //Control cooling fan
             if(armletsDeployed){
                 if(gamepad2.a){
                     robot.propeller.setPower(robot.PROPELLER_ON);
@@ -109,41 +115,98 @@ public class LucyUserControlled extends LinearOpMode {
                 robot.indexer.setPosition(robot.INDEXER_LOAD_POSITION/180.0);
             }
 
+            //Deploy the armlets
             if(gamepad2.dpad_up){
                 robot.armletRight.setPosition(robot.ARMLET_DEPLOY_POSITION/180.0);
                 robot.armletLeft.setPosition(robot.ARMLET_DEPLOY_POSITION/180.0);
                 armletsDeployed = true;
             }
 
+            //Store the armlets
             if(gamepad2.dpad_down){
                 robot.armletRight.setPosition(robot.ARMLET_STORE_POSITION/180.0);
                 robot.armletLeft.setPosition(robot.ARMLET_STORE_POSITION/180.0);
-                armletsDeployed = true;
             }
 
-            if(gamepad1.left_trigger > .1){
-                driveLeftController.accelationRuntime(true);
+            //Reset the armlets
+            if(gamepad2.dpad_left){
+                armletsDeployed = false;
             }
 
-            if(gamepad1.right_trigger > .1){
-                driveRightController.accelationRuntime(true);
+            //Drive Left Motor in Reverse
+            if(samDriveMode){
+                if(gamepad1.left_trigger > .1){
+                    if(slowModeToggle) robot.rightMotor.setPower(robot.MAIN_MOTOR_MAX_POWER/2.0);
+                    else driveRightController.accelationRuntime(true);
+                }
+                if(gamepad1.right_trigger > .1){
+                    if(slowModeToggle) robot.leftMotor.setPower(robot.MAIN_MOTOR_MAX_POWER/2.0);
+                    else driveLeftController.accelationRuntime(true);
+                }
+                if(gamepad1.left_bumper){
+                    if(slowModeToggle) robot.rightMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER/2.0);
+                    else driveRightController.accelationRuntime(false);
+                }
+                if(gamepad1.right_bumper){
+                    if(slowModeToggle) robot.leftMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER/2.0);
+                    else driveLeftController.accelationRuntime(false);
+                }
+
+                //If neither the left trigger or bumper is pressed, the left motor should be stationary
+                if(gamepad1.left_trigger <= .1 && !gamepad1.left_bumper){
+                    driveRightController.stationaryRuntime();
+                }
+
+                //If neither the right trigger or bumper is pressed, the right motor should be stationary
+                if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
+                    driveLeftController.stationaryRuntime();
+                }
+
+                while(gamepad1.dpad_left){
+                    idle();
+                    samDriveMode = false;
+                }
+            }
+            if(!samDriveMode) {
+                if (gamepad1.left_trigger > .1) {
+                    if (slowModeToggle) robot.leftMotor.setPower(robot.MAIN_MOTOR_MAX_POWER / 2.0);
+                    else driveLeftController.accelationRuntime(true);
+                }
+
+                //Drive Right Motor in Reverse
+                if (gamepad1.right_trigger > .1) {
+                    if (slowModeToggle) robot.rightMotor.setPower(robot.MAIN_MOTOR_MAX_POWER / 2.0);
+                    else driveRightController.accelationRuntime(true);
+                }
+
+                //Drive Left Motor Forward
+                if (gamepad1.left_bumper) {
+                    if (slowModeToggle) robot.leftMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER / 2.0);
+                    else driveLeftController.accelationRuntime(false);
+                }
+
+                //Drive Right Motor Forward
+                if (gamepad1.right_bumper) {
+                    if (slowModeToggle) robot.rightMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER / 2.0);
+                    else driveRightController.accelationRuntime(false);
+                }
+                //If neither the left trigger or bumper is pressed, the left motor should be stationary
+                if(gamepad1.left_trigger <= .1 && !gamepad1.left_bumper){
+                    driveLeftController.stationaryRuntime();
+                }
+
+                //If neither the right trigger or bumper is pressed, the right motor should be stationary
+                if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
+                    driveRightController.stationaryRuntime();
+                }
+
+                while (gamepad1.dpad_left) {
+                    idle();
+                    samDriveMode = true;
+                }
+
             }
 
-            if(gamepad1.left_bumper){
-                driveLeftController.accelationRuntime(false);
-            }
-
-            if(gamepad1.right_bumper){
-                driveRightController.accelationRuntime(false);
-            }
-
-            if(gamepad1.left_trigger <= .1 && !gamepad1.left_bumper){
-                driveLeftController.stationaryRuntime();
-            }
-
-            if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
-                driveRightController.stationaryRuntime();
-            }
             //else driveRightController.stop();
 
             //When the A button is pressed, turn the sweep motor in the positive direction
@@ -157,6 +220,11 @@ public class LucyUserControlled extends LinearOpMode {
             //If neither the A or B button are pressed, turn off the sweep motor
             if(!gamepad1.a & !gamepad1.b) {
                 robot.sweep.setPower(0);
+            }
+            //Move slower
+            if(gamepad1.y){
+                slowModeToggle = true;
+                while(gamepad1.y);
             }
             /*
 
@@ -191,14 +259,17 @@ public class LucyUserControlled extends LinearOpMode {
                 }
             }
 */
+            //Deploy the beacon presser
             if(gamepad1.dpad_up){
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
             }
+            //Store the beacon pesser
             if(gamepad1.dpad_down){
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
             }
+
 
             //cap ball lift controls:
             /*NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
@@ -228,10 +299,10 @@ public class LucyUserControlled extends LinearOpMode {
             }
             */
             if (gamepad2.right_bumper){
-                robot.extendotronRight.setPower(robot.EXTENDORTON_LIFT_SPEED);
+                robot.extendotronRight.setPower(robot.EXTENDOTRON_LIFT_SPEED);
             }
             else if (gamepad2.right_trigger > 0){
-                robot.extendotronRight.setPower(-robot.EXTENDORTON_LIFT_SPEED);
+                robot.extendotronRight.setPower(robot.EXTENDOTRON_DROP_SPEED);
             }
             else{
                 robot.extendotronRight.setPower(0);
@@ -239,10 +310,10 @@ public class LucyUserControlled extends LinearOpMode {
 
 
             if(gamepad2.left_bumper){
-                robot.extendotronLeft.setPower(robot.EXTENDORTON_LIFT_SPEED);
+                robot.extendotronLeft.setPower(robot.EXTENDOTRON_LIFT_SPEED);
             }
             else if(gamepad2.left_trigger > 0){
-                robot.extendotronLeft.setPower(-robot.EXTENDORTON_LIFT_SPEED);
+                robot.extendotronLeft.setPower(robot.EXTENDOTRON_DROP_SPEED);
             }
             else{
                 robot.extendotronLeft.setPower(0);

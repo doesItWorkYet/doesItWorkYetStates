@@ -3,22 +3,39 @@ package org.firstinspires.ftc.teamcode;
 import android.content.Context;
 import android.hardware.SensorManager;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
+
+import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 /**
  * Created by root on 12/19/16.
  */
 public class HardwareMapLucyV4 {
+    public final boolean DEBUG = false;
+
     //autonomous heading
     public double zeroedHeading;
     public double HEADING_ACCURACY = 8;
     public double[] baseLineColorAverage = {0,0,0};
 
-    public final double ROBOT_WHEEL_RADIUS = .0476; //meters
-    public final double ROBOT_WHEEL_TRACK = .244; //meters
+    public final int LEFT_MOTOR = 1;
+    public final int RIGHT_MOTOR = -1;
 
+    //Wheel Measurements
+    private final double ROBOT_WHEEL_RADIUS = .0519; //meters
+    private final double ROBOT_WHEEL_TRACK = .244; //meters
+    private final double ROBOT_REV_PER_DEGREE = .013059301;
+    private final double MARGIN_OF_ERROR_TURN = 15;
+    private final double TURN_CORRECTION_FACTOR = .9583;
+
+    private final double GEAR_RATIO = 1;
+
+    //Wheel Measurement Conversions
     public final double ROBOT_WHEEL_CIRCUMFERENCE = ROBOT_WHEEL_RADIUS * 2 * Math.PI;
 
+    //Distance Measurements
     public final double CAP_BALL_DIST = 1.8;
 
     // vars for Mat (special)
@@ -34,9 +51,10 @@ public class HardwareMapLucyV4 {
     //beacon pressing autonomous
     public double BEACON_HITTING_ROTATION = -90;
     public double ADVANCE_TO_BEACON_HEADING = -30;
-    public double ROTATION_TURNING_SPEED = .1;
+    public double ROTATION_TURNING_SPEED = .5;
     public double COLOR_APPROACHING_SPEED = .2;
 
+    //Ultrasonic Sensor Info
     public final int ULTRASONIC_SENSOR_READ_PIN = 4;
     public final int ULTRASONIC_SENSOR_TRIG_PIN = 5;
 
@@ -58,7 +76,8 @@ public class HardwareMapLucyV4 {
     //cap ball lifter motors
     public DcMotor extendotronLeft = null;
     public DcMotor extendotronRight = null;
-    public final double EXTENDORTON_LIFT_SPEED = .75;
+    public final double EXTENDOTRON_LIFT_SPEED = .75;
+    public final double EXTENDOTRON_DROP_SPEED = -.35;
     public Servo leftClawDeployer = null;
     public Servo rightClawDeployer = null;
 
@@ -73,23 +92,24 @@ public class HardwareMapLucyV4 {
     public Servo beaconPresserLeft = null;
     public Servo beaconPresserRight = null;
 
-
+    //Beacon Presser Positions
     final int BEACON_PRESSER_LEFT_STORE_POSITION = 60;
     final int BEACON_PRESSER_RIGHT_STORE_POSITION = 60;
-    //final int BEACON_PRESSER_LEFT_UP_POSITION = 0;
-    //final int BEACON_PRESSER_RIGHT_UP_POSITION = 0;
     final int BEACON_PRESSER_LEFT_PRESS_POSITION = 100;
     final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 100;
 
+    //Beacon Wall Approach Speed
+    final double BEACON_PRESSING_POWER = .5;
 
-    final double BEACON_PRESSING_POWER = .5;//speed at which to ram wall
-
+    //Indexer Positions
     final double INDEXER_LOAD_POSITION = 0.0;
-    final double INDEXER_FIRE_POSITION = 65.0;
+    final double INDEXER_FIRE_POSITION = 45.0;
 
+    //Motor Tick Values
     final int TICKS_PER_REV_ANDYMARK = 1120;
     final int TICKS_PER_REV_TETRIX = 1440;
 
+    //Miscellaneous Values
     final double PROPELLER_ON = 1;
     final double MOTOR_OFF = 0;
     final double FLY_WHEEL_POWER = 1;
@@ -106,7 +126,7 @@ public class HardwareMapLucyV4 {
     //final int BEACON_COLOR_SENSOR_LED_PIN = 3;
     //final int GROUND_COLOR_SENSOR_POWER_PIN = 1; //used to turn sensor on and off
     //final int BEACON_COLOR_SENSOR_POWER_PIN = 5;
-    final int BRIGHTNESS_WHITE_THREASHOLD = 4000;
+    final double BRIGHTNESS_WHITE_THREASHOLD = .8;
     final int MIN_RED_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final int MIN_BLUE_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final double MIN_COLOR_MULTIPLIER = 1.8; // blue value must be x times larger than red
@@ -145,9 +165,22 @@ public class HardwareMapLucyV4 {
     String RED = "Red";
     HardwareMap hwMap = null;
 
+    public final double OPTICAL_SENSOR_THRESHOLD = .04;
 
-    final int ARMLET_STORE_POSITION =  0;
-    final int ARMLET_DEPLOY_POSITION = 150;
+    final int ARMLET_STORE_POSITION =  20;
+    final int ARMLET_DEPLOY_POSITION = 120;
+
+    final int DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH = 2;
+    final double FAST_RPS = 1;
+    final double SLOW_RPS = .5;
+    final double WHITE_LINE_TURN_SPEED = .3;
+    final double WALL_APPROACH_SPEED = .3;
+
+    //definitions for Autonomous
+    final int BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL = 52;
+    final double FEET_TO_TRAVEL_FROM_WALL = 1.5;
+    final double TURNING_RPS = .3;
+    final int DIST_LINE_TO_LINE_FAST = 1;
 
     public OpticalDistanceSensor distSensor = null;
 
@@ -161,8 +194,8 @@ public class HardwareMapLucyV4 {
             //movement init
             leftMotor = hwMap.dcMotor.get("leftMotor");
             rightMotor = hwMap.dcMotor.get("rightMotor");
-            leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             leftMotorController = new MotorController(leftMotor, ACCELERATION_COEFFICIENT, START_VELOCITY);
@@ -229,7 +262,7 @@ public class HardwareMapLucyV4 {
         }
 
     }
-    public void zero(){
+    public void zero(OpMode mode) throws InterruptedException {
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
@@ -241,30 +274,48 @@ public class HardwareMapLucyV4 {
         armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
         armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
         propeller.setPower(0);
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if (mode instanceof LinearVisionOpMode) {
+            ((LinearVisionOpMode) mode).waitOneFullHardwareCycle();
+        }
+        else if (mode instanceof LinearOpMode) {
+            ((LinearOpMode) mode).idle();
+        }
+/*
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        while(leftMotor.getCurrentPosition() != 0);
+        while(rightMotor.getCurrentPosition() != 0);
+    */
     }
 
     public void turnToDegree(double degree){
         double distanceToTurn = (degree / 360.0) * (ROBOT_WHEEL_TRACK*Math.PI);
         double rotationsToTurn = distanceToTurn / (ROBOT_WHEEL_CIRCUMFERENCE);
         int ticksToTurn = (int) (rotationsToTurn * TICKS_PER_REV_ANDYMARK);
+
+
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + ticksToTurn);
         rightMotor.setTargetPosition(rightMotor.getTargetPosition() - ticksToTurn);
         leftMotor.setPower(ROTATION_TURNING_SPEED);
-        rightMotor.setPower(ROTATION_TURNING_SPEED);
+        rightMotor.setPower(ROTATION_TURNING_SPEED*1.2);
         while(leftMotor.isBusy());
         while(rightMotor.isBusy());
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        brakeTemporarily();
     }
 
     public void driveDistance(double distance, double power) {
         double distanceInMeters = distance / 3.28084;
         double rotationsToTurn = distanceInMeters / ROBOT_WHEEL_CIRCUMFERENCE;
         int ticksToTurn = (int) (rotationsToTurn * TICKS_PER_REV_ANDYMARK);
+
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + ticksToTurn);
@@ -273,11 +324,63 @@ public class HardwareMapLucyV4 {
         rightMotor.setPower(power);
         while(leftMotor.isBusy());
         while(rightMotor.isBusy());
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setPower(0); //release motors
         rightMotor.setPower(0); //release motors
+    }
+
+    public void driveStraightUntilWall(double speed, double opticalSensorThreshold, long timeToQuit){
+        double lightLevel = distSensor.getLightDetected();
+        leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
+        rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        setDriveMotorPower(speed);
+        while(distSensor.getLightDetected() < opticalSensorThreshold && System.currentTimeMillis() < timeToQuit){
+
+        };
+        stop();
+        brakeTemporarily();
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
+
+    public void beginSynchronousDriving(double rps){
+        leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*rps));
+        rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*rps));
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        setDriveMotorPower(rps);
+    }
+
+    public void endSynchronousDriving(){
+        stop();
+        brakeTemporarily();
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //stop
+        //brake
+        //reset encoders
+
+    }
+
+
+    /*
+    public void driveAtSpeed(double distance, double speed) {
+        double distanceInMeters = distance / 3.28084;
+        double rotationsToTurn = distanceInMeters / ROBOT_WHEEL_CIRCUMFERENCE;
+        int ticksToTurn = (int) (rotationsToTurn * TICKS_PER_REV_ANDYMARK);
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor.setMaxSpeed();
+    }
+
+*/
 
     public double degreeToRadian(int degree){
         return degree/180.0;
@@ -290,6 +393,28 @@ public class HardwareMapLucyV4 {
     public void turn(double power){
         rightMotor.setPower(-power);
         leftMotor.setPower(power);
+    }
+
+    public void oneWheelTurn(int motor, double degree, double power){
+        int direction = 0;
+        if(degree>0){
+            direction = (RIGHT_MOTOR == motor)? -1 : 1;
+        }
+        if(degree<0){
+            direction = (RIGHT_MOTOR == motor)? 1 : -1;
+        }
+        DcMotor dcMotor = (motor == RIGHT_MOTOR)? rightMotor : leftMotor;
+        double rotations = Math.abs(degree)*ROBOT_REV_PER_DEGREE;
+        double ticks = rotations * TICKS_PER_REV_ANDYMARK * TURN_CORRECTION_FACTOR;
+        int currentPosition = (dcMotor.getCurrentPosition());
+        int targetPosition = (int) (currentPosition + (direction * ticks));
+        dcMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        dcMotor.setTargetPosition(targetPosition);
+        dcMotor.setPower(power);
+        while(dcMotor.isBusy());
+        dcMotor.setPower(0);
+        dcMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        brakeTemporarily();
     }
 
     public void stop(){
@@ -380,6 +505,7 @@ public class HardwareMapLucyV4 {
                 }
             }
         }
+
         else if(typeToUse == USE_BRIGHTNESS){
             boolean hasCrossed = false;
             while(!hasCrossed && !safetyLeft && !safetyRight){
@@ -396,6 +522,7 @@ public class HardwareMapLucyV4 {
         brakeTemporarily(); //stop hard
     }
 
+
     public void delay(long time){
         long curTime = System.currentTimeMillis();
         while(System.currentTimeMillis() < time + curTime);
@@ -403,6 +530,7 @@ public class HardwareMapLucyV4 {
 
     public void brakeTemporarily(){
         //call this to have the robot stop fast
+        stop();
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         delay(BRAKE_TIME);

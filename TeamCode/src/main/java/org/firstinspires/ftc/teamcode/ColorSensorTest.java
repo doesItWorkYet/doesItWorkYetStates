@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="beacon color tester" , group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Ground Color Test" , group="Testing")  // @Autonomous(...) is the other common choice
 
 public class ColorSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
@@ -47,7 +47,7 @@ public class ColorSensorTest extends LinearOpMode {
         telemetry.update();
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
         //deploy beacon servos

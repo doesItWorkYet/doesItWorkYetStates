@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class distSensorTest extends LinearOpMode {
+@Autonomous(name="Turn test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class newTurnTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,22 +51,9 @@ public class distSensorTest extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
 
-        while(opModeIsActive()){
-            telemetry.addData("Light:", robot.distSensor.getLightDetected());
-            telemetry.update();
+        robot.oneWheelTurn(robot.LEFT_MOTOR, 360, .15);
 
-
-        }
-
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
-
-        //}
-        robot.brakeTemporarily();
-
-
-
-           idle();
+            idle();
 
     }
 

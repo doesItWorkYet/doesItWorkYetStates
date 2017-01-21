@@ -48,7 +48,7 @@ public class testAdvanceToBeacon extends LinearOpMode {
         telemetry.update();
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
         double dist = robot.distSensor.getLightDetected();

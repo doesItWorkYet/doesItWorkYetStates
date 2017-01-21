@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class distSensorTest extends LinearOpMode {
+@Autonomous(name="Turn to white", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class turnToWhite extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,25 +48,29 @@ public class distSensorTest extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
+
+        boolean safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
         //Wait for start and reset the runtime count
         waitForStart();
+        long timeToStop= System.currentTimeMillis() + 30*1000;
+        robot.deployBeaconPressers();
+       //while(opModeIsActive()){
+        robot.driveDistance(1, .25);
+        robot.oneWheelTurn(robot.RIGHT_MOTOR, -45, .15);
+        robot.beginSynchronousDriving(.65);
+        while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THREASHOLD && !safety && opModeIsActive()) {
+            safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
+            idle();
 
-        while(opModeIsActive()){
-            telemetry.addData("Light:", robot.distSensor.getLightDetected());
-            telemetry.update();
-
+        }
+        if(!safety && opModeIsActive()) {
+            robot.endSynchronousDriving();
+            robot.oneWheelTurn(robot.LEFT_MOTOR, -45, .15);
+            robot.driveStraightUntilWall(.15, robot.OPTICAL_SENSOR_THRESHOLD,timeToStop);
 
         }
 
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
-
-        //}
-        robot.brakeTemporarily();
-
-
-
-           idle();
+       //}
 
     }
 

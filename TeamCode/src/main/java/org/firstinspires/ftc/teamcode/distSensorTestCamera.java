@@ -1,4 +1,10 @@
-import org.firstinspires.ftc.teamcode.HardwareMapLucyV4;
+package org.firstinspires.ftc.teamcode;
+
+
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -7,27 +13,62 @@ import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
-public class baseLineCameraAutonomous extends LinearVisionOpMode {
+/**
+ * Created by root on 12/23/16.
+ */
+@Autonomous(name="Distance Sensor and Camera", group="Testing")  // @Autonomous(...) is the other common choice
+@Disabled
+public class distSensorTestCamera extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
     HardwareMapLucyV4 robot;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
+        beginDetection(robot.RED_THREASHOLD, robot.BLUE_THREASHOLD,robot.CAMERA_FRAME_HEIGHT, robot.CAMERA_FRAME_WIDTH);
+        waitForStart();
+        String shouldDrive = "should drive here";
+        robot.deployBeaconPressers();
+        while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
+            telemetry.addData("Robot ", shouldDrive);
+            //robot.driveDistance(.05, .5);
+            telemetry.addData("Light: ", robot.distSensor.getLightDetected());
+            telemetry.update();
+        }
+        //robot.brakeTemporarily();
+        if(getLeftColor()==robot.BEACON_RED && opModeIsActive()){
+            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
+            telemetry.addData("Robot ", shouldDrive);
+            telemetry.update();
+            //robot.driveDistance(0.1, .5);
+        }
+        else if(getRightColor()==robot.BEACON_BLUE && opModeIsActive()){
+            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
+            telemetry.addData("Robot ", shouldDrive);
+            telemetry.update();
+            //robot.driveDistance(0.1, .5);
+        }
+        //robot.brakeTemporarily();
+    }
+
+
+    public void beginDetection(double redTolerance, double blueTolerance, int height, int width){
+        this.redTolerance = redTolerance;
+        this.blueTolerance = blueTolerance;
         telemetry.addData("Vars", "Set");
         telemetry.update();
         try {
             waitForVisionStart();
-        } catch (Exception e) {
+        }
+        catch (Exception e){
             telemetry.addData("Exception: ", e.getMessage());
         }
 
-
+        super.init();
         /**
          * Set the camera used for detection
          * PRIMARY = Front-facing, larger camera
@@ -62,8 +103,8 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
          * Set color tolerances
          * 0 is default, -1 is minimum and 1 is maximum tolerance
          */
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
+        beacon.setColorToleranceRed(redTolerance);
+        beacon.setColorToleranceBlue(blueTolerance);
 
         rotation.setIsUsingSecondaryCamera(false);
         rotation.disableAutoRotate();

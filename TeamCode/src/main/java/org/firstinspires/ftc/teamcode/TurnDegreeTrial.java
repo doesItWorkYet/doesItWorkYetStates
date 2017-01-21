@@ -32,13 +32,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class distSensorTest extends LinearOpMode {
+@TeleOp(name="Turn to degree controller", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class TurnDegreeTrial extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,25 +47,56 @@ public class distSensorTest extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
+        int turn = 0;
+        int turnMotor = robot.LEFT_MOTOR;
         //Wait for start and reset the runtime count
         waitForStart();
+       while(opModeIsActive()){
+           if (gamepad1.dpad_left)
+               turnMotor = robot.LEFT_MOTOR;
+           if (gamepad1.dpad_right)
+               turnMotor = robot.RIGHT_MOTOR;
 
-        while(opModeIsActive()){
-            telemetry.addData("Light:", robot.distSensor.getLightDetected());
-            telemetry.update();
+           if(gamepad1.y)
+               robot.driveDistance(1, .25);
+           if(gamepad1.a)
+               robot.driveDistance(-1, .25);
+           turn = 0;  // no turn unless button pressed
+           if (gamepad1.x)
+               turn = -90;
+           if (gamepad1.b)
+               turn = 90;
 
+           if (turn != 0) {
+               robot.oneWheelTurn(turnMotor, turn, .15);
+           }
 
-        }
+           /*
+           if(gamepad1.dpad_right) {
+                if (gamepad1.x) {
+                    turn = -90;
+                    robot.oneWheelTurn(robot.RIGHT_MOTOR, turn, .15);
+                }
+                if(gamepad1.b){
+                    turn = 90;
+                    robot.oneWheelTurn(robot.RIGHT_MOTOR, turn, .15);
+                }
 
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
+            }
+           if(gamepad1.dpad_left){
+               if(gamepad1.x){
+                   turn = -90;
+                   robot.oneWheelTurn(robot.LEFT_MOTOR, turn, .15);
+               }
+               if(gamepad1.a){
+                   turn = 90;
+                   robot.oneWheelTurn(robot.LEFT_MOTOR, turn, .15);
+               }
 
-        //}
-        robot.brakeTemporarily();
-
-
-
+           }
+           */
            idle();
+       }
 
     }
 

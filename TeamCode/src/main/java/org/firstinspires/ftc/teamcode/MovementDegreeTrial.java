@@ -35,10 +35,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Auto Dist Deg Test", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class distSensorTest extends LinearOpMode {
+public class MovementDegreeTrial extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,23 +51,19 @@ public class distSensorTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-
-        while(opModeIsActive()){
-            telemetry.addData("Light:", robot.distSensor.getLightDetected());
-            telemetry.update();
-
-
-        }
-
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
-
-        //}
-        robot.brakeTemporarily();
-
-
+       while(opModeIsActive()){
+            if(gamepad1.a){
+                robot.driveDistance(1,.25);
+            }
+           if(gamepad1.b){
+               robot.driveDistance(.5,.25);
+           }
+           if(gamepad1.x){
+               robot.turnToDegree(90);
+           }
 
            idle();
+       }
 
     }
 

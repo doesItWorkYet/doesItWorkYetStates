@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Drive in Square", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class distSensorTest extends LinearOpMode {
+public class driveInSquare extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,23 +50,29 @@ public class distSensorTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-
-        while(opModeIsActive()){
-            telemetry.addData("Light:", robot.distSensor.getLightDetected());
-            telemetry.update();
-
-
-        }
-
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
-
-        //}
-        robot.brakeTemporarily();
-
-
-
-           idle();
+        robot.deployBeaconPressers();
+        telemetry.addData("Start", "");
+        telemetry.update();
+        robot.driveDistance(1,.25);
+        telemetry.addData("end", "");
+        telemetry.update();
+        /*
+        telemetry.addData("Turning", " 1");
+        telemetry.update();
+        robot.turnToDegree(90);
+        robot.driveDistance(1,.25);
+        telemetry.addData("Turning", " 2");
+        telemetry.update();
+        robot.turnToDegree(90);
+        robot.driveDistance(1,.25);
+        telemetry.addData("Turning", " 3");
+        telemetry.update();
+        robot.turnToDegree(90);
+        robot.driveDistance(1,.25);
+        telemetry.addData("Turning", " 4");
+        telemetry.update();
+        robot.turnToDegree(90);
+        */
 
     }
 

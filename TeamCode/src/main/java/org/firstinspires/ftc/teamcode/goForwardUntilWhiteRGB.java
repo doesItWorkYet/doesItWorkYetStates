@@ -49,7 +49,7 @@ public class goForwardUntilWhiteRGB extends LinearOpMode {
         telemetry.update();
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
         //Wait for start and reset the runtime count
         //turn off beacon sensor
         //robot.beaconColorSensor.turnSensorOff();

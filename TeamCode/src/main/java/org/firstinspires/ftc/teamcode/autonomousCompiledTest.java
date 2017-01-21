@@ -21,9 +21,11 @@ public class autonomousCompiledTest extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //start everything with the boot up
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
+        //end every boot by resetting the motors
         beginDetection(robot.RED_THREASHOLD, robot.BLUE_THREASHOLD,robot.CAMERA_FRAME_HEIGHT, robot.CAMERA_FRAME_WIDTH);
         waitForStart();
         robot.driveDistance(3, 1);

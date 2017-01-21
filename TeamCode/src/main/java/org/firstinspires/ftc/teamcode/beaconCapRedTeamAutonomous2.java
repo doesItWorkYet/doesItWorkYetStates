@@ -26,7 +26,7 @@ public class beaconCapRedTeamAutonomous2 extends LinearVisionOpMode {
         //initialize hardware map
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
-        robot.zero();
+        robot.zero(this);
         waitForStart();
         //dirve forward from wall
         telemetry.addData("Action", "Driving Forward");

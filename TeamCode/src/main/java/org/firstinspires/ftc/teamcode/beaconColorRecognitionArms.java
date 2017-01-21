@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
@@ -16,7 +17,7 @@ import org.opencv.core.Size;
  * Created by root on 12/23/16.
  */
 @Autonomous(name="Beacon Color Recognition Arms", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 
 
 public class beaconColorRecognitionArms extends LinearVisionOpMode {
@@ -29,17 +30,18 @@ public class beaconColorRecognitionArms extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new HardwareMapLucyV4();
-        robot.init(hardwareMap);
-        robot.zero();
-        telemetry.addData("Vars", "Set");
-        telemetry.update();
         try {
             waitForVisionStart();
         }
         catch (Exception e){
             telemetry.addData("Exception: ", e.getMessage());
         }
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero(this);
+        telemetry.addData("Vars", "Set");
+        telemetry.update();
+
 
 
         /**
@@ -55,7 +57,7 @@ public class beaconColorRecognitionArms extends LinearVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(height, width));
+        this.setFrameSize(new Size(700, 700));
         telemetry.addData("Frame", "set");
         telemetry.update();
         /**
@@ -85,26 +87,75 @@ public class beaconColorRecognitionArms extends LinearVisionOpMode {
 
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
+        telemetry.addData("Camera Status:", "Initted");
+        telemetry.update();
+        robot.delay(100);
         //beginDetection(robot.RED_THREASHOLD, robot.BLUE_THREASHOLD,robot.CAMERA_FRAME_HEIGHT, robot.CAMERA_FRAME_WIDTH);
-        waitForStart();
-        robot.deployBeaconPressers();
-        getLeftColor();
+        //getLeftColor();
         robot.delay(1000);
-        //while(opModeIsActive()){
-        while(robot.distSensor.getLightDetected()<.1 && opModeIsActive()){
-            robot.driveDistance(.05, .5);
+        getLeftColor();
+        robot.delay(100);
+        waitForStart();
+        //determine millis to stop at
+        long timeToStop = System.currentTimeMillis() + 30 * 1000;
+        telemetry.addData("Start robot", "");
+        robot.deployBeaconPressers();
+        telemetry.addData("Deploy beacon pressers and wait", "");
+        robot.delay(100);
+        while(robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed());
+        robot.delay(400);
+        robot.beginSynchronousDriving(.65);
+        telemetry.addData("Start Sync Driving", "");
+        telemetry.update();
+        while(robot.groundColorSensor.getBrightness() < robot.BRIGHTNESS_WHITE_THREASHOLD && !robot.rightBeaconPresserSensor.isPressed() && !robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
+            telemetry.addData("L: ", robot.groundColorSensor.getBrightness());
+            telemetry.update();
         }
+        robot.endSynchronousDriving();
+        telemetry.addData("Stop Sync Driving", "");
+        robot.driveDistance(-.1, .5);
+        robot.brakeTemporarily();
+        telemetry.addData("Drive backwards", "");
+        robot.turnToDegree(-90);
+        telemetry.addData("Robot turns 90 degreees", "");
+        telemetry.update();
+
+
+        //while(opModeIsActive()){
+
+        robot.driveStraightUntilWall(1, robot.OPTICAL_SENSOR_THRESHOLD,timeToStop );
+
+            //robot.delay(100);
+
+        telemetry.addData("Target:", "Within Range");
+        telemetry.update();
         robot.brakeTemporarily();
            if(getLeftColor() == robot.BEACON_RED) {
                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+               robot.delay(500);
+               while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
+                   robot.setDriveMotorPower(.5);
+                   robot.delay(100);
+               }
+               robot.delay(300);
+               robot.brakeTemporarily();
                telemetry.addData("Red on:", "Left");
                telemetry.update();
            }
-            if(getRightColor() == robot.BEACON_RED) {
+           robot.brakeTemporarily();
+           if(getRightColor() == robot.BEACON_RED) {
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-                telemetry.addData("Red on:", "Right");
-                telemetry.update();
-            }
+                robot.delay(500);
+                while(!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()){
+                    robot.setDriveMotorPower(.5);
+                    robot.delay(100);
+                }
+               robot.delay(300);
+               robot.brakeTemporarily();
+               telemetry.addData("Red on:", "Right");
+               telemetry.update();
+           }
+           robot.brakeTemporarily();
         //}
 
         //telemetry.update();
