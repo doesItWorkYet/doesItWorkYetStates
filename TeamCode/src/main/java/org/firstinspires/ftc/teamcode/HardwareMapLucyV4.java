@@ -77,7 +77,7 @@ public class HardwareMapLucyV4 {
     public DcMotor extendotronLeft = null;
     public DcMotor extendotronRight = null;
     public final double EXTENDOTRON_LIFT_SPEED = .75;
-    public final double EXTENDOTRON_DROP_SPEED = -.35;
+    public final double EXTENDOTRON_DROP_SPEED = -.25;
     public Servo leftClawDeployer = null;
     public Servo rightClawDeployer = null;
 
@@ -126,7 +126,7 @@ public class HardwareMapLucyV4 {
     //final int BEACON_COLOR_SENSOR_LED_PIN = 3;
     //final int GROUND_COLOR_SENSOR_POWER_PIN = 1; //used to turn sensor on and off
     //final int BEACON_COLOR_SENSOR_POWER_PIN = 5;
-    final double BRIGHTNESS_WHITE_THREASHOLD = .8;
+    final double BRIGHTNESS_WHITE_THREASHOLD = .5;
     final int MIN_RED_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final int MIN_BLUE_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final double MIN_COLOR_MULTIPLIER = 1.8; // blue value must be x times larger than red
@@ -168,7 +168,7 @@ public class HardwareMapLucyV4 {
     public final double OPTICAL_SENSOR_THRESHOLD = .04;
 
     final int ARMLET_STORE_POSITION =  20;
-    final int ARMLET_DEPLOY_POSITION = 120;
+    final int ARMLET_DEPLOY_POSITION = 160;
 
     final int DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH = 2;
     final double FAST_RPS = 1;
@@ -177,7 +177,7 @@ public class HardwareMapLucyV4 {
     final double WALL_APPROACH_SPEED = .3;
 
     //definitions for Autonomous
-    final int BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL = 52;
+    final int BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL = 58;
     final double FEET_TO_TRAVEL_FROM_WALL = 1.5;
     final double TURNING_RPS = .3;
     final int DIST_LINE_TO_LINE_FAST = 1;

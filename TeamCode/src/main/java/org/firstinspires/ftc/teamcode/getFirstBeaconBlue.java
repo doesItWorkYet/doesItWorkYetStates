@@ -87,7 +87,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         //while(opModeIsActive()){
         robot.driveDistance(robot.FEET_TO_TRAVEL_FROM_WALL, .25);
         robot.brakeTemporarily();
-        robot.oneWheelTurn(robot.RIGHT_MOTOR, -robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL, robot.TURNING_RPS);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL, robot.TURNING_RPS);
 
         long currentPos = robot.leftMotor.getCurrentPosition();
         long ticksToTravelFast = robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH*robot.TICKS_PER_REV_ANDYMARK;
@@ -111,7 +111,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         }
 
         if(!safety && opModeIsActive()) {
-            robot.oneWheelTurn(robot.LEFT_MOTOR, -(90 - robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL), robot.TURNING_RPS);
+            robot.oneWheelTurn(robot.RIGHT_MOTOR, (90 - robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL), robot.TURNING_RPS);
             //drive into wall
             robot.beginSynchronousDriving(robot.SLOW_RPS);
             while(robot.distSensor.getLightDetected() < robot.OPTICAL_SENSOR_THRESHOLD && opModeIsActive()){
@@ -129,7 +129,8 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
             if(getLeftColor() == robot.BEACON_BLUE) {
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
                 robot.delay(500);
-                while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
+                long start = System.currentTimeMillis();
+                while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive() && System.currentTimeMillis() < start + 2000){
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
@@ -140,9 +141,11 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
             }
             robot.brakeTemporarily();
             if(getRightColor() == robot.BEACON_BLUE) {
+
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION / 180.0);
                 robot.delay(500);
-                while (!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()) {
+                long start = System.currentTimeMillis();
+                while (!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()&& System.currentTimeMillis() < start + 2000) {
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
@@ -161,7 +164,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         }
         if(!safety && opModeIsActive()){
             //back up
-            robot.driveDistance(-1, .3);
+            robot.driveDistance(-.2, .5);
 /*
             //turn
             robot.oneWheelTurn(robot.LEFT_MOTOR,90, robot.TURNING_RPS);

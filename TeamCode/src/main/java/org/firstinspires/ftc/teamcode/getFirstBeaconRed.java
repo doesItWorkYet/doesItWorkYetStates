@@ -128,7 +128,8 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
             if(getLeftColor() == robot.BEACON_RED) {
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
                 robot.delay(500);
-                while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
+                long start = System.currentTimeMillis();
+                while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive() && System.currentTimeMillis() < start + 200){
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
@@ -141,7 +142,8 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
             if(getRightColor() == robot.BEACON_RED) {
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION / 180.0);
                 robot.delay(500);
-                while (!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()) {
+                long start = System.currentTimeMillis();
+                while (!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive() && System.currentTimeMillis() < start + 2000) {
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
@@ -160,7 +162,7 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
         }
         if(!safety && opModeIsActive()){
             //back up
-            robot.driveDistance(-1, .3);
+            robot.driveDistance(-.2, .5);
 /*
             //turn
             robot.oneWheelTurn(robot.LEFT_MOTOR,90, robot.TURNING_RPS);
