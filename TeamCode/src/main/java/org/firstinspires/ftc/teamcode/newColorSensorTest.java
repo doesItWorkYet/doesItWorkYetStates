@@ -36,10 +36,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Drive in Square", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class driveInSquare extends LinearOpMode {
+@Autonomous(name="Fast Color Sensor", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class newColorSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
+    TCS34725_ColorSensor colorSensor;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -49,30 +50,16 @@ public class driveInSquare extends LinearOpMode {
         robot.init(hardwareMap);
         robot.zero(this);
         //Wait for start and reset the runtime count
+        colorSensor = new TCS34725_ColorSensor(hardwareMap,"rawGroundColorSensor");
         waitForStart();
-        robot.deployBeaconPressers();
-        telemetry.addData("Start", "");
-        telemetry.update();
-        robot.driveDistance(1,.25);
-        telemetry.addData("end", "");
-        telemetry.update();
-        /*
-        telemetry.addData("Turning", " 1");
-        telemetry.update();
-        robot.turnToDegree(90);
-        robot.driveDistance(1,.25);
-        telemetry.addData("Turning", " 2");
-        telemetry.update();
-        robot.turnToDegree(90);
-        robot.driveDistance(1,.25);
-        telemetry.addData("Turning", " 3");
-        telemetry.update();
-        robot.turnToDegree(90);
-        robot.driveDistance(1,.25);
-        telemetry.addData("Turning", " 4");
-        telemetry.update();
-        robot.turnToDegree(90);
-        */
+       while(opModeIsActive()){
+           telemetry.addData("Brightness: ", colorSensor.clearColor());
+           telemetry.update();
+
+
+
+           idle();
+       }
 
     }
 

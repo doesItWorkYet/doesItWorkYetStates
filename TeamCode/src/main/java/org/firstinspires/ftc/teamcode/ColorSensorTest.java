@@ -66,7 +66,7 @@ public class ColorSensorTest extends LinearOpMode {
            telemetry.addData("B:", color[2]);
            telemetry.addData("L:", robot.groundColorSensor.getBrightness());
            telemetry.update();
-           robot.delay(1000);
+           robot.delay(1000, this);
            idle();
        }
     }

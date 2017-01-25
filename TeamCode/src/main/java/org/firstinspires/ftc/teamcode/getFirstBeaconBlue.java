@@ -85,9 +85,9 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         long timeToStop = System.currentTimeMillis() + 30*1000;
         robot.deployBeaconPressers();
         //while(opModeIsActive()){
-        robot.driveDistance(robot.FEET_TO_TRAVEL_FROM_WALL, .25);
-        robot.brakeTemporarily();
-        robot.oneWheelTurn(robot.LEFT_MOTOR, robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL, robot.TURNING_RPS);
+        robot.driveDistance(robot.FEET_TO_TRAVEL_FROM_WALL, .25, this);
+        robot.brakeTemporarily(this);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL, robot.TURNING_RPS, this);
 
         long currentPos = robot.leftMotor.getCurrentPosition();
         long ticksToTravelFast = robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH*robot.TICKS_PER_REV_ANDYMARK;
@@ -97,11 +97,11 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
             waitOneFullHardwareCycle();
         }
         robot.beginSynchronousDriving(robot.SLOW_RPS);
-        while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THREASHOLD && !safety && opModeIsActive()) {
+        while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD && !safety && opModeIsActive()) {
             safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             waitOneFullHardwareCycle();
         }
-        robot.endSynchronousDriving();
+        robot.endSynchronousDriving(this);
 
         if(robot.DEBUG){
             while(!robot.leftBeaconPresserSensor.isPressed() && !robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()){
@@ -111,7 +111,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         }
 
         if(!safety && opModeIsActive()) {
-            robot.oneWheelTurn(robot.RIGHT_MOTOR, (90 - robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL), robot.TURNING_RPS);
+            robot.oneWheelTurn(robot.RIGHT_MOTOR, (90 - robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL), robot.TURNING_RPS, this);
             //drive into wall
             robot.beginSynchronousDriving(robot.SLOW_RPS);
             while(robot.distSensor.getLightDetected() < robot.OPTICAL_SENSOR_THRESHOLD && opModeIsActive()){
@@ -120,37 +120,37 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
                 waitOneFullHardwareCycle();
             }
 
-            robot.endSynchronousDriving();
+            robot.endSynchronousDriving(this);
             if(opModeIsActive()){
             //robot.driveStraightUntilWall(.15, robot.OPTICAL_SENSOR_THRESHOLD,timeToStop);
             telemetry.addData("Target:", "Within Range");
             telemetry.update();
-            robot.brakeTemporarily();
+            robot.brakeTemporarily(this);
             if(getLeftColor() == robot.BEACON_BLUE) {
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-                robot.delay(500);
+                robot.delay(500, this);
                 long start = System.currentTimeMillis();
                 while(!robot.leftBeaconPresserSensor.isPressed() && opModeIsActive() && System.currentTimeMillis() < start + 2000){
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
                 waitOneFullHardwareCycle();
-                robot.brakeTemporarily();
+                robot.brakeTemporarily(this);
                 telemetry.addData("Red on:", "Left");
                 telemetry.update();
             }
-            robot.brakeTemporarily();
+            robot.brakeTemporarily(this);
             if(getRightColor() == robot.BEACON_BLUE) {
 
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION / 180.0);
-                robot.delay(500);
+                robot.delay(500, this);
                 long start = System.currentTimeMillis();
                 while (!robot.rightBeaconPresserSensor.isPressed() && opModeIsActive()&& System.currentTimeMillis() < start + 2000) {
                     robot.setDriveMotorPower(.3);
                     waitOneFullHardwareCycle();
                 }
                 waitOneFullHardwareCycle();
-                robot.brakeTemporarily();
+                robot.brakeTemporarily(this);
                 telemetry.addData("Red on:", "Right");
                 telemetry.update();
             }
@@ -164,7 +164,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
         }
         if(!safety && opModeIsActive()){
             //back up
-            robot.driveDistance(-.2, .5);
+            robot.driveDistance(-.2, .5, this);
 /*
             //turn
             robot.oneWheelTurn(robot.LEFT_MOTOR,90, robot.TURNING_RPS);
@@ -182,7 +182,7 @@ public class getFirstBeaconBlue extends LinearVisionOpMode {
             telemetry.addData("Speed:", "Slow");
             telemetry.update();
             robot.beginSynchronousDriving(robot.SLOW_RPS);
-            while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THREASHOLD && !safety && opModeIsActive()) {
+            while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD && !safety && opModeIsActive()) {
                 safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
                 waitOneFullHardwareCycle();
                 telemetry.addData("Brightness:", robot.groundColorSensor.getBrightness());

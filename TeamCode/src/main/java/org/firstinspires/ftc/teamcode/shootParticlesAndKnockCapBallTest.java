@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Drive Straight", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class driveStraight extends LinearOpMode {
+public class shootParticlesAndKnockCapBallTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,11 +51,8 @@ public class driveStraight extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
 
-        robot.driveDistance(.1, .5);
-        robot.brakeTemporarily();
+        robot.driveDistance(robot.SHOOTING_POSITION, 0.5, this);
 
-
-        idle();
 
     }
 

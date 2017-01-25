@@ -24,11 +24,11 @@ public class HardwareMapLucyV4 {
     public final int RIGHT_MOTOR = -1;
 
     //Wheel Measurements
-    private final double ROBOT_WHEEL_RADIUS = .0519; //meters
-    private final double ROBOT_WHEEL_TRACK = .244; //meters
+    private final double ROBOT_WHEEL_RADIUS = .047625; //meters
+    public final double ROBOT_WHEEL_TRACK = .244; //meters
     private final double ROBOT_REV_PER_DEGREE = .013059301;
     private final double MARGIN_OF_ERROR_TURN = 15;
-    private final double TURN_CORRECTION_FACTOR = .9583;
+    public final double TURN_CORRECTION_FACTOR = 1;
 
     private final double GEAR_RATIO = 1;
 
@@ -37,6 +37,7 @@ public class HardwareMapLucyV4 {
 
     //Distance Measurements
     public final double CAP_BALL_DIST = 1.8;
+    public final double SHOOTING_POSITION = 1;
 
     // vars for Mat (special)
     public final double FOOT_TO_METERS = 12.0*2.54/100;
@@ -126,7 +127,7 @@ public class HardwareMapLucyV4 {
     //final int BEACON_COLOR_SENSOR_LED_PIN = 3;
     //final int GROUND_COLOR_SENSOR_POWER_PIN = 1; //used to turn sensor on and off
     //final int BEACON_COLOR_SENSOR_POWER_PIN = 5;
-    final double BRIGHTNESS_WHITE_THREASHOLD = .5;
+    final double BRIGHTNESS_WHITE_THRESHOLD = .5;
     final int MIN_RED_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final int MIN_BLUE_VALUE_FOR_DETECTION = 80; //used to differentiate from background
     final double MIN_COLOR_MULTIPLIER = 1.8; // blue value must be x times larger than red
@@ -135,7 +136,7 @@ public class HardwareMapLucyV4 {
 
     final long BRAKE_TIME = 600;
 
-    final double DISTANCE_INCREMEANT_FOR_WHITE_LINE_SEARCH = .02; //two centimeters
+    final double DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH = .02; //two centimeters
     final double ADVANCE_TO_WHITE_POWER = .6; //might as well as go fast....
 
     final double DEFAULT_POWER = 0.50;
@@ -149,6 +150,7 @@ public class HardwareMapLucyV4 {
     private SensorManager manager;
     public Orientation orientation;
     public RGBSensor groundColorSensor = null;
+    public TCS34725_ColorSensor fastColorSensor = null;
     //public RGBSensor beaconColorSensor = null;
 
     public TouchSensor leftBeaconPresserSensor = null;
@@ -252,6 +254,7 @@ public class HardwareMapLucyV4 {
             groundColorSensor = new RGBSensor("rawGroundColorSensor",hwMap, dim, GROUND_COLOR_SENSOR_LED_PIN, true);
             manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
             orientation = new Orientation(manager);
+            fastColorSensor = new TCS34725_ColorSensor(hwMap, "fastColorSensor");
 
 
 
@@ -290,28 +293,7 @@ public class HardwareMapLucyV4 {
     */
     }
 
-    public void turnToDegree(double degree){
-        double distanceToTurn = (degree / 360.0) * (ROBOT_WHEEL_TRACK*Math.PI);
-        double rotationsToTurn = distanceToTurn / (ROBOT_WHEEL_CIRCUMFERENCE);
-        int ticksToTurn = (int) (rotationsToTurn * TICKS_PER_REV_ANDYMARK);
-
-
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + ticksToTurn);
-        rightMotor.setTargetPosition(rightMotor.getTargetPosition() - ticksToTurn);
-        leftMotor.setPower(ROTATION_TURNING_SPEED);
-        rightMotor.setPower(ROTATION_TURNING_SPEED*1.2);
-        while(leftMotor.isBusy());
-        while(rightMotor.isBusy());
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        brakeTemporarily();
-    }
-
-    public void driveDistance(double distance, double power) {
+    public void driveDistance(double distance, double power, OpMode mode) {
         double distanceInMeters = distance / 3.28084;
         double rotationsToTurn = distanceInMeters / ROBOT_WHEEL_CIRCUMFERENCE;
         int ticksToTurn = (int) (rotationsToTurn * TICKS_PER_REV_ANDYMARK);
@@ -322,15 +304,15 @@ public class HardwareMapLucyV4 {
         rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + ticksToTurn);
         leftMotor.setPower(power);
         rightMotor.setPower(power);
-        while(leftMotor.isBusy());
-        while(rightMotor.isBusy());
+        while(leftMotor.isBusy() && !safety(mode));
+        while(rightMotor.isBusy() && !safety(mode));
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setPower(0); //release motors
         rightMotor.setPower(0); //release motors
     }
 
-    public void driveStraightUntilWall(double speed, double opticalSensorThreshold, long timeToQuit){
+    public void driveStraightUntilWall(double speed, double opticalSensorThreshold, long timeToQuit, OpMode mode){
         double lightLevel = distSensor.getLightDetected();
         leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
         rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
@@ -339,11 +321,11 @@ public class HardwareMapLucyV4 {
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         setDriveMotorPower(speed);
-        while(distSensor.getLightDetected() < opticalSensorThreshold && System.currentTimeMillis() < timeToQuit){
+        while(distSensor.getLightDetected() < opticalSensorThreshold && System.currentTimeMillis() < timeToQuit && !safety(mode)){
 
         };
         stop();
-        brakeTemporarily();
+        brakeTemporarily(mode);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
@@ -358,9 +340,9 @@ public class HardwareMapLucyV4 {
         setDriveMotorPower(rps);
     }
 
-    public void endSynchronousDriving(){
+    public void endSynchronousDriving(OpMode mode){
         stop();
-        brakeTemporarily();
+        brakeTemporarily(mode);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //stop
@@ -395,7 +377,7 @@ public class HardwareMapLucyV4 {
         leftMotor.setPower(power);
     }
 
-    public void oneWheelTurn(int motor, double degree, double power){
+    public void oneWheelTurn(int motor, double degree, double power, OpMode mode){
         int direction = 0;
         if(degree>0){
             direction = (RIGHT_MOTOR == motor)? -1 : 1;
@@ -411,11 +393,13 @@ public class HardwareMapLucyV4 {
         dcMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         dcMotor.setTargetPosition(targetPosition);
         dcMotor.setPower(power);
-        while(dcMotor.isBusy());
+        while(dcMotor.isBusy() && !safety(mode));
         dcMotor.setPower(0);
         dcMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        brakeTemporarily();
+        brakeTemporarily(mode);
     }
+
+
 
     public void stop(){
         leftMotor.setPower(0);
@@ -469,13 +453,13 @@ public class HardwareMapLucyV4 {
     public double[] getBaseLineColorState() {
         //assume we are using the ground sensor
         //groundColorSensor.turnSensorOff();
-        groundColorSensor.waitForInitialization();
+        fastColorSensor.waitForInitialization();
         double[] toReturn = {0,0,0};
-        double[] rgbValues = groundColorSensor.getRGBColor();
+        double[] rgbValues = fastColorSensor.getRGBColor();
 
         toReturn = rgbValues;
         for(int i = 0; i < COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR; i ++){
-            rgbValues = groundColorSensor.getRGBColor();
+            rgbValues = fastColorSensor.getRGBColor();
             toReturn[0] = (toReturn[0] + rgbValues[0])/2.0;
             toReturn[1] = (toReturn[1] + rgbValues[1])/2.0;
             toReturn[2] = (toReturn[2] + rgbValues[2])/2.0;
@@ -483,25 +467,24 @@ public class HardwareMapLucyV4 {
         return toReturn;
     }
 
-    public void goForwardUntilWhite(int typeToUse) {
+    public void goForwardUntilWhite(int typeToUse, OpMode mode) {
         //assume using ground sensor
         //.turnSensorOff();
         boolean safetyLeft = leftBeaconPresserSensor.isPressed();
         boolean safetyRight = rightBeaconPresserSensor.isPressed();
-        groundColorSensor.waitForInitialization();
+        fastColorSensor.waitForInitialization();
         if(typeToUse == USE_RGB) {
             baseLineColorAverage = getBaseLineColorState();
-            groundColorSensor.turnLedOn();
             boolean runTimes = false;
-            double[] newColor = groundColorSensor.getRGBColor();
-            while (!runTimes && !safetyLeft && !safetyRight) {
+            double[] newColor = fastColorSensor.getRGBColor();
+            while (!runTimes && !safetyLeft && !safetyRight && !safety(mode)) {
                 if (!checkIfWhite(newColor)&& !safetyLeft && !safetyRight) {
-                    driveDistance(DISTANCE_INCREMEANT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER);
+                    driveDistance(DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER, mode);
                 } else {
                     runTimes = true;
                 }
                 if(safetyLeft||safetyRight){
-                    brakeTemporarily();
+                    brakeTemporarily(mode);
                 }
             }
         }
@@ -509,39 +492,39 @@ public class HardwareMapLucyV4 {
         else if(typeToUse == USE_BRIGHTNESS){
             boolean hasCrossed = false;
             while(!hasCrossed && !safetyLeft && !safetyRight){
-                double brightness = groundColorSensor.getBrightness();
-                if(brightness < BRIGHTNESS_WHITE_THREASHOLD && !safetyLeft && !safetyRight){
-                    driveDistance(DISTANCE_INCREMEANT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER);
+                double brightness = fastColorSensor.getBrightness();
+                if(brightness < BRIGHTNESS_WHITE_THRESHOLD && !safetyLeft && !safetyRight){
+                    driveDistance(DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH,ADVANCE_TO_WHITE_POWER, mode);
                 }
                 else hasCrossed = true;
                 if(safetyRight||safetyLeft){
-                    brakeTemporarily();
+                    brakeTemporarily(mode);
                 }
             }
         }
-        brakeTemporarily(); //stop hard
+        brakeTemporarily(mode); //stop hard
     }
 
 
-    public void delay(long time){
+    public void delay(long time, OpMode mode){
         long curTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() < time + curTime);
+        while(System.currentTimeMillis() < time + curTime && !safety(mode));
     }
 
-    public void brakeTemporarily(){
+    public void brakeTemporarily(OpMode mode){
         //call this to have the robot stop fast
         stop();
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        delay(BRAKE_TIME);
+        delay(BRAKE_TIME, mode);
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void beaconApproach(int side) {
+    public void beaconApproach(int side, OpMode mode) {
         if (side == BEACON_LEFT) {
             beaconPresserLeft.setPosition(ARMLET_DEPLOY_POSITION);
-            while (!leftBeaconPresserSensor.isPressed()) {
+            while (!leftBeaconPresserSensor.isPressed() && !safety(mode)) {
                 setDriveMotorPower(BEACON_PRESSING_POWER);
             }
             stop();
@@ -549,7 +532,7 @@ public class HardwareMapLucyV4 {
         }
         if (side == BEACON_RIGHT) {
             beaconPresserRight.setPosition(ARMLET_DEPLOY_POSITION);
-            while (!rightBeaconPresserSensor.isPressed()) {
+            while (!rightBeaconPresserSensor.isPressed() && !safety(mode)) {
                 setDriveMotorPower(BEACON_PRESSING_POWER);
             }
 
@@ -572,4 +555,68 @@ public class HardwareMapLucyV4 {
         armletRight.setPosition(ARMLET_STORE_POSITION);
     }
 
+    public boolean safety(OpMode mode){
+        boolean isOpModeActive;
+        boolean wallIsNear = false;
+        if (mode instanceof LinearVisionOpMode) {
+            isOpModeActive = true;
+        }
+        else if (mode instanceof LinearOpMode) {
+            isOpModeActive = true;
+        }
+        else {
+            isOpModeActive = false;
+        }
+        if(distSensor.getLightDetected() < OPTICAL_SENSOR_THRESHOLD){
+            wallIsNear = true;
+        }
+        if (!wallIsNear && isOpModeActive) {
+            return false;
+        }
+        else { return true; }
+    }
+
+    public void shoot(OpMode mode){
+        flyWheel2.setPower(FLY_WHEEL_POWER);
+        flyWheel1.setPower(FLY_WHEEL_POWER);
+        // to be completed
+    }
+
+    /*
+    public void stayStraight(int desiredHeading, OpMode mode){
+        boolean initialDirection = false; //false means turn left, true is turn right
+        if (Math.abs(0 - desiredHeading) > Math.abs(359-desiredHeading)) {
+            initialDirection = false;
+        }
+        if (Math.abs(0 - desiredHeading) <= Math.abs(359-desiredHeading)) {
+            initialDirection = true;
+        }
+        if (initialDirection) {
+            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+                oneWheelTurn(LEFT_MOTOR, 0.5, 1, mode);
+            }
+        }
+        if (!initialDirection) {
+            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+                oneWheelTurn(RIGHT_MOTOR, 0.5, 1, mode);
+            }
+        }
+        double brightness = fastColorSensor.getBrightness();
+        while (brightness < BRIGHTNESS_WHITE_THRESHOLD && !safety(mode)) {
+            while (currentHeading == desiredHeading && !safety(mode)) {
+                driveDistance(DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH, 0.9, mode);
+            }
+            if (currentHeading < desiredHeading) {
+                leftMotor.setPower(1);
+                rightMotor.setPower(0.9);
+            }
+            if (currentHeading > desiredHeading) {
+                rightMotor.setPower(1);
+                leftMotor.setPower(0.9);
+            }
+        }
+        stop();
+
+    }
+*/
 }

@@ -61,7 +61,7 @@ public class knockOffCapBall extends LinearOpMode {
             //ballHasBeenKnocked = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             idle();
         }
-        robot.endSynchronousDriving();
+        robot.endSynchronousDriving(this);
 
     }
 

@@ -58,7 +58,7 @@ public class goForwardUntilWhiteBrightness extends LinearOpMode {
         boolean runTimes = false;
        while(opModeIsActive()){
            //use default
-           robot.goForwardUntilWhite(robot.USE_BRIGHTNESS);
+           robot.goForwardUntilWhite(robot.USE_BRIGHTNESS, this);
 
 
        }

@@ -59,7 +59,7 @@ public class goForwardUntilWhiteRGB extends LinearOpMode {
         boolean runTimes = false;
        while(opModeIsActive()){
            //use default
-           robot.goForwardUntilWhite(robot.USE_RGB);
+           robot.goForwardUntilWhite(robot.USE_RGB, this);
 
 
        }

@@ -33,14 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="Advance to Beacon", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Fast Color Sensor", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class testAdvanceToBeacon extends LinearOpMode {
+public class newColorSensorToLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
+    TCS34725_ColorSensor colorSensor;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -50,14 +49,14 @@ public class testAdvanceToBeacon extends LinearOpMode {
         robot.init(hardwareMap);
         robot.zero(this);
         //Wait for start and reset the runtime count
+        colorSensor = new TCS34725_ColorSensor(hardwareMap,"rawGroundColorSensor");
         waitForStart();
-        double dist = robot.distSensor.getLightDetected();
-        while(dist<.1 && opModeIsActive()){
-            robot.driveDistance(.005, 1);
-            dist = robot.distSensor.getLightDetected();
-        }
-        robot.brakeTemporarily();
-        idle();
+           telemetry.addData("Brightness: ", colorSensor.clearColor());
+           telemetry.update();
+
+
+
+
     }
 
 }

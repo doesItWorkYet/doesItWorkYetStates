@@ -58,9 +58,9 @@ public class TurnDegreeTrial extends LinearOpMode {
                turnMotor = robot.RIGHT_MOTOR;
 
            if(gamepad1.y)
-               robot.driveDistance(1, .25);
+               robot.driveDistance(1, .25, this);
            if(gamepad1.a)
-               robot.driveDistance(-1, .25);
+               robot.driveDistance(-1, .25, this);
            turn = 0;  // no turn unless button pressed
            if (gamepad1.x)
                turn = -90;
@@ -68,7 +68,7 @@ public class TurnDegreeTrial extends LinearOpMode {
                turn = 90;
 
            if (turn != 0) {
-               robot.oneWheelTurn(turnMotor, turn, .15);
+               robot.oneWheelTurn(turnMotor, turn, .15, this);
            }
 
            /*

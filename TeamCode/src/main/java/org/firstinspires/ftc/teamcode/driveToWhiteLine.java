@@ -58,21 +58,21 @@ public class driveToWhiteLine extends LinearOpMode {
         robot.deployBeaconPressers();
         telemetry.addData("Deploy beacon pressers and wait", "");
         telemetry.update();
-        robot.delay(100);
+        robot.delay(100, this);
         while(robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed());
-        robot.delay(400);
+        robot.delay(400, this);
         robot.beginSynchronousDriving(.65);
         telemetry.addData("Start Sync Driving", "");
         telemetry.update();
-       while(robot.groundColorSensor.getBrightness() < robot.BRIGHTNESS_WHITE_THREASHOLD && !robot.rightBeaconPresserSensor.isPressed() && !robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
+       while(robot.groundColorSensor.getBrightness() < robot.BRIGHTNESS_WHITE_THRESHOLD && !robot.rightBeaconPresserSensor.isPressed() && !robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
            telemetry.addData("L: ", robot.groundColorSensor.getBrightness());
            telemetry.update();
            idle();
        }
-        robot.endSynchronousDriving();
+        robot.endSynchronousDriving(this);
         telemetry.addData("Stop Sync Driving", "");
         telemetry.update();
-        robot.oneWheelTurn(robot.LEFT_MOTOR, 90, .15);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, 90, .15, this);
         telemetry.addData("Robot turns 90 degreees", "");
         telemetry.update();
 

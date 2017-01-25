@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="Turn to white", group="Testing")  // @Autonomous(...) is the other common choice
@@ -55,18 +54,18 @@ public class turnToWhite extends LinearOpMode {
         long timeToStop= System.currentTimeMillis() + 30*1000;
         robot.deployBeaconPressers();
        //while(opModeIsActive()){
-        robot.driveDistance(1, .25);
-        robot.oneWheelTurn(robot.RIGHT_MOTOR, -45, .15);
+        robot.driveDistance(1, .25, this);
+        robot.oneWheelTurn(robot.RIGHT_MOTOR, -45, .15, this);
         robot.beginSynchronousDriving(.65);
-        while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THREASHOLD && !safety && opModeIsActive()) {
+        while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD && !safety && opModeIsActive()) {
             safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             idle();
 
         }
         if(!safety && opModeIsActive()) {
-            robot.endSynchronousDriving();
-            robot.oneWheelTurn(robot.LEFT_MOTOR, -45, .15);
-            robot.driveStraightUntilWall(.15, robot.OPTICAL_SENSOR_THRESHOLD,timeToStop);
+            robot.endSynchronousDriving(this);
+            robot.oneWheelTurn(robot.LEFT_MOTOR, -45, .15, this);
+            robot.driveStraightUntilWall(.15, robot.OPTICAL_SENSOR_THRESHOLD,timeToStop, this);
 
         }
 

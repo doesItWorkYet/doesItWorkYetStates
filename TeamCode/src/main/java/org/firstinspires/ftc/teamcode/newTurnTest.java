@@ -51,7 +51,7 @@ public class newTurnTest extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
 
-        robot.oneWheelTurn(robot.LEFT_MOTOR, 360, .15);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, 360, .15, this);
 
             idle();
 
