@@ -141,6 +141,9 @@ public class HardwareMapLucyV4 {
 
     final double DEFAULT_POWER = 0.50;
     final double INCREASED_POWER = 0.53;
+    final double FLY_WHEEL_HIGH_SPEED = 1;
+    final double FLY_WHEEL_MED_SPEED = 0.5;
+    final double FLY_WHEEL_LOW_SPEED = 0.25;
 
 
     //sensors
@@ -176,6 +179,7 @@ public class HardwareMapLucyV4 {
     final int DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH = 2;
     final double FAST_RPS = 1;
     final double SLOW_RPS = .5;
+    final double SLOW_SPEED = .25;
     final double WHITE_LINE_TURN_SPEED = .3;
     final double WALL_APPROACH_SPEED = .3;
 
@@ -205,7 +209,7 @@ public class HardwareMapLucyV4 {
             rightMotorController = new MotorController(rightMotor, ACCELERATION_COEFFICIENT, START_VELOCITY);
 
             //prop init
-            propeller = hwMap.dcMotor.get("prop");
+            //propeller = hwMap.dcMotor.get("prop");
 
 
             //flywheel init
@@ -245,14 +249,14 @@ public class HardwareMapLucyV4 {
 
 
             //ultrasonicSensor = new UltrasonicSensor(ULTRASONIC_SENSOR_READ_PIN,ULTRASONIC_SENSOR_TRIG_PIN, dim);
-            leftBeaconPresserSensor = hwMap.touchSensor.get("safetyLeft");
-            rightBeaconPresserSensor = hwMap.touchSensor.get("safetyRight");
+            //leftBeaconPresserSensor = hwMap.touchSensor.get("safetyLeft");
+            //rightBeaconPresserSensor = hwMap.touchSensor.get("safetyRight");
 
 
             //rawGroundColorSensor = hwMap.colorSensor.get("rawGroundColorSensor");
             //rawBeaconColorSensor = hwMap.colorSensor.get("rawBeaconColorSensor");
             //beaconColorSensor = new RGBSensor("rawBeaconColorSensor",hwMap, dim, BEACON_COLOR_SENSOR_LED_PIN, true,BEACON_COLOR_SENSOR_POWER_PIN);
-            groundColorSensor = new RGBSensor("rawGroundColorSensor",hwMap, dim, GROUND_COLOR_SENSOR_LED_PIN, true);
+            //groundColorSensor = new RGBSensor("rawGroundColorSensor",hwMap, dim, GROUND_COLOR_SENSOR_LED_PIN, true);
             manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
             orientation = new Orientation(manager);
             fastColorSensor = new TCS34725_ColorSensor(hwMap, "fastColorSensor");
@@ -561,10 +565,12 @@ public class HardwareMapLucyV4 {
         boolean isOpModeActive;
         boolean wallIsNear = false;
         if (mode instanceof LinearVisionOpMode) {
-            isOpModeActive = true;
+            if(((LinearVisionOpMode) mode).opModeIsActive()) isOpModeActive = true;
+            else isOpModeActive = false;
         }
         else if (mode instanceof LinearOpMode) {
-            isOpModeActive = true;
+            if(((LinearOpMode) mode).opModeIsActive()) isOpModeActive = true;
+            else isOpModeActive = false;
         }
         else {
             isOpModeActive = false;
@@ -670,4 +676,17 @@ public class HardwareMapLucyV4 {
         }
     }
 
+    public void followLine(double initialSpeed, OpMode mode) {
+        while (!safety(mode)) {
+            while (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed + 0.02);
+                leftMotor.setPower(initialSpeed);
+            }
+            while (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed);
+                leftMotor.setPower(initialSpeed + 0.02);
+            }
+        }
+        brakeTemporarily(mode);
+    }
 }

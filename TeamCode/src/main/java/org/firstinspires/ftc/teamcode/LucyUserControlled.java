@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -71,6 +72,7 @@ public class LucyUserControlled extends LinearOpMode {
         //Declare variables for use in runtime loop
         int rps1 = 1;
         int rps2 = 1;
+        int flyWheelPower = 1;
         boolean reverse = false;
         boolean sweepForwardOnOrOff = false;
         boolean sweepReverseOnOrOff = false;
@@ -269,6 +271,20 @@ public class LucyUserControlled extends LinearOpMode {
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
             }
+            if(gamepad2.dpad_up) flyWheelPower++;
+            if(gamepad2.dpad_down) flyWheelPower--;
+            if(flyWheelPower == 1){
+                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_LOW_SPEED);
+                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_LOW_SPEED);
+            }
+            else if(flyWheelPower == 2){
+                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_MED_SPEED);
+                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_MED_SPEED);
+            }
+            else if(flyWheelPower == 3){
+                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_HIGH_SPEED);
+                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_HIGH_SPEED);
+            }
 
 
             //cap ball lift controls:
@@ -442,6 +458,7 @@ public class LucyUserControlled extends LinearOpMode {
             int rps = (int)(ticksPerSecond/(double)(ticksPerRevolution));
             return rps;
         }
+
     }
 
 }
