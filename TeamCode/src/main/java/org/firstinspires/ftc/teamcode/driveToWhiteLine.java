@@ -36,8 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Drive to white", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
+@Autonomous(name="Drive To White w/ Gyro", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
 public class driveToWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
@@ -59,20 +59,19 @@ public class driveToWhiteLine extends LinearOpMode {
         telemetry.addData("Deploy beacon pressers and wait", "");
         telemetry.update();
         robot.delay(100, this);
-        while(robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed());
-        robot.delay(400, this);
-        robot.beginSynchronousDriving(.65);
+        robot.beginSynchronousDriving(3, 1);
         telemetry.addData("Start Sync Driving", "");
         telemetry.update();
-       while(robot.groundColorSensor.getBrightness() < robot.BRIGHTNESS_WHITE_THRESHOLD && !robot.rightBeaconPresserSensor.isPressed() && !robot.leftBeaconPresserSensor.isPressed() && opModeIsActive()){
-           telemetry.addData("L: ", robot.groundColorSensor.getBrightness());
+       while(robot.fastColorSensor.getBrightness() < robot.BRIGHTNESS_WHITE_THRESHOLD && !robot.safety(this)){
+           telemetry.addData("L: ", robot.fastColorSensor.getBrightness());
            telemetry.update();
            idle();
        }
         robot.endSynchronousDriving(this);
         telemetry.addData("Stop Sync Driving", "");
         telemetry.update();
-        robot.oneWheelTurn(robot.LEFT_MOTOR, 90, .15, this);
+        robot.turnToHeading(-270, this);
+        //robot.oneWheelTurn(robot.LEFT_MOTOR, 90, .15, this);
         telemetry.addData("Robot turns 90 degreees", "");
         telemetry.update();
 

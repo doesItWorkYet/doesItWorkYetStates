@@ -52,6 +52,10 @@ public class shootParticlesAndKnockCapBallTest extends LinearOpMode {
         waitForStart();
 
         robot.driveDistance(robot.SHOOTING_POSITION, 0.5, this);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, -90, 0.25, this);
+        robot.shoot(this);
+        robot.oneWheelTurn(robot.LEFT_MOTOR, 90, 0.25, this);
+        robot.driveDistance(robot.CAP_BALL_DIST-robot.SHOOTING_POSITION, 0.5, this);
 
 
     }

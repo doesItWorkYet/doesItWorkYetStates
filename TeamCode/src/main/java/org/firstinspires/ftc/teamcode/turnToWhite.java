@@ -56,7 +56,7 @@ public class turnToWhite extends LinearOpMode {
        //while(opModeIsActive()){
         robot.driveDistance(1, .25, this);
         robot.oneWheelTurn(robot.RIGHT_MOTOR, -45, .15, this);
-        robot.beginSynchronousDriving(.65);
+        robot.beginSynchronousDriving(.65, .65);
         while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD && !safety && opModeIsActive()) {
             safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             idle();

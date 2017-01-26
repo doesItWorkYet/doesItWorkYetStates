@@ -33,7 +33,7 @@ public class HardwareMapLucyV4 {
     private final double GEAR_RATIO = 1;
 
     //Wheel Measurement Conversions
-    public final double ROBOT_WHEEL_CIRCUMFERENCE = ROBOT_WHEEL_RADIUS * 2 * Math.PI;
+    public final double ROBOT_WHEEL_CIRCUMFERENCE = ROBOT_WHEEL_RADIUS * 2 * Math.PI; //about 11.67 inches
 
     //Distance Measurements
     public final double CAP_BALL_DIST = 1.8;
@@ -152,6 +152,7 @@ public class HardwareMapLucyV4 {
     public RGBSensor groundColorSensor = null;
     public TCS34725_ColorSensor fastColorSensor = null;
     //public RGBSensor beaconColorSensor = null;
+    public GyroSensor gyro = null;
 
     public TouchSensor leftBeaconPresserSensor = null;
     public TouchSensor rightBeaconPresserSensor = null;
@@ -239,7 +240,7 @@ public class HardwareMapLucyV4 {
 
             //sensors
             dim = hwMap.deviceInterfaceModule.get("DIM");
-
+            gyro = hwMap.gyroSensor.get("gyro");
             distSensor = hwMap.opticalDistanceSensor.get("distSensor");
 
 
@@ -266,6 +267,7 @@ public class HardwareMapLucyV4 {
 
     }
     public void zero(OpMode mode) throws InterruptedException {
+        gyro.calibrate();
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
@@ -330,14 +332,14 @@ public class HardwareMapLucyV4 {
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void beginSynchronousDriving(double rps){
+    public void beginSynchronousDriving(double rps, double power){
         leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*rps));
         rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*rps));
 
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        setDriveMotorPower(rps);
+        setDriveMotorPower(power);
     }
 
     public void endSynchronousDriving(OpMode mode){
@@ -579,11 +581,33 @@ public class HardwareMapLucyV4 {
     public void shoot(OpMode mode){
         flyWheel2.setPower(FLY_WHEEL_POWER);
         flyWheel1.setPower(FLY_WHEEL_POWER);
-        // to be completed
+        delay(600, mode);
+        indexer.setPosition(INDEXER_FIRE_POSITION);
+        delay(500, mode);
+        indexer.setPosition(INDEXER_LOAD_POSITION);
+        flyWheel1.setPower(MOTOR_OFF);
+        flyWheel2.setPower(MOTOR_OFF);
+        if(mode instanceof LinearOpMode){
+            try {
+                ((LinearOpMode) mode).idle();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(mode instanceof LinearVisionOpMode){
+            try {
+                ((LinearVisionOpMode) mode).waitOneFullHardwareCycle();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    /*
-    public void stayStraight(int desiredHeading, OpMode mode){
+
+    public void stayStraightUntilWhiteLine(int desiredHeading, OpMode mode){
+        gyro.calibrate();
+        while (gyro.isCalibrating() && !safety(mode)) { }
+        int currentHeading = gyro.getHeading();
         boolean initialDirection = false; //false means turn left, true is turn right
         if (Math.abs(0 - desiredHeading) > Math.abs(359-desiredHeading)) {
             initialDirection = false;
@@ -616,7 +640,34 @@ public class HardwareMapLucyV4 {
             }
         }
         stop();
-
     }
-*/
+
+    public void turnToHeading(int desiredHeading, OpMode mode) {
+        gyro.calibrate();
+        while (gyro.isCalibrating() && !safety(mode)) { }
+        int currentHeading = gyro.getHeading();
+
+        if (Math.abs(0 - desiredHeading) <= Math.abs(359-desiredHeading)) {
+            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+                oneWheelTurn(LEFT_MOTOR, 0.5, 0.3, mode);
+            }
+        }
+        if (Math.abs(0 - desiredHeading) > Math.abs(359-desiredHeading)) {
+            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+                oneWheelTurn(RIGHT_MOTOR, 0.5, 0.3, mode);
+            }
+        }
+
+        if (currentHeading < desiredHeading) {
+            while (Math.abs(currentHeading - desiredHeading) > 1 && !safety(mode)) {
+                oneWheelTurn(LEFT_MOTOR, 0.2, 0.3, mode);
+            }
+        }
+        if (desiredHeading <= currentHeading) {
+            while (Math.abs(currentHeading - desiredHeading) > 1 && !safety(mode)) {
+                oneWheelTurn(RIGHT_MOTOR, 0.2, 0.3, mode);
+            }
+        }
+    }
+
 }

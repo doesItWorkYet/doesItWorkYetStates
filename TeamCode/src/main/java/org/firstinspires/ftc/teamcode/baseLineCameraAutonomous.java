@@ -33,7 +33,7 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
         telemetry.addData("Cameras", "Set");
         telemetry.update();
         /**
@@ -65,7 +65,7 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
         beacon.setColorToleranceRed(0);
         beacon.setColorToleranceBlue(0);
 
-        rotation.setIsUsingSecondaryCamera(false);
+        rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
 

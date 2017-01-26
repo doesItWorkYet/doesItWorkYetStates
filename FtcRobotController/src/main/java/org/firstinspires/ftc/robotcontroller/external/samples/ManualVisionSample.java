@@ -42,7 +42,7 @@ public class ManualVisionSample extends ManualVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
 
         /**
          * Set the frame size

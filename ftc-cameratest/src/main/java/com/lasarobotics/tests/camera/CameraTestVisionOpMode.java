@@ -33,7 +33,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
 
         /**
          * Set the maximum frame size
@@ -81,7 +81,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * For TestableVisionOpModes, changing other settings may break the app. See other examples
          * for normal OpModes.
          */
-        rotation.setIsUsingSecondaryCamera(false);
+        rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.LANDSCAPE);
         //rotation.setZeroOrientation(ScreenOrientation.LANDSCAPE_REVERSE);

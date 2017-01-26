@@ -74,7 +74,7 @@ public class distSensorTestCamera extends LinearVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
         telemetry.addData("Cameras", "Set");
         telemetry.update();
         /**
@@ -106,7 +106,7 @@ public class distSensorTestCamera extends LinearVisionOpMode {
         beacon.setColorToleranceRed(redTolerance);
         beacon.setColorToleranceBlue(blueTolerance);
 
-        rotation.setIsUsingSecondaryCamera(false);
+        rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
 

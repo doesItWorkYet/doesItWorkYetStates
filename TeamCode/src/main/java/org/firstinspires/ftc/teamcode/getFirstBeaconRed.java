@@ -39,7 +39,7 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
         telemetry.addData("Cameras", "Set");
         telemetry.update();
         /**
@@ -71,7 +71,7 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
         beacon.setColorToleranceRed(0);
         beacon.setColorToleranceBlue(0);
 
-        rotation.setIsUsingSecondaryCamera(false);
+        rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
 
@@ -90,12 +90,12 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
 
         long currentPos = robot.leftMotor.getCurrentPosition();
         long ticksToTravelFast = robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH*robot.TICKS_PER_REV_ANDYMARK;
-        robot.beginSynchronousDriving(robot.FAST_RPS);
+        robot.beginSynchronousDriving(robot.FAST_RPS, robot.FAST_RPS);
         while(robot.leftMotor.getCurrentPosition() < ticksToTravelFast + currentPos && opModeIsActive() && !safety){
             safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             waitOneFullHardwareCycle();
         }
-        robot.beginSynchronousDriving(robot.SLOW_RPS);
+        robot.beginSynchronousDriving(robot.SLOW_RPS, robot.SLOW_RPS);
         while(robot.groundColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD && !safety && opModeIsActive()) {
             safety = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
             waitOneFullHardwareCycle();
@@ -112,7 +112,7 @@ public class getFirstBeaconRed extends LinearVisionOpMode {
         if(!safety && opModeIsActive()) {
             robot.oneWheelTurn(robot.LEFT_MOTOR, -(90 - robot.BEGIN_TURN_DEGREE_TO_GO_TO_WHITE_LINE_FROM_WALL), robot.TURNING_RPS, this);
             //drive into wall
-            robot.beginSynchronousDriving(robot.SLOW_RPS);
+            robot.beginSynchronousDriving(robot.SLOW_RPS, robot.SLOW_RPS);
             while(robot.distSensor.getLightDetected() < robot.OPTICAL_SENSOR_THRESHOLD && opModeIsActive()){
                 telemetry.addData("Light:", robot.distSensor.getLightDetected());
                 telemetry.update();
