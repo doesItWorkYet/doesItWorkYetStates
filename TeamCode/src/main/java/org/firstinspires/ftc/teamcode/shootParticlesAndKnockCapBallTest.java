@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="shot and toot", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
 public class shootParticlesAndKnockCapBallTest extends LinearOpMode {
     HardwareMapLucyV4 robot;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.content.Context;
 import android.hardware.SensorManager;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
@@ -76,8 +77,8 @@ public class HardwareMapLucyV4 {
     //beacon pressing buttons
     public Servo beaconPresserLeft = null;
     public Servo beaconPresserRight = null;
-    public Servo flyWheelDeflector1 = null;
-    public Servo flyWheelDeflector2 = null;
+    public DcMotor flyWheelDeflector = null;
+    private double FLY_WHEEL_DEFLECTOR_POWER = .8;
 
     //Beacon Presser Positions
     final int BEACON_PRESSER_LEFT_STORE_POSITION = 80;
@@ -127,7 +128,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 1;
     final double FLY_WHEEL_MED_SPEED = 0.5;
     final double FLY_WHEEL_LOW_SPEED = 0.25;
-    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 0.0;
+    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 90.0;
 
 
     //sensors
@@ -139,7 +140,7 @@ public class HardwareMapLucyV4 {
     public RGBSensor groundColorSensor = null;
     public TCS34725_ColorSensor fastColorSensor = null;
     //public RGBSensor beaconColorSensor = null;
-    public GyroSensor gyro = null;
+    public ModernRoboticsI2cGyro gyro = null;
 
     public TouchSensor leftBeaconPresserSensor = null;
     public TouchSensor rightBeaconPresserSensor = null;
@@ -181,7 +182,7 @@ public class HardwareMapLucyV4 {
 
     public void init(HardwareMap ahwMap){
         hwMap = ahwMap;
-        try {
+
             //movement init
             leftMotor = hwMap.dcMotor.get("leftMotor");
             rightMotor = hwMap.dcMotor.get("rightMotor");
@@ -196,14 +197,17 @@ public class HardwareMapLucyV4 {
             //propeller = hwMap.dcMotor.get("prop");
 
 
+
+
             //flywheel init
             flyWheel1 = hwMap.dcMotor.get("flyWheel1");
             flyWheel2 = hwMap.dcMotor.get("flyWheel2");
             indexer = hwMap.servo.get("indexer");
             flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
             flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
-            flyWheelDeflector1 = hwMap.servo.get("flyWheelDeflector1");
-            flyWheelDeflector2 = hwMap.servo.get("flyWheelDeflector2");
+            flyWheelDeflector = hwMap.dcMotor.get("flyWheelDeflector");
+            flyWheelDeflector.setDirection(DcMotor.Direction.REVERSE);
+
 
 
             //extendotron init
@@ -230,9 +234,15 @@ public class HardwareMapLucyV4 {
 
             //sensors
             dim = hwMap.deviceInterfaceModule.get("DIM");
-            gyro = hwMap.gyroSensor.get("gyro");
+            gyro = (ModernRoboticsI2cGyro) hwMap.gyroSensor.get("gyro");
             distSensor = hwMap.opticalDistanceSensor.get("distSensor");
-            fastColorSensor = new TCS34725_ColorSensor(hwMap, "fastColorSensor");
+            fastColorSensor = new TCS34725_ColorSensor(hwMap, "rawGroundColorSensor");
+
+
+
+
+
+            //last line in this fails to initialize, so keep this usless part here
             manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
 
 
@@ -240,10 +250,7 @@ public class HardwareMapLucyV4 {
 
 
 
-        }
-        catch(Exception e){
 
-        }
 
     }
     public void zero(OpMode mode) throws InterruptedException {
@@ -251,8 +258,9 @@ public class HardwareMapLucyV4 {
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
-        flyWheelDeflector1.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
-        flyWheelDeflector2.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
+
+        //reset
+        flyWheelDeflector.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         flyWheel1.setPower(0);
@@ -268,6 +276,11 @@ public class HardwareMapLucyV4 {
         else if (mode instanceof LinearOpMode) {
             ((LinearOpMode) mode).idle();
         }
+        while(gyro.isCalibrating()){
+            Thread.sleep(60);
+            mode.telemetry.addData("Caliabrating: ", "waiting");;
+            mode.telemetry.update();
+        }
 /*
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -275,6 +288,22 @@ public class HardwareMapLucyV4 {
         while(rightMotor.getCurrentPosition() != 0);
     */
     }
+
+    public void setFlywheelDeflectorAngle(double angleFromCenter, OpMode mode){
+        //angle
+        int ticks = (int)((angleFromCenter)/360.0* TICKS_PER_REV_ANDYMARK) - flyWheelDeflector.getCurrentPosition();
+        flyWheelDeflector.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        waitCycle(mode);
+        flyWheelDeflector.setTargetPosition(flyWheelDeflector.getCurrentPosition() + ticks);
+        flyWheelDeflector.setPower(FLY_WHEEL_DEFLECTOR_POWER);
+        while(flyWheelDeflector.isBusy()){
+            waitCycle(mode);
+        }
+
+        //flyWheelDeflector.setPower(0);
+
+    }
+
 
     public void driveDistance(double distance, double power, OpMode mode) {
         double distanceInMeters = distance / 3.28084;
@@ -562,6 +591,23 @@ public class HardwareMapLucyV4 {
             return false;
         }
         else { return true; }
+    }
+
+    public void waitCycle(OpMode mode){
+        if(mode instanceof LinearOpMode){
+            try {
+                ((LinearOpMode) mode).idle();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(mode instanceof LinearVisionOpMode){
+            try {
+                ((LinearVisionOpMode) mode).waitOneFullHardwareCycle();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void shoot(OpMode mode){

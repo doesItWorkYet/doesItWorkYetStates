@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Shoot and white", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class newGoToWhiteLine extends LinearOpMode {
+@Autonomous(name="gyroTester", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class gyroTester extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,18 +50,14 @@ public class newGoToWhiteLine extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        //test going to a beacon
-        robot.deployBeaconPressers();
-        idle();
-        robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, 0.5, this);
-        robot.brakeTemporarily(this);
-        robot.beginSynchronousDriving(robot.FAST_RPS, 0.45);
-        while(!robot.safety(this) && robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
-        robot.endSynchronousDriving(this);
-        robot.leftMotor.setPower(robot.SLOW_SPEED);
-        while(!robot.safety(this) && robot.fastColorSensor.getBrightness() > robot.BRIGHTNESS_WHITE_THRESHOLD);
-        robot.brakeTemporarily(this);
-        robot.followLineRed(0.3, 0.1, this);
+
+       while(opModeIsActive()){
+            double angle = robot.gyro.getIntegratedZValue();
+           telemetry.addData("Integrated angle: ", angle);
+           telemetry.update();
+
+           idle();
+       }
 
     }
 

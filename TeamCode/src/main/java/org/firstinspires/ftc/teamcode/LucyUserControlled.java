@@ -86,8 +86,12 @@ public class LucyUserControlled extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
             telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
+            telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
             telemetry.update();
+            //robot.setFlywheelDeflectorAngle(20.0*gamepad2.left_stick_x,this);
+            //telemetry.addData("Value: " , 20.0*gamepad2.left_stick_x);
 
+            /*
             if(gamepad2.a){
                 flyWheelDeflectorPosition++;
                 if(flyWheelDeflectorPosition<0) flyWheelDeflectorPosition=0;
@@ -106,6 +110,7 @@ public class LucyUserControlled extends LinearOpMode {
                 if(flyWheelDeflectorPosition == 2) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_2/180.0);
                 if(flyWheelDeflectorPosition == 3) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_3/180.0);
             }
+            */
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad2.x){
                 robot.sweep.setPower(0);
@@ -356,7 +361,7 @@ public class LucyUserControlled extends LinearOpMode {
                     driveDirection = false;
                 }
             }
-
+            telemetry.update();
 
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }

@@ -62,7 +62,7 @@ public class distSensorTest extends LinearOpMode {
             //robot.driveDistance(.05, .5);
 
         //}
-        robot.brakeTemporarily();
+        robot.brakeTemporarily(this);
 
 
 

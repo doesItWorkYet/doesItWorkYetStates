@@ -35,7 +35,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Fast Color Sensor", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Go to line fast", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class newColorSensorToLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
