@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Ground Color Test" , group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class ColorSensorTest extends LinearOpMode {
+@Autonomous(name="Turn to heading test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class turnToHeadingTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,25 +50,14 @@ public class ColorSensorTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        //deploy beacon servos
-        robot.deployBeaconPressers();
-        robot.groundColorSensor.waitForInitialization();
-        if(robot.groundColorSensor == null){
-            telemetry.addData("color sensor", "null");
 
-        }
-        //robot.dim.isI2cPortInReadMode()
-        robot.groundColorSensor.turnLedOn();
-       while(opModeIsActive()){
-           double color[] = robot.groundColorSensor.getRGBColor();
-           telemetry.addData("R:", color[0]);
-           telemetry.addData("G:", color[1]);
-           telemetry.addData("B:", color[2]);
-           telemetry.addData("L:", robot.groundColorSensor.getBrightness());
-           telemetry.update();
-           robot.delay(1000, this);
-           idle();
-       }
+        telemetry.addData("Start turn to heading: ", "90 degrees to right");
+        telemetry.update();
+        robot.turnToHeading(90, this);
+        telemetry.addData("End trun to heading", "");
+        telemetry.update();
+
     }
+
 }
 

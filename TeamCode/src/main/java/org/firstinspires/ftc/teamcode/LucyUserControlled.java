@@ -73,6 +73,8 @@ public class LucyUserControlled extends LinearOpMode {
         int rps1 = 1;
         int rps2 = 1;
         int flyWheelPower = 1;
+        int flyWheelDeflectorPosition = 1;
+        int flyWheelDeflectorPosition2 = 1;
         boolean reverse = false;
         boolean sweepForwardOnOrOff = false;
         boolean sweepReverseOnOrOff = false;
@@ -86,14 +88,23 @@ public class LucyUserControlled extends LinearOpMode {
             telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.update();
 
-            //Control cooling fan
-            if(armletsDeployed){
-                if(gamepad2.a){
-                    robot.propeller.setPower(robot.PROPELLER_ON);
-                }
-                else if(gamepad2.b){
-                    robot.propeller.setPower(robot.MOTOR_OFF);
-                }
+            if(gamepad2.a){
+                flyWheelDeflectorPosition++;
+                if(flyWheelDeflectorPosition<0) flyWheelDeflectorPosition=0;
+                if(flyWheelDeflectorPosition>3) flyWheelDeflectorPosition=0;
+                if(flyWheelDeflectorPosition == 0) robot.flyWheelDeflector1.setPosition(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
+                if(flyWheelDeflectorPosition == 1) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_1/180.0);
+                if(flyWheelDeflectorPosition == 2) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_2/180.0);
+                if(flyWheelDeflectorPosition == 3) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_3/180.0);
+            }
+            if(gamepad2.b){
+                flyWheelDeflectorPosition2++;
+                if(flyWheelDeflectorPosition<0) flyWheelDeflectorPosition=0;
+                if(flyWheelDeflectorPosition>3) flyWheelDeflectorPosition=0;
+                if(flyWheelDeflectorPosition == 0) robot.flyWheelDeflector2.setPosition(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
+                if(flyWheelDeflectorPosition == 1) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_1/180.0);
+                if(flyWheelDeflectorPosition == 2) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_2/180.0);
+                if(flyWheelDeflectorPosition == 3) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_3/180.0);
             }
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad2.x){
@@ -128,11 +139,6 @@ public class LucyUserControlled extends LinearOpMode {
             if(gamepad2.dpad_down){
                 robot.armletRight.setPosition(robot.ARMLET_STORE_POSITION/180.0);
                 robot.armletLeft.setPosition(robot.ARMLET_STORE_POSITION/180.0);
-            }
-
-            //Reset the armlets
-            if(gamepad2.dpad_left){
-                armletsDeployed = false;
             }
 
             //Drive Left Motor in Reverse

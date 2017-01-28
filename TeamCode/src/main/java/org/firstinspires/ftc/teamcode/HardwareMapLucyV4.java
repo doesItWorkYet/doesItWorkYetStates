@@ -27,10 +27,7 @@ public class HardwareMapLucyV4 {
     private final double ROBOT_WHEEL_RADIUS = .047625; //meters
     public final double ROBOT_WHEEL_TRACK = .244; //meters
     private final double ROBOT_REV_PER_DEGREE = .013059301;
-    private final double MARGIN_OF_ERROR_TURN = 15;
     public final double TURN_CORRECTION_FACTOR = 1;
-
-    private final double GEAR_RATIO = 1;
 
     //Wheel Measurement Conversions
     public final double ROBOT_WHEEL_CIRCUMFERENCE = ROBOT_WHEEL_RADIUS * 2 * Math.PI; //about 11.67 inches
@@ -38,9 +35,6 @@ public class HardwareMapLucyV4 {
     //Distance Measurements
     public final double CAP_BALL_DIST = 1.8;
     public final double SHOOTING_POSITION = 1;
-
-    // vars for Mat (special)
-    public final double FOOT_TO_METERS = 12.0*2.54/100;
 
     //beacon color/side
     public final int BEACON_BLUE = 34563;
@@ -54,12 +48,6 @@ public class HardwareMapLucyV4 {
     public double ADVANCE_TO_BEACON_HEADING = -30;
     public double ROTATION_TURNING_SPEED = .5;
     public double COLOR_APPROACHING_SPEED = .2;
-
-    //Ultrasonic Sensor Info
-    public final int ULTRASONIC_SENSOR_READ_PIN = 4;
-    public final int ULTRASONIC_SENSOR_TRIG_PIN = 5;
-
-
     //drive motors
     public DcMotor leftMotor = null;
     public DcMotor rightMotor = null;
@@ -79,23 +67,21 @@ public class HardwareMapLucyV4 {
     public DcMotor extendotronRight = null;
     public final double EXTENDOTRON_LIFT_SPEED = .75;
     public final double EXTENDOTRON_DROP_SPEED = -.25;
-    public Servo leftClawDeployer = null;
-    public Servo rightClawDeployer = null;
 
     //T-Rex arms
     public Servo armletLeft = null;
     public Servo armletRight = null;
 
-    //beanie cap propeller
-    public DcMotor propeller = null;
 
     //beacon pressing buttons
     public Servo beaconPresserLeft = null;
     public Servo beaconPresserRight = null;
+    public Servo flyWheelDeflector1 = null;
+    public Servo flyWheelDeflector2 = null;
 
     //Beacon Presser Positions
-    final int BEACON_PRESSER_LEFT_STORE_POSITION = 60;
-    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 60;
+    final int BEACON_PRESSER_LEFT_STORE_POSITION = 80;
+    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 80;
     final int BEACON_PRESSER_LEFT_PRESS_POSITION = 100;
     final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 100;
 
@@ -120,17 +106,14 @@ public class HardwareMapLucyV4 {
     final double ACCELERATION_COEFFICIENT = .2;
     final double START_VELOCITY = .1;
     final double MAIN_MOTOR_MAX_POWER = .8;
+    final double DEFLECTOR_POSITION_1 = 35.0;
+    final double DEFLECTOR_POSITION_2 = 70.0;
+    final double DEFLECTOR_POSITION_3 = 180.0;
+    final double KP_VALUE = 1/0.3; //based on white threshold and grey threshold
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final int GROUND_COLOR_SENSOR_LED_PIN = 2;
-    //final int BEACON_COLOR_SENSOR_LED_PIN = 3;
-    //final int GROUND_COLOR_SENSOR_POWER_PIN = 1; //used to turn sensor on and off
-    //final int BEACON_COLOR_SENSOR_POWER_PIN = 5;
     final double BRIGHTNESS_WHITE_THRESHOLD = .5;
-    final int MIN_RED_VALUE_FOR_DETECTION = 80; //used to differentiate from background
-    final int MIN_BLUE_VALUE_FOR_DETECTION = 80; //used to differentiate from background
-    final double MIN_COLOR_MULTIPLIER = 1.8; // blue value must be x times larger than red
     final int USE_RGB = 1999;
     final int USE_BRIGHTNESS = 5050;
 
@@ -144,6 +127,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 1;
     final double FLY_WHEEL_MED_SPEED = 0.5;
     final double FLY_WHEEL_LOW_SPEED = 0.25;
+    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 0.0;
 
 
     //sensors
@@ -151,7 +135,7 @@ public class HardwareMapLucyV4 {
     private ColorSensor rawGroundColorSensor = null;
     //private ColorSensor rawBeaconColorSensor = null;
     private SensorManager manager;
-    public Orientation orientation;
+
     public RGBSensor groundColorSensor = null;
     public TCS34725_ColorSensor fastColorSensor = null;
     //public RGBSensor beaconColorSensor = null;
@@ -218,6 +202,8 @@ public class HardwareMapLucyV4 {
             indexer = hwMap.servo.get("indexer");
             flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
             flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+            flyWheelDeflector1 = hwMap.servo.get("flyWheelDeflector1");
+            flyWheelDeflector2 = hwMap.servo.get("flyWheelDeflector2");
 
 
             //extendotron init
@@ -246,20 +232,10 @@ public class HardwareMapLucyV4 {
             dim = hwMap.deviceInterfaceModule.get("DIM");
             gyro = hwMap.gyroSensor.get("gyro");
             distSensor = hwMap.opticalDistanceSensor.get("distSensor");
-
-
-            //ultrasonicSensor = new UltrasonicSensor(ULTRASONIC_SENSOR_READ_PIN,ULTRASONIC_SENSOR_TRIG_PIN, dim);
-            //leftBeaconPresserSensor = hwMap.touchSensor.get("safetyLeft");
-            //rightBeaconPresserSensor = hwMap.touchSensor.get("safetyRight");
-
-
-            //rawGroundColorSensor = hwMap.colorSensor.get("rawGroundColorSensor");
-            //rawBeaconColorSensor = hwMap.colorSensor.get("rawBeaconColorSensor");
-            //beaconColorSensor = new RGBSensor("rawBeaconColorSensor",hwMap, dim, BEACON_COLOR_SENSOR_LED_PIN, true,BEACON_COLOR_SENSOR_POWER_PIN);
-            //groundColorSensor = new RGBSensor("rawGroundColorSensor",hwMap, dim, GROUND_COLOR_SENSOR_LED_PIN, true);
-            manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-            orientation = new Orientation(manager);
             fastColorSensor = new TCS34725_ColorSensor(hwMap, "fastColorSensor");
+            manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+
+
 
 
 
@@ -275,6 +251,8 @@ public class HardwareMapLucyV4 {
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
+        flyWheelDeflector1.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
+        flyWheelDeflector2.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         flyWheel1.setPower(0);
@@ -282,7 +260,6 @@ public class HardwareMapLucyV4 {
         sweep.setPower(0);
         armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
         armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
-        propeller.setPower(0);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         if (mode instanceof LinearVisionOpMode) {
@@ -576,6 +553,9 @@ public class HardwareMapLucyV4 {
             isOpModeActive = false;
         }
         if(distSensor.getLightDetected() < OPTICAL_SENSOR_THRESHOLD){
+            wallIsNear = false;
+        }
+        else if(distSensor.getLightDetected()>OPTICAL_SENSOR_THRESHOLD){
             wallIsNear = true;
         }
         if (!wallIsNear && isOpModeActive) {
@@ -651,41 +631,85 @@ public class HardwareMapLucyV4 {
     public void turnToHeading(int desiredHeading, OpMode mode) {
         gyro.calibrate();
         while (gyro.isCalibrating() && !safety(mode)) { }
-        int currentHeading = gyro.getHeading();
 
         if (Math.abs(0 - desiredHeading) <= Math.abs(359-desiredHeading)) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+            while (Math.abs(gyro.getHeading() - desiredHeading) > 5 && !safety(mode)) {
                 oneWheelTurn(LEFT_MOTOR, 0.5, 0.3, mode);
+            }
+            while (gyro.getHeading() < desiredHeading && !safety(mode)) {
+                oneWheelTurn(LEFT_MOTOR, 0.2, 0.3, mode);
+            }
+            while(gyro.getHeading() > desiredHeading && !safety(mode)){
+                oneWheelTurn(LEFT_MOTOR, -0.1, 0.2, mode);
             }
         }
         if (Math.abs(0 - desiredHeading) > Math.abs(359-desiredHeading)) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
-                oneWheelTurn(RIGHT_MOTOR, 0.5, 0.3, mode);
+            while (Math.abs(gyro.getHeading() - desiredHeading) > 5 && !safety(mode)) {
+                oneWheelTurn(RIGHT_MOTOR, -0.5, 0.3, mode);
             }
-        }
-
-        if (currentHeading < desiredHeading) {
-            while (Math.abs(currentHeading - desiredHeading) > 1 && !safety(mode)) {
-                oneWheelTurn(LEFT_MOTOR, 0.2, 0.3, mode);
+            while (gyro.getHeading() > desiredHeading && !safety(mode)) {
+                oneWheelTurn(RIGHT_MOTOR, -0.2, 0.3, mode);
             }
-        }
-        if (desiredHeading <= currentHeading) {
-            while (Math.abs(currentHeading - desiredHeading) > 1 && !safety(mode)) {
-                oneWheelTurn(RIGHT_MOTOR, 0.2, 0.3, mode);
+            while(gyro.getHeading() < desiredHeading && !safety(mode)){
+                oneWheelTurn(RIGHT_MOTOR, 0.1, 0.2, mode);
             }
         }
     }
 
-    public void followLine(double initialSpeed, OpMode mode) {
+    public void followLineRed(double initialSpeed, double correctionSpeed, OpMode mode) {
         while (!safety(mode)) {
-            while (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed + 0.02);
+            if (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed);
+                leftMotor.setPower(initialSpeed + correctionSpeed);
+            }
+            if (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed + correctionSpeed);
                 leftMotor.setPower(initialSpeed);
             }
-            while (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed);
-                leftMotor.setPower(initialSpeed + 0.02);
+        }
+        brakeTemporarily(mode);
+    }
+
+    public void followLineBlue(double initialSpeed, double correctionSpeed, OpMode mode) {
+        while (!safety(mode)) {
+            if (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed + correctionSpeed);
+                leftMotor.setPower(initialSpeed);
             }
+            if (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
+                rightMotor.setPower(initialSpeed);
+                leftMotor.setPower(initialSpeed + correctionSpeed);
+            }
+        }
+        brakeTemporarily(mode);
+    }
+
+    public void followLineStraightBlue(double initialSpeed, double maxCorrection, OpMode mode){
+        double kp = KP_VALUE;
+        double brightness = fastColorSensor.getBrightness();
+        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
+
+        while (!safety(mode)) {
+            brightness = fastColorSensor.getBrightness();
+            double error = brightness-threshold;
+            double correction = kp*error*maxCorrection;
+            rightMotor.setPower(initialSpeed+correction);
+            leftMotor.setPower(initialSpeed-correction);
+        }
+        brakeTemporarily(mode);
+    }
+
+    public void followLineStraightRed(double initialSpeed, double maxCorrection, OpMode mode){
+        double kp = KP_VALUE;
+        double brightness = fastColorSensor.getBrightness();
+        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
+
+        while (!safety(mode)) {
+            brightness = fastColorSensor.getBrightness();
+            double error = brightness-threshold;
+            double correction = kp*error*maxCorrection;
+            rightMotor.setPower(initialSpeed-correction);
+            leftMotor.setPower(initialSpeed+correction);
         }
         brakeTemporarily(mode);
     }

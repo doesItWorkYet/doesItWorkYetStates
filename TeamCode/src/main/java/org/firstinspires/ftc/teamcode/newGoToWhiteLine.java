@@ -50,7 +50,7 @@ public class newGoToWhiteLine extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-
+        //test going to a beacon
         robot.deployBeaconPressers();
         idle();
         robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, 0.5, this);
@@ -61,7 +61,7 @@ public class newGoToWhiteLine extends LinearOpMode {
         robot.leftMotor.setPower(robot.SLOW_SPEED);
         while(!robot.safety(this) && robot.fastColorSensor.getBrightness() > robot.BRIGHTNESS_WHITE_THRESHOLD);
         robot.brakeTemporarily(this);
-        robot.followLine(0.3, this);
+        robot.followLineRed(0.3, 0.1, this);
 
     }
 

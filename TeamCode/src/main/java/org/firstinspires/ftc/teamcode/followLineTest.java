@@ -32,36 +32,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.SensorManager;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="rotationTest", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
-public class orientationClassTrial extends LinearOpMode {
-    SensorManager manager;
-    Orientation orientation;
+@Autonomous(name="Follow line test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class followLineTest extends LinearOpMode {
+    HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-        orientation = new Orientation(manager);
+        robot = new HardwareMapLucyV4();
+        robot.init(hardwareMap);
+        robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-       while(opModeIsActive()){
-            double[] rotation = orientation.getOrientation();
-            telemetry.addData("Rotation: " , rotation[0]);
-            telemetry.addData("Rotation2:", rotation[1]);
-            telemetry.addData("Rotation3:", rotation[2]);
-            telemetry.update();
-           idle();
-       }
-
+        telemetry.addData("Start Line Follow", "");
+        telemetry.update();
+        robot.followLineRed(0.25, 0.1, this);
+        telemetry.addData("End Line Follow", "");
+        telemetry.update();
     }
 
 }
+
