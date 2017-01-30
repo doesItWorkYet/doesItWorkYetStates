@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="Distance sensor test", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
+//@Disabled
 public class distSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override

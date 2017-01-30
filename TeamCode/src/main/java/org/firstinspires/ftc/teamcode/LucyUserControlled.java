@@ -64,14 +64,14 @@ public class LucyUserControlled extends LinearOpMode {
         telemetry.update();
         driveLeftController = new motorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
         driveRightController = new motorController(robot.rightMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
-        RPMCounter flyWheel1Counter = new RPMCounter(robot.flyWheel1, robot.TICKS_PER_REV_ANDYMARK);
-        RPMCounter flyWheel2Counter = new RPMCounter(robot.flyWheel2, robot.TICKS_PER_REV_ANDYMARK);
+        //RPMCounter flyWheel1Counter = new RPMCounter(robot.flyWheel1, robot.TICKS_PER_REV_ANDYMARK);
+        //RPMCounter flyWheel2Counter = new RPMCounter(robot.flyWheel2, robot.TICKS_PER_REV_ANDYMARK);
         waitForStart();
         runtime.reset();
 
         //Declare variables for use in runtime loop
-        int rps1 = 1;
-        int rps2 = 1;
+        double rps1 = 1;
+        double rps2 = 1;
         int flyWheelPower = 1;
         int flyWheelDeflectorPosition = 1;
         int flyWheelDeflectorPosition2 = 1;
@@ -84,33 +84,53 @@ public class LucyUserControlled extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
-            telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
+            //telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
+            //telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
             telemetry.update();
+            robot.setFlywheelDeflectorAngle(10*gamepad2.left_stick_x);
+
             //robot.setFlywheelDeflectorAngle(20.0*gamepad2.left_stick_x,this);
             //telemetry.addData("Value: " , 20.0*gamepad2.left_stick_x);
 
-            /*
+
             if(gamepad2.a){
                 flyWheelDeflectorPosition++;
-                if(flyWheelDeflectorPosition<0) flyWheelDeflectorPosition=0;
-                if(flyWheelDeflectorPosition>3) flyWheelDeflectorPosition=0;
-                if(flyWheelDeflectorPosition == 0) robot.flyWheelDeflector1.setPosition(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
-                if(flyWheelDeflectorPosition == 1) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_1/180.0);
-                if(flyWheelDeflectorPosition == 2) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_2/180.0);
-                if(flyWheelDeflectorPosition == 3) robot.flyWheelDeflector1.setPosition(robot.DEFLECTOR_POSITION_3/180.0);
+                if (flyWheelDeflectorPosition > 3) { flyWheelDeflectorPosition = 3; }
+                switch (flyWheelDeflectorPosition) {
+                    case -2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                    case -1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                    case 0: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                    case 1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                    case 2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                    case 3: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                            break;
+                }
             }
             if(gamepad2.b){
-                flyWheelDeflectorPosition2++;
-                if(flyWheelDeflectorPosition<0) flyWheelDeflectorPosition=0;
-                if(flyWheelDeflectorPosition>3) flyWheelDeflectorPosition=0;
-                if(flyWheelDeflectorPosition == 0) robot.flyWheelDeflector2.setPosition(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
-                if(flyWheelDeflectorPosition == 1) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_1/180.0);
-                if(flyWheelDeflectorPosition == 2) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_2/180.0);
-                if(flyWheelDeflectorPosition == 3) robot.flyWheelDeflector2.setPosition(robot.DEFLECTOR_POSITION_3/180.0);
+                flyWheelDeflectorPosition--;
+                if (flyWheelDeflectorPosition < -3) { flyWheelDeflectorPosition = -3; }
+                switch (flyWheelDeflectorPosition) {
+                    case -3: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                    case -2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                    case -1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                    case 0: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                    case 1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                    case 2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                        break;
+                }
             }
-            */
+
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad2.x){
                 robot.sweep.setPower(0);
