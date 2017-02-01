@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.HardwareMapLucyV4;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
@@ -9,7 +10,8 @@ import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
-public class baseLineCameraAutonomous extends LinearVisionOpMode {
+@Autonomous(name="Get Beacon Fast Test", group="Testing")
+public class getBeaconFastTest extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -73,6 +75,9 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
 
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
+
+        robot.turnToHeading(32, this);
+        robot.followLineStraightRed(0.25, 0.2, this);
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){

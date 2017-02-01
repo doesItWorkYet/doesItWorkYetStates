@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="gyroTester", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Advance To Heading Test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class gyroTester extends LinearOpMode {
+public class advanceToHeadingTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,23 +51,11 @@ public class gyroTester extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
 
-       while(opModeIsActive()){
-           double desiredAngle = 90;
-           double angle = robot.gyro.getIntegratedZValue();
-           telemetry.addData("Integrated angle: ", angle);
-           telemetry.update();
+        robot.turnToHeading(58, this);
+        robot.beginSynchronousDriving(3.5, robot.SPEED);
+        while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
+        robot.endSynchronousDriving(this);
 
-           while (angle != desiredAngle) {
-               if (desiredAngle > 0) {
-                   robot.oneWheelTurn(robot.LEFT_MOTOR, 0.5, 0.5, this);
-               }
-               if (desiredAngle < 0) {
-                   robot.oneWheelTurn(robot.RIGHT_MOTOR, -0.5, 0.5, this);
-               }
-           }
-
-           idle();
-       }
 
     }
 

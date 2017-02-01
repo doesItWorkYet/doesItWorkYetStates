@@ -59,6 +59,8 @@ public class LucyUserControlled extends LinearOpMode {
         robot.zero(this);
         robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //robot.flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         idle();
         telemetry.addData("Status", "Robot zeros");
         telemetry.update();
@@ -88,7 +90,7 @@ public class LucyUserControlled extends LinearOpMode {
             //telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
             telemetry.update();
-            robot.setFlywheelDeflectorAngle(10*gamepad2.left_stick_x);
+            //robot.setFlywheelDeflectorAngle(10*gamepad2.left_stick_x); NOOOO WHY
 
             //robot.setFlywheelDeflectorAngle(20.0*gamepad2.left_stick_x,this);
             //telemetry.addData("Value: " , 20.0*gamepad2.left_stick_x);
@@ -98,50 +100,54 @@ public class LucyUserControlled extends LinearOpMode {
                 flyWheelDeflectorPosition++;
                 if (flyWheelDeflectorPosition > 3) { flyWheelDeflectorPosition = 3; }
                 switch (flyWheelDeflectorPosition) {
-                    case -2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
-                    case -1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
-                    case 0: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
-                    case 1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
-                    case 2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
-                    case 3: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                             break;
                 }
+                while(gamepad2.a);
             }
             if(gamepad2.b){
                 flyWheelDeflectorPosition--;
                 if (flyWheelDeflectorPosition < -3) { flyWheelDeflectorPosition = -3; }
                 switch (flyWheelDeflectorPosition) {
-                    case -3: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case -3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
-                    case -2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
-                    case -1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
-                    case 0: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
-                    case 1: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
-                    case 2: robot.setFlywheelDeflectorAngle(flyWheelDeflectorPosition);
+                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
                         break;
                 }
+                while(gamepad2.b);
+            }
+            if(gamepad2.dpad_left){
+                robot.setFlywheelDeflectorAngle(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
             }
 
             //When the right trigger is fully pressed, turn on the flywheel motors
             if(gamepad2.x){
-                robot.sweep.setPower(0);
-                robot.flyWheel1.setPower(rps1);
-                robot.flyWheel2.setPower(rps2);
+                robot.flyWheel1.setPower(robot.FLY_WHEEL_POWER);
+                robot.flyWheel2.setPower(robot.FLY_WHEEL_POWER);
             }
 
             //If the right trigger is not fully pressed, ensure the flywheel motors are turned off
             if(!gamepad2.x){
-                robot.flyWheel1.setPower(0);
-                robot.flyWheel2.setPower(0);
+                    robot.flyWheel1.setPower(0);
+                    robot.flyWheel2.setPower(0);
             }
 
             //Move the indexer into the load position
