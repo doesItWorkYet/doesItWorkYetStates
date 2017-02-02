@@ -24,15 +24,15 @@ public class HardwareMapLucyV4 {
     public final int SHOOT_NEAR_LEFT = 1;
     public final int SHOOT_MEDIUM_LEFT = 2;
     public final int SHOOT_FAR_LEFT = 3;
-
+    private final double DEFLECTOR_GEAR_RATIO = 2;
     //angles
-    private final int FAR_RIGHT_ANGLE = -10;
-    private final int MEDIUM_RIGHT_ANGLE = -6;
-    private final int NEAR_RIGHT_ANGLE = -2;
+    private final int FAR_RIGHT_ANGLE = -35;
+    private final int MEDIUM_RIGHT_ANGLE = -25;
+    private final int NEAR_RIGHT_ANGLE = -15;
     private final int SHOOT_UP_ANGLE = 0;
-    private final int FAR_LEFT_ANGLE = 10;
-    private final int MEDIUM_LEFT_ANGLE = 6;
-    private final int NEAR_LEFT_ANGLE = 2;
+    private final int FAR_LEFT_ANGLE = 35;
+    private final int MEDIUM_LEFT_ANGLE = 25;
+    private final int NEAR_LEFT_ANGLE = 15;
 
     private final int MAX_SPEED_FLYWHEEL_1 = 4000;
     private final int MAX_SPEED_FLYWHEEL_2 = 4000;
@@ -113,7 +113,7 @@ public class HardwareMapLucyV4 {
 
     //Indexer Positions
     final double INDEXER_LOAD_POSITION = 0.0;
-    final double INDEXER_FIRE_POSITION = 45.0;
+    final double INDEXER_FIRE_POSITION = 70.0;
 
     //Motor Tick Values
     final int TICKS_PER_REV_ANDYMARK = 1120;
@@ -149,7 +149,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 1;
     final double FLY_WHEEL_MED_SPEED = 0.5;
     final double FLY_WHEEL_LOW_SPEED = 0.25;
-    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 90.0;
+    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 100.0;
 
 
     //sensors
@@ -331,7 +331,7 @@ public class HardwareMapLucyV4 {
 
     public void setTargetDistanceForParticalShooter(int mode) {
         if (mode == SHOOT_FAR_LEFT) {
-            //probably set speed as well
+            // set speed as well
             setFlywheelDeflectorAngle(FAR_LEFT_ANGLE);
         }
         if (mode == SHOOT_MEDIUM_LEFT) {
@@ -355,6 +355,7 @@ public class HardwareMapLucyV4 {
     }
 
     public void setFlywheelDeflectorAngle(double angleFromCenter){
+        angleFromCenter = DEFLECTOR_GEAR_RATIO*angleFromCenter;
         flyWheelDeflector.setPosition((FLY_WHEEL_DEFLECOTR_NEUTRAL + angleFromCenter)/180.0);
     }
 
@@ -799,8 +800,8 @@ public class HardwareMapLucyV4 {
     public void beginSyncFlyWheels (double power, double rps, OpMode mode){
         flyWheel1.setMaxSpeed((int) (TICKS_PER_REV_ANDYMARK * rps));
         flyWheel2.setMaxSpeed((int) (TICKS_PER_REV_ANDYMARK * rps));
-        flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitCycle(mode);
         flyWheel1.setPower(power);
         flyWheel2.setPower(power);

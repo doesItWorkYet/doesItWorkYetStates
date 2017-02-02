@@ -74,7 +74,7 @@ public class LucyUserControlled extends LinearOpMode {
         //Declare variables for use in runtime loop
         double rps1 = 1;
         double rps2 = 1;
-        int flyWheelPower = 1;
+        int flyWheelPower = 3;
         int flyWheelDeflectorPosition = 1;
         int flyWheelDeflectorPosition2 = 1;
         boolean reverse = false;
@@ -134,12 +134,8 @@ public class LucyUserControlled extends LinearOpMode {
                 }
                 while(gamepad2.b);
             }
-            if(gamepad2.dpad_left){
-                robot.setFlywheelDeflectorAngle(robot.FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
-            }
-
             //When the right trigger is fully pressed, turn on the flywheel motors
-            if(gamepad2.x){
+            /*if(gamepad2.x){
                 robot.flyWheel1.setPower(robot.FLY_WHEEL_POWER);
                 robot.flyWheel2.setPower(robot.FLY_WHEEL_POWER);
             }
@@ -149,7 +145,7 @@ public class LucyUserControlled extends LinearOpMode {
                     robot.flyWheel1.setPower(0);
                     robot.flyWheel2.setPower(0);
             }
-
+*/
             //Move the indexer into the load position
             if(gamepad2.y){
                 robot.indexer.setPosition(robot.INDEXER_FIRE_POSITION/180.0);
@@ -300,29 +296,38 @@ public class LucyUserControlled extends LinearOpMode {
 */
             //Deploy the beacon presser
             if(gamepad1.dpad_up){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION/180.0);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION/180.0);
             }
             //Store the beacon pesser
             if(gamepad1.dpad_down){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
             }
-            if(gamepad2.dpad_up) flyWheelPower++;
-            if(gamepad2.dpad_down) flyWheelPower--;
-            if(flyWheelPower == 1){
-                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_LOW_SPEED);
-                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_LOW_SPEED);
-            }
-            else if(flyWheelPower == 2){
-                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_MED_SPEED);
-                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_MED_SPEED);
-            }
-            else if(flyWheelPower == 3){
-                robot.flyWheel1.setMaxSpeed((int)robot.FLY_WHEEL_HIGH_SPEED);
-                robot.flyWheel2.setMaxSpeed((int)robot.FLY_WHEEL_HIGH_SPEED);
-            }
+            //if(gamepad2.dpad_right) flyWheelPower++;
+            //if(gamepad2.dpad_left) flyWheelPower--;
+            if(gamepad2.x) {
+                robot.flyWheel2.setPower(robot.FLY_WHEEL_HIGH_SPEED);
+                robot.flyWheel1.setPower(robot.FLY_WHEEL_HIGH_SPEED);
+                /*
+                if(flyWheelPower>3) flyWheelPower = 3;
+                if(flyWheelPower<1) flyWheelPower = 1;
+                if (flyWheelPower == 1) {
+                    robot.flyWheel2.setPower(robot.FLY_WHEEL_LOW_SPEED);
+                    robot.flyWheel1.setPower(robot.FLY_WHEEL_LOW_SPEED);
+                } else if (flyWheelPower == 2) {
+                    robot.flyWheel2.setPower(robot.FLY_WHEEL_MED_SPEED);
+                    robot.flyWheel1.setPower(robot.FLY_WHEEL_MED_SPEED);
+                } else if (flyWheelPower == 3) {
 
+
+                }
+                */
+            }
+            if(!gamepad2.x){
+                robot.flyWheel1.setPower(0);
+                robot.flyWheel2.setPower(0);
+            }
 
             //cap ball lift controls:
             /*NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
