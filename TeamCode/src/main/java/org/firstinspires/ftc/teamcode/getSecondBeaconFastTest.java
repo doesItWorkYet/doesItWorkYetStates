@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
@@ -9,11 +10,9 @@ import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
-
-
-@Autonomous(name="90 point autonomous", group="Testing")  // @Autonomous(...) is the other common choice
-
-public class ninetyPointAutonomousBlue extends LinearVisionOpMode {
+@Autonomous(name = "Get Second Beacon Fast Test", group = "Testing")
+@Disabled
+public class getSecondBeaconFastTest extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -25,7 +24,6 @@ public class ninetyPointAutonomousBlue extends LinearVisionOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
-        waitOneFullHardwareCycle();
         telemetry.addData("Vars", "Set");
         telemetry.update();
         try {
@@ -48,7 +46,7 @@ public class ninetyPointAutonomousBlue extends LinearVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(900, 900));
+        this.setFrameSize(new Size(height, width));
         telemetry.addData("Frame", "set");
         telemetry.update();
         /**
@@ -79,62 +77,17 @@ public class ninetyPointAutonomousBlue extends LinearVisionOpMode {
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
 
-        telemetry.addData("approach line", "");
-        telemetry.update();
-        robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, 0.5, this);
-        telemetry.addData("go to line", "");
-        telemetry.update();
-        robot.beginSynchronousDriving(robot.FAST_RPS, 0.5);
-        while(!robot.safety(this) && robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
-        robot.endSynchronousDriving(this);
-        telemetry.addData("turn to beacon", "");
-        telemetry.update();
-        robot.oneWheelTurn(robot.LEFT_MOTOR, 58, 0.25, this);
-        telemetry.addData("follow line", "");
-        telemetry.update();
-        robot.followLineStraightBlue(0.35, 0.1, this);
-        telemetry.addData("get beacon 1", "");
-        telemetry.update();
-        if(getLeftColor() == robot.BEACON_BLUE){
-            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+        robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, robot.SPEED, this);
+        robot.turnToHeading(88, this);
+        robot.followLineStraightRed(0.25, 0.2, this);
+        if(getLeftColor() == robot.BEACON_RED){
+            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
         }
-        else{
-            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-        }
-        robot.driveDistance(0.15, 0.3, this);
-        robot.driveDistance(-0.15, 0.4, this);
-        telemetry.addData("turn to other line", "");
-        telemetry.update();
-        robot.oneWheelTurn(robot.LEFT_MOTOR, -90, 0.5, this);
-        telemetry.addData("approach line 2", "");
-        telemetry.update();
-        robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, 0.5, this);
-        telemetry.addData("go to line", "");
-        telemetry.update();
-        robot.beginSynchronousDriving(robot.FAST_RPS, 0.5);
-        while(!robot.safety(this) && robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
-        robot.endSynchronousDriving(this);
-        telemetry.addData("turn to beacon 2", "");
-        telemetry.update();
-        robot.oneWheelTurn(robot.RIGHT_MOTOR, -90, 0.5, this);
-        telemetry.addData("follow line", "");
-        telemetry.update();
-        robot.followLineStraightBlue(0.35, 0.1, this);
-        telemetry.addData("get beacon 2", "");
-        telemetry.update();
-        if(getLeftColor() == robot.BEACON_BLUE){
-            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-        }
-        else{
-            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-        }
-        robot.driveDistance(0.15, 0.3, this);
-        robot.driveDistance(-0.15, 0.4, this);
-        telemetry.addData("end", "");
-        telemetry.update();
-
+        waitOneFullHardwareCycle();
+        robot.driveDistance(0.3, 0.5, this);
+        robot.brakeTemporarily(this);
+        robot.driveDistance(-0.25, 0.5, this);
     }
-
 
     private Beacon.BeaconAnalysis getAnalysis(){
         return beacon.getAnalysis();

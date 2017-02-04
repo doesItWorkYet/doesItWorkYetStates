@@ -35,13 +35,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name="RunToWhiteRGB", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name= "Following heading to white line and turn to beacon", group="Testing")  // @Autonomous(...) is the other common choice
 @Disabled
-public class goForwardUntilWhiteRGB extends LinearOpMode {
+public class followHeadingToWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
-    private MotorController driveLeftController, driveRightController;
-    double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -50,20 +49,32 @@ public class goForwardUntilWhiteRGB extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
+
         //Wait for start and reset the runtime count
-        //turn off beacon sensor
-        //robot.beaconColorSensor.turnSensorOff();
-        robot.groundColorSensor.waitForInitialization();
-        robot.groundColorSensor.turnLedOn();
         waitForStart();
-        boolean runTimes = false;
-       while(opModeIsActive()){
-           //use default
-           robot.goForwardUntilWhite(robot.USE_RGB, this);
-
-
-       }
-
+        for(int i = 0; i < .6*100; i ++){
+            robot.leftMotor.setPower(.2 + i/100);
+            robot.rightMotor.setPower(.2 + i/100);
+            idle();
+        }
+        robot.leftMotor.setPower(.8);
+        robot.rightMotor.setPower(.8);
+        telemetry.addData("Follow Heading", "");
+        telemetry.update();
+        robot.driveDistanceFollowingHeading(0,.8,.7,5,this);
+        robot.brakeTemporarily(this);
+        /*
+        robot.followingHeadingToWhiteLine(0, 0.6, 0.5, this);
+        telemetry.addData("Color value: ", robot.fastColorSensor.getBrightness());
+        telemetry.addData("White line", "");
+        telemetry.addData("stop", "");
+        telemetry.update();
+        robot.brakeTemporarily(this);
+        robot.followingHeadingToWhiteLine(0,-0.35, -0.25, this);
+        robot.brakeTemporarily(this);
+        robot.turnToHeadingWithError(robot.RIGHT_MOTOR, -90, 0.2, 0.1, 3, this);
+        while(opModeIsActive());
+*/
     }
 
 }

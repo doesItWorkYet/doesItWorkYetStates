@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="Drive To White w/ Gyro", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class driveToWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
@@ -50,15 +50,16 @@ public class driveToWhiteLine extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        //begin
-        //loop
-        //end
         telemetry.addData("Start robot", "");
         telemetry.update();
         robot.deployBeaconPressers();
         telemetry.addData("Deploy beacon pressers and wait", "");
         telemetry.update();
         robot.delay(100, this);
+
+
+
+
         robot.beginSynchronousDriving(3, 1);
         telemetry.addData("Start Sync Driving", "");
         telemetry.update();

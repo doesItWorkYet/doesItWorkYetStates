@@ -50,22 +50,11 @@ public class gyroTester extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-
        while(opModeIsActive()){
            double desiredAngle = 90;
            double angle = robot.gyro.getIntegratedZValue();
            telemetry.addData("Integrated angle: ", angle);
            telemetry.update();
-
-           while (angle != desiredAngle) {
-               if (desiredAngle > 0) {
-                   robot.oneWheelTurn(robot.LEFT_MOTOR, 0.5, 0.5, this);
-               }
-               if (desiredAngle < 0) {
-                   robot.oneWheelTurn(robot.RIGHT_MOTOR, -0.5, 0.5, this);
-               }
-           }
-
            idle();
        }
 

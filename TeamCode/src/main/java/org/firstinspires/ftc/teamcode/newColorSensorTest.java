@@ -50,14 +50,10 @@ public class newColorSensorTest extends LinearOpMode {
         robot.init(hardwareMap);
         robot.zero(this);
         //Wait for start and reset the runtime count
-        colorSensor = new TCS34725_ColorSensor(hardwareMap,"rawGroundColorSensor");
         waitForStart();
        while(opModeIsActive()){
-           telemetry.addData("Brightness: ", colorSensor.clearColor());
+           telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
            telemetry.update();
-
-
-
            idle();
        }
 

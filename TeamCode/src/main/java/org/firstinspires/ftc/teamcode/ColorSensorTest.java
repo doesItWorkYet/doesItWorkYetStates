@@ -55,7 +55,6 @@ public class ColorSensorTest extends LinearOpMode {
         robot.groundColorSensor.waitForInitialization();
         if(robot.groundColorSensor == null){
             telemetry.addData("color sensor", "null");
-
         }
         //robot.dim.isI2cPortInReadMode()
         robot.groundColorSensor.turnLedOn();

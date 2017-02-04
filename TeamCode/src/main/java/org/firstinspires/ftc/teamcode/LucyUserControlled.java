@@ -100,17 +100,17 @@ public class LucyUserControlled extends LinearOpMode {
                 flyWheelDeflectorPosition++;
                 if (flyWheelDeflectorPosition > 3) { flyWheelDeflectorPosition = 3; }
                 switch (flyWheelDeflectorPosition) {
-                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                    case 3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
                 }
                 while(gamepad2.a);
@@ -119,21 +119,22 @@ public class LucyUserControlled extends LinearOpMode {
                 flyWheelDeflectorPosition--;
                 if (flyWheelDeflectorPosition < -3) { flyWheelDeflectorPosition = -3; }
                 switch (flyWheelDeflectorPosition) {
-                    case -3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case -3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
-                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
-                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
-                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 0: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
-                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
-                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition);
+                    case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
                 }
                 while(gamepad2.b);
             }
+
             //When the right trigger is fully pressed, turn on the flywheel motors
             /*if(gamepad2.x){
                 robot.flyWheel1.setPower(robot.FLY_WHEEL_POWER);
@@ -296,19 +297,22 @@ public class LucyUserControlled extends LinearOpMode {
 */
             //Deploy the beacon presser
             if(gamepad1.dpad_up){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION/180.0);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION/180.0);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
             }
             //Store the beacon pesser
             if(gamepad1.dpad_down){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
             }
             //if(gamepad2.dpad_right) flyWheelPower++;
             //if(gamepad2.dpad_left) flyWheelPower--;
             if(gamepad2.x) {
                 robot.flyWheel2.setPower(robot.FLY_WHEEL_HIGH_SPEED);
                 robot.flyWheel1.setPower(robot.FLY_WHEEL_HIGH_SPEED);
+                telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
+                telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
+                telemetry.update();
                 /*
                 if(flyWheelPower>3) flyWheelPower = 3;
                 if(flyWheelPower<1) flyWheelPower = 1;

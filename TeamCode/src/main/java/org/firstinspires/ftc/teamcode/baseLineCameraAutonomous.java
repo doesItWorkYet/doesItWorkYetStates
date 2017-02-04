@@ -43,7 +43,7 @@ public class baseLineCameraAutonomous extends LinearVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(height, width));
+        this.setFrameSize(new Size(600, 600));
         telemetry.addData("Frame", "set");
         telemetry.update();
         /**

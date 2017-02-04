@@ -36,11 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.opencv.core.Point;
-
-@Autonomous(name="Knock Cap Ball test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Backward to white line", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class knockOffCapBall extends LinearOpMode {
+public class backwardToWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,24 +48,13 @@ public class knockOffCapBall extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
-
         //Wait for start and reset the runtime count
-
-        //boolean ballHasBeenKnocked = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
         waitForStart();
-        robot.deployBeaconPressers();
-        while((!robot.leftBeaconPresserSensor.isPressed() && !robot.rightBeaconPresserSensor.isPressed()) && opModeIsActive()){
-            robot.beginSynchronousDriving(robot.FAST_RPS, robot.FAST_RPS);
-            //ballHasBeenKnocked = robot.leftBeaconPresserSensor.isPressed() || robot.rightBeaconPresserSensor.isPressed();
-            idle();
-        }
-        robot.endSynchronousDriving(this);
+
+        robot.followingHeadingToWhiteLine(0, -0.3, -0.25, this);
+        while(opModeIsActive());
 
     }
 
 }
-
-
-
-
 

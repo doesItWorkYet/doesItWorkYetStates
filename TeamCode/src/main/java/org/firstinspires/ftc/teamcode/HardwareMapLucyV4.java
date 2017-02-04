@@ -15,7 +15,7 @@ import org.lasarobotics.vision.opmode.LinearVisionOpMode;
  */
 public class HardwareMapLucyV4 {
     public final boolean DEBUG = false;
-
+    public final double TURNING_P = .5/180.0;
     //modes for shooter
     public final int SHOOT_FAR_RIGHT = -3;
     public final int SHOOT_MEDIUM_RIGHT = -2;
@@ -46,7 +46,7 @@ public class HardwareMapLucyV4 {
     public final int RIGHT_MOTOR = -1;
 
     //Wheel Measurements
-    private final double ROBOT_WHEEL_RADIUS = .047625; //meters
+    private final double ROBOT_WHEEL_RADIUS = .0508; //meters
     public final double ROBOT_WHEEL_TRACK = .244; //meters
     private final double ROBOT_REV_PER_DEGREE = .013059301;
     public final double TURN_CORRECTION_FACTOR = 1;
@@ -87,9 +87,9 @@ public class HardwareMapLucyV4 {
     //cap ball lifter motors
     public DcMotor extendotronLeft = null;
     public DcMotor extendotronRight = null;
-    public final double EXTENDOTRON_LIFT_SPEED = .75;
-    public final double EXTENDOTRON_DROP_SPEED = -.25;
-    public final double EXTENDOTRON_REVS_PER_SEC = 0.25;
+    public final double EXTENDOTRON_LIFT_SPEED = 1;
+    public final double EXTENDOTRON_DROP_SPEED = -0.5;
+    public final double EXTENDOTRON_REVS_PER_SEC = 2;
 
     //T-Rex arms
     public Servo armletLeft = null;
@@ -137,7 +137,7 @@ public class HardwareMapLucyV4 {
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final double BRIGHTNESS_WHITE_THRESHOLD = .5;
+    final double BRIGHTNESS_WHITE_THRESHOLD = 12.0;
     final int USE_RGB = 1999;
     final int USE_BRIGHTNESS = 5050;
 
@@ -146,9 +146,9 @@ public class HardwareMapLucyV4 {
     final double DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH = .02; //two centimeters
     final double ADVANCE_TO_WHITE_POWER = .6; //might as well as go fast....
 
-    final double FLY_WHEEL_HIGH_SPEED = 1;
-    final double FLY_WHEEL_MED_SPEED = 0.5;
-    final double FLY_WHEEL_LOW_SPEED = 0.25;
+    final double FLY_WHEEL_HIGH_SPEED = 5;
+    final double FLY_WHEEL_MED_SPEED = 2.5;
+    final double FLY_WHEEL_LOW_SPEED = 1;
     final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 100.0;
 
 
@@ -177,10 +177,12 @@ public class HardwareMapLucyV4 {
     String RED = "Red";
     HardwareMap hwMap = null;
 
-    public final double OPTICAL_SENSOR_THRESHOLD = .04;
+    public final double OPTICAL_SENSOR_THRESHOLD = .028;
 
     final int ARMLET_STORE_POSITION =  20;
     final int ARMLET_DEPLOY_POSITION = 160;
+    final int BACKWARD = 1;
+    final int FORWARD = 0;
 
     final double SPEED = 1;
     final int DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH = 2;
@@ -277,7 +279,7 @@ public class HardwareMapLucyV4 {
 
     }
     public void zero(OpMode mode) throws InterruptedException {
-        gyro.calibrate();
+
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         flyWheelDeflector.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
@@ -289,10 +291,17 @@ public class HardwareMapLucyV4 {
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         sweep.setPower(0);
+        extendotronLeft.setPower(0);
+        extendotronRight.setPower(0);
         armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
         armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
+        rightMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
+        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
         //flyWheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //flyWheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -314,11 +323,9 @@ public class HardwareMapLucyV4 {
         else if (mode instanceof LinearOpMode) {
             ((LinearOpMode) mode).idle();
         }
-        while(gyro.isCalibrating()){
-            Thread.sleep(60);
-            mode.telemetry.addData("Caliabrating: ", "waiting");;
-            mode.telemetry.update();
-        }
+
+
+
         mode.telemetry.addData("Caliabrating: ", "Done!");;
         mode.telemetry.update();
 /*
@@ -329,29 +336,62 @@ public class HardwareMapLucyV4 {
     */
     }
 
-    public void setTargetDistanceForParticalShooter(int mode) {
+    public void calibrateGyro(OpMode mode){
+        mode.telemetry.addData("Gyro: ", "Calibrating");
+        mode.telemetry.update();
+        gyro.calibrate();
+        while(gyro.isCalibrating() && !safety(mode)){
+            waitCycle(mode);
+
+        }
+        mode.telemetry.addData("Gyro: ", "Done Calibrating");
+        mode.telemetry.update();
+
+    }
+
+    public void setTargetDistanceForParticalShooter(int mode, OpMode modeType) {
+        //modeType.telemetry.addData("Fly Wheel 1 Position: ", flyWheel1.getCurrentPosition());
+        //modeType.telemetry.addData("Fly Wheel 2 Position: ", flyWheel2.getCurrentPosition());
+        //modeType.telemetry.update();
         if (mode == SHOOT_FAR_LEFT) {
             // set speed as well
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(FAR_LEFT_ANGLE);
         }
         if (mode == SHOOT_MEDIUM_LEFT) {
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE);
         }
         if (mode == SHOOT_NEAR_LEFT) {
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE);
         }
         if (mode == SHOOT_UP) {
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(SHOOT_UP_ANGLE);
         }
         if(mode == SHOOT_FAR_RIGHT){
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE);
         }
         if(mode == SHOOT_MEDIUM_RIGHT){
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE);
         }
         if(mode == SHOOT_NEAR_RIGHT){
+            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
+            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE);
         }
+        //modeType.telemetry.addData("Fly Wheel 1 Position: ", flyWheel1.getCurrentPosition());
+        //modeType.telemetry.addData("Fly Wheel 2 Position: ", flyWheel2.getCurrentPosition());
+        //modeType.telemetry.update();
     }
 
     public void setFlywheelDeflectorAngle(double angleFromCenter){
@@ -575,6 +615,8 @@ public class HardwareMapLucyV4 {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
+
+
     public void beaconApproach(int side, OpMode mode) {
         if (side == BEACON_LEFT) {
             beaconPresserLeft.setPosition(ARMLET_DEPLOY_POSITION);
@@ -623,10 +665,13 @@ public class HardwareMapLucyV4 {
         else {
             isOpModeActive = false;
         }
+
         if(distSensor.getLightDetected() < OPTICAL_SENSOR_THRESHOLD){
             wallIsNear = false;
         }
         else if(distSensor.getLightDetected()>OPTICAL_SENSOR_THRESHOLD){
+            mode.telemetry.addData("Warning! ", "Wall too close!");
+            mode.telemetry.update();
             wallIsNear = true;
         }
         if (!wallIsNear && isOpModeActive) {
@@ -677,94 +722,225 @@ public class HardwareMapLucyV4 {
         }
     }
 
+    public void turnToHeadingWithError(int motor, double heading, double startPower, double endPower, int iterations, OpMode mode){
+        double deltaPower = startPower - endPower;
 
-    public void stayStraightUntilWhiteLine(int desiredHeading, OpMode mode){
-        gyro.calibrate();
-        while (gyro.isCalibrating() && !safety(mode)) { }
-        int currentHeading = gyro.getIntegratedZValue();
-        boolean initialDirection = false; //false means turn left, true is turn right
-        if (Math.abs(0 - desiredHeading) > Math.abs(359-desiredHeading)) {
-            initialDirection = false;
+        for(int i = 0; i < iterations; i ++){
+            //mode.telemetry.addData("Motor power: ", )
+            turnToHeading(motor, heading, endPower + (iterations-i)*deltaPower/iterations, mode);
         }
-        if (Math.abs(0 - desiredHeading) <= Math.abs(359-desiredHeading)) {
-            initialDirection = true;
-        }
-        if (initialDirection) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
-                oneWheelTurn(LEFT_MOTOR, 0.5, 1, mode);
+    }
+
+
+    public void turnToHeadingAutoSpeedSet(int motor, int heading, double maxPower, double minPower, double p, double accuracy, OpMode mode){
+        double error = heading + gyro.getIntegratedZValue();
+        if(motor == LEFT_MOTOR) {
+            rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (Math.abs(error) > accuracy && !safety(mode)) {
+                double power = error * p;
+                if(power < 0 && Math.abs(power) < minPower){
+                    power = -minPower;
+                }
+                if(power > 0 && power < minPower){
+                    power = minPower;
+                }
+                leftMotor.setPower(power);
+                waitCycle(mode);
+                error = heading + gyro.getIntegratedZValue();
             }
         }
-        if (!initialDirection) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
-                oneWheelTurn(RIGHT_MOTOR, 0.5, 1, mode);
-            }
-        }
-        double brightness = fastColorSensor.getBrightness();
-        while (brightness < BRIGHTNESS_WHITE_THRESHOLD && !safety(mode)) {
-            while (currentHeading == desiredHeading && !safety(mode)) {
-                driveDistance(DISTANCE_INCREMENT_FOR_WHITE_LINE_SEARCH, 0.9, mode);
-            }
-            if (currentHeading < desiredHeading) {
-                leftMotor.setPower(1);
-                rightMotor.setPower(0.9);
-            }
-            if (currentHeading > desiredHeading) {
-                rightMotor.setPower(1);
-                leftMotor.setPower(0.9);
+        if(motor == RIGHT_MOTOR){
+            leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            while (Math.abs(error) > accuracy && !safety(mode)) {
+                double power = error * p;
+                if(power < 0 && Math.abs(power) < minPower){
+                    power = -minPower;
+                }
+                if(power > 0 && power < minPower){
+                    power = minPower;
+                }
+                rightMotor.setPower(-power);
+                waitCycle(mode);
+                error = heading + gyro.getIntegratedZValue();
             }
         }
         stop();
+        waitCycle(mode);
+        brakeTemporarily(mode);
+        waitCycle(mode);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        waitCycle(mode);
+    }
+
+    public void followingHeadingToWhiteLine(int heading, double highPower, double normalPower, OpMode mode){
+
+        if(highPower > 0){
+            while(!safety(mode)&&fastColorSensor.getBrightness()<BRIGHTNESS_WHITE_THRESHOLD) {
+                double CurrentHeading = -gyro.getIntegratedZValue();
+                mode.telemetry.addData("Heading: ", heading);
+                mode.telemetry.addData("No white line", "");
+                mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+                if (CurrentHeading <= heading) {
+                    leftMotor.setPower(highPower);
+                    rightMotor.setPower(normalPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Right");
+                } else if (CurrentHeading > heading) {
+                    leftMotor.setPower(normalPower);
+                    rightMotor.setPower(highPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Left");
+                }
+                mode.telemetry.update();
+                waitCycle(mode);
+            }
+        }
+        if(highPower < 0){
+            while(!safety(mode)&&fastColorSensor.getBrightness()<BRIGHTNESS_WHITE_THRESHOLD) {
+                double CurrentHeading = -gyro.getIntegratedZValue();
+                mode.telemetry.addData("Heading: ", heading);
+                mode.telemetry.addData("No white line", "");
+                mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+                if (CurrentHeading >= heading) {
+                    leftMotor.setPower(highPower);
+                    rightMotor.setPower(normalPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Right");
+                } else if (CurrentHeading < heading) {
+                    leftMotor.setPower(normalPower);
+                    rightMotor.setPower(highPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Left");
+                }
+                mode.telemetry.update();
+                waitCycle(mode);
+            }
+        }
+    }
+    public void driveDistanceFollowingHeading(int heading, double highPower, double normalPower,double feet, OpMode mode){
+        double circumferenceInFeet = ROBOT_WHEEL_CIRCUMFERENCE * 100.0 / 2.54 / 12.0;
+        long ticks = (long)((feet/circumferenceInFeet)*TICKS_PER_REV_ANDYMARK);
+        long endingTick = (long)(leftMotor.getCurrentPosition() + highPower/Math.abs(highPower)*ticks);
+        if(highPower > 0){
+            while(!safety(mode)&&leftMotor.getCurrentPosition() < endingTick) {
+                double CurrentHeading = -gyro.getIntegratedZValue();
+                mode.telemetry.addData("Heading: ", heading);
+                mode.telemetry.addData("No white line", "");
+                mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+                if (CurrentHeading <= heading) {
+                    leftMotor.setPower(highPower);
+                    rightMotor.setPower(normalPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Right");
+                } else if (CurrentHeading > heading) {
+                    leftMotor.setPower(normalPower);
+                    rightMotor.setPower(highPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Left");
+                }
+                mode.telemetry.update();
+                waitCycle(mode);
+            }
+        }
+        if(highPower < 0){
+            while(!safety(mode)&&leftMotor.getCurrentPosition() > endingTick) {
+                double CurrentHeading = -gyro.getIntegratedZValue();
+                mode.telemetry.addData("Heading: ", heading);
+                mode.telemetry.addData("No white line", "");
+                mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+                if (CurrentHeading >= heading) {
+                    leftMotor.setPower(highPower);
+                    rightMotor.setPower(normalPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Right");
+                } else if (CurrentHeading < heading) {
+                    leftMotor.setPower(normalPower);
+                    rightMotor.setPower(highPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Left");
+                }
+                mode.telemetry.update();
+                waitCycle(mode);
+            }
+        }
+    }
+    public void turnToHeading(int motor, double heading, double power, OpMode mode){
+
+        if(motor == LEFT_MOTOR){
+            //brake the opposite motor
+            rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            waitCycle(mode);
+            if(heading < -gyro.getIntegratedZValue()){
+                leftMotor.setPower(-Math.abs(power));
+                while(heading < -gyro.getIntegratedZValue() && !safety(mode)){
+                    waitCycle(mode);
+                }
+            }
+            else if(heading > -gyro.getIntegratedZValue()){
+                leftMotor.setPower(Math.abs(power));
+                while(heading > -gyro.getIntegratedZValue() && !safety(mode)){
+                    waitCycle(mode);
+                }
+            }
+        }
+
+        else if(motor == RIGHT_MOTOR){
+            //brake the opposite motor
+            leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            waitCycle(mode);
+            if(heading < -gyro.getIntegratedZValue()){
+                rightMotor.setPower(Math.abs(power));
+                while(heading < -gyro.getIntegratedZValue() && !safety(mode)){
+                    waitCycle(mode);
+                }
+            }
+            else if(heading > -gyro.getIntegratedZValue()){
+                rightMotor.setPower(-Math.abs(power));
+                while(heading > -gyro.getIntegratedZValue() && !safety(mode)){
+                    waitCycle(mode);
+                }
+            }
+        }
+
+        //release both motor
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        waitCycle(mode);
+        brakeTemporarily(mode);
+        waitCycle(mode);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void turnToHeading(int desiredHeading, OpMode mode) {
         gyro.calibrate();
-        int currentHeading = gyro.getIntegratedZValue();
         while (gyro.isCalibrating() && !safety(mode)) { }
 
         if (desiredHeading > 0) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+            while (Math.abs(gyro.getIntegratedZValue() - desiredHeading) > 5 && !safety(mode)) {
                 oneWheelTurn(LEFT_MOTOR, 0.5, 0.75, mode);
             }
-            while (Math.abs(currentHeading - desiredHeading) > 1 && !safety(mode)) {
+            while (Math.abs(gyro.getIntegratedZValue() - desiredHeading) > 1 && !safety(mode)) {
                 oneWheelTurn(LEFT_MOTOR, 0.5, 0.25, mode);
             }
         }
         if (desiredHeading < 0) {
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+            while (Math.abs(gyro.getIntegratedZValue() - desiredHeading) > 5 && !safety(mode)) {
                 oneWheelTurn(RIGHT_MOTOR, -0.5, 0.75, mode);
             }
-            while (Math.abs(currentHeading - desiredHeading) > 5 && !safety(mode)) {
+            while (Math.abs(gyro.getIntegratedZValue() - desiredHeading) > 5 && !safety(mode)) {
                 oneWheelTurn(RIGHT_MOTOR, -0.5, 0.25, mode);
             }
         }
-    }
-
-    public void followLineRed(double initialSpeed, double correctionSpeed, OpMode mode) {
-        while (!safety(mode)) {
-            if (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed);
-                leftMotor.setPower(initialSpeed + correctionSpeed);
-            }
-            if (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed + correctionSpeed);
-                leftMotor.setPower(initialSpeed);
-            }
-        }
-        brakeTemporarily(mode);
-    }
-
-    public void followLineBlue(double initialSpeed, double correctionSpeed, OpMode mode) {
-        while (!safety(mode)) {
-            if (fastColorSensor.getBrightness() < BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed + correctionSpeed);
-                leftMotor.setPower(initialSpeed);
-            }
-            if (fastColorSensor.getBrightness() > BRIGHTNESS_WHITE_THRESHOLD) {
-                rightMotor.setPower(initialSpeed);
-                leftMotor.setPower(initialSpeed + correctionSpeed);
-            }
-        }
-        brakeTemporarily(mode);
     }
 
     public void followLineStraightBlue(double initialSpeed, double maxCorrection, OpMode mode){

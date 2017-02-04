@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Turn to heading test", group="Testing")  // @Autonomous(...) is the other common choice
-//@Disabled
-public class turnToHeadingTest extends LinearOpMode {
+@Autonomous(name="Encoder Test", group="Testing")  // @Autonomous(...) is the other common choice
+@Disabled
+public class encoderTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,12 +50,15 @@ public class turnToHeadingTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
+       while(opModeIsActive()){
+           telemetry.addData("Encoder Right Value: ", robot.rightMotor.getCurrentPosition());
+           telemetry.addData("Encoder Left Value: ", robot.leftMotor.getCurrentPosition());
+           telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+           telemetry.addData("Angle: ", robot.gyro.getIntegratedZValue());
+           telemetry.update();
 
-        telemetry.addData("Start turn to heading: ", "90 degrees to right");
-        telemetry.update();
-        robot.turnToHeading(90, this);
-        telemetry.addData("End trun to heading", "");
-        telemetry.update();
+           idle();
+       }
 
     }
 

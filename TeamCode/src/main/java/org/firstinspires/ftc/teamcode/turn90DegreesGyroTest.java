@@ -33,14 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="RunToWhiteBRIGHTNESS", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Turn 90 with gyro test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class goForwardUntilWhiteBrightness extends LinearOpMode {
+public class turn90DegreesGyroTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
-    private MotorController driveLeftController, driveRightController;
-    double[] baseLineColorAverage = {0,0,0};
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -50,19 +49,9 @@ public class goForwardUntilWhiteBrightness extends LinearOpMode {
         robot.init(hardwareMap);
         robot.zero(this);
         //Wait for start and reset the runtime count
-        //turn off beacon sensor
-        //robot.beaconColorSensor.turnSensorOff();
-        robot.groundColorSensor.waitForInitialization();
-        robot.groundColorSensor.turnLedOn();
         waitForStart();
-        boolean runTimes = false;
-       while(opModeIsActive()){
-           //use default
-           robot.goForwardUntilWhite(robot.USE_BRIGHTNESS, this);
 
-
-       }
-
+        robot.turnToHeadingAutoSpeedSet(robot.LEFT_MOTOR, -90, .5, .05, .5/180.0, 4, this);
     }
 
 }

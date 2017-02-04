@@ -50,18 +50,10 @@ public class distSensorTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-
         while(opModeIsActive()){
             telemetry.addData("Light:", robot.distSensor.getLightDetected());
             telemetry.update();
-
-
         }
-
-        //while(robot.distSensor.getLightDetected()<.03 && opModeIsActive()){
-            //robot.driveDistance(.05, .5);
-
-        //}
         robot.brakeTemporarily(this);
 
 

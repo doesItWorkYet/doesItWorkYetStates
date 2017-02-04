@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Follow line test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Follow Heading Test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class followLineTest extends LinearOpMode {
+public class followHeadingTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,11 +50,30 @@ public class followLineTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        telemetry.addData("Start Line Follow", "");
-        telemetry.update();
-        robot.followLineRed(0.25, 0.1, this);
-        telemetry.addData("End Line Follow", "");
-        telemetry.update();
+
+        robot.leftMotor.setPower(.8);
+        robot.rightMotor.setPower(.8);
+
+
+        while(opModeIsActive()&&!robot.safety(this)){
+            double heading = -robot.gyro.getIntegratedZValue();
+            telemetry.addData("Heading: ", heading);
+            if(heading <= 0){
+                robot.leftMotor.setPower(.83);
+                robot.rightMotor.setPower(.8);
+                telemetry.addData("Turning: ", "Right");
+            }
+            else if(heading > 0){
+                robot.leftMotor.setPower(.8);
+                robot.rightMotor.setPower(.83);
+                telemetry.addData("Turning: ", "Left");
+            }
+            telemetry.update();
+            idle();
+
+
+        }
+
     }
 
 }

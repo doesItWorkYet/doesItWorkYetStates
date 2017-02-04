@@ -40,7 +40,7 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(700, 700));
+        this.setFrameSize(new Size(2000, 2000));
 
         /**
          * Enable extensions. Use what you need.

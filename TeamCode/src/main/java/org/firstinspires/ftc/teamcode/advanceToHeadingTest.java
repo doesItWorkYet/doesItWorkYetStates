@@ -52,7 +52,7 @@ public class advanceToHeadingTest extends LinearOpMode {
         waitForStart();
 
         robot.turnToHeading(58, this);
-        robot.beginSynchronousDriving(3.5, robot.SPEED);
+        robot.beginSynchronousDriving(3, robot.SPEED);
         while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
         robot.endSynchronousDriving(this);
 
