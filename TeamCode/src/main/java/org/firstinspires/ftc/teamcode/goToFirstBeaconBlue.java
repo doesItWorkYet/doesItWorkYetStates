@@ -33,7 +33,7 @@ public class goToFirstBeaconBlue extends LinearVisionOpMode {
             telemetry.addData("Exception: ", e.getMessage());
         }
 
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
         telemetry.addData("Cameras", "Set");
         telemetry.update();
         this.setFrameSize(new Size(2000, 2000));
@@ -45,18 +45,22 @@ public class goToFirstBeaconBlue extends LinearVisionOpMode {
         beacon.setAnalysisMethod(Beacon.AnalysisMethod.FAST);
         beacon.setColorToleranceRed(0);
         beacon.setColorToleranceBlue(0);
-        rotation.setIsUsingSecondaryCamera(false);
+        rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
         waitForStart();
+        long startTime = System.currentTimeMillis();
+        while(System.currentTimeMillis() < startTime + 5000 && opModeIsActive()){
+            waitOneFullHardwareCycle();
+        }
         robot.calibrateGyro(this);
         robot.driveDistanceFollowingHeading(0, 0.2, 0.15, 1, this);
         robot.brakeTemporarily(this);
         telemetry.addData("Turn: ", "Starting");
         telemetry.update();
-        robot.turnToHeadingAutoSpeedSet(robot.RIGHT_MOTOR, 48, 0.5, 0.05, robot.TURNING_P, 2, this);
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, 48, 0.5, 0.05, robot.TURNING_P, 2, this);
         telemetry.addData("Turn: ", "Done");
         telemetry.update();
         robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -72,7 +76,7 @@ public class goToFirstBeaconBlue extends LinearVisionOpMode {
         robot.brakeTemporarily(this);
         telemetry.addData("heading," ,robot.gyro.getIntegratedZValue());
         telemetry.update();
-        robot.turnToHeadingAutoSpeedSet(robot.LEFT_MOTOR, 88, .5, .05, robot.TURNING_P, 1, this);
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, 90, .5, .05, robot.TURNING_P, 1, this);
         robot.brakeTemporarily(this);
 
 
@@ -110,7 +114,7 @@ public class goToFirstBeaconBlue extends LinearVisionOpMode {
         }
         robot.setDriveMotorPower(.3);
         long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + 300){
+        while(System.currentTimeMillis() < start + 600){
             waitOneFullHardwareCycle();
         }
         robot.stop();

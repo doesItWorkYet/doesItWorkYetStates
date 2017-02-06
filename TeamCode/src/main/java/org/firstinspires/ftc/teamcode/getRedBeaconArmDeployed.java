@@ -11,9 +11,9 @@ import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
-@Autonomous(name="Get Beacon Fast Test", group="Testing")
-@Disabled
-public class getBeaconFastTest extends LinearVisionOpMode {
+@Autonomous(name="Beacon Pressers Get Red", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class getRedBeaconArmDeployed extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -33,69 +33,42 @@ public class getBeaconFastTest extends LinearVisionOpMode {
             telemetry.addData("Exception: ", e.getMessage());
         }
 
-
-        /**
-         * Set the camera used for detection
-         * PRIMARY = Front-facing, larger camera
-         * SECONDARY = Screen-facing, "selfie" camera :D
-         **/
         this.setCamera(Cameras.SECONDARY);
         telemetry.addData("Cameras", "Set");
         telemetry.update();
-        /**
-         * Set the frame size
-         * Larger = sometimes more accurate, but also much slower
-         * After this method runs, it will set the "width" and "height" of the frame
-         **/
-        this.setFrameSize(new Size(height, width));
+        this.setFrameSize(new Size(2000, 2000));
         telemetry.addData("Frame", "set");
         telemetry.update();
-        /**
-         * Enable extensions. Use what you need.
-         * If you turn on the BEACON extension, it's best to turn on ROTATION too.
-         */
         enableExtension(Extensions.BEACON);         //Beacon detection
         enableExtension(Extensions.ROTATION);       //Automatic screen rotation correction
         enableExtension(Extensions.CAMERA_CONTROL); //Manual camera control
-
-        /**
-         * Set the beacon analysis method
-         * Try them all and see what works!
-         */
         beacon.setAnalysisMethod(Beacon.AnalysisMethod.FAST);
-
-        /**
-         * Set color tolerances
-         * 0 is default, -1 is minimum and 1 is maximum tolerance
-         */
         beacon.setColorToleranceRed(0);
         beacon.setColorToleranceBlue(0);
-
         rotation.setIsUsingSecondaryCamera(true);
         rotation.disableAutoRotate();
         rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
-
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
-
-        robot.turnToHeading(32, this);
-        robot.driveDistance(robot.DIST_TO_TRAVEL_FAST_ON_WHITE_LINE_APPROACH, robot.SPEED, this);
-        robot.turnToHeading(54, this);
-        robot.followLineStraightRed(0.25, 0.2, this);
-        if(getLeftColor() == robot.BEACON_RED) {
-            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
-            waitOneFullHardwareCycle();
-            robot.driveDistance(0.3, 0.5, this);
+        waitForStart();
+        robot.deployBeaconPressers();
+        Thread.sleep(100);
+        waitOneFullHardwareCycle();
+        for(int i = 0; i < 3; i ++){
+            int colorLeft = getLeftColor();
         }
-        else if(getRightColor() == robot.BEACON_RED){
-            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
-            waitOneFullHardwareCycle();
-            robot.driveDistance(0.3, 0.5, this);
+        int leftColor = getLeftColor();
+        //THIS IS REVERSED
+        if(leftColor == robot.BEACON_RED){
+            telemetry.addData("Left", " red");
+            telemetry.update();
+            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         }
-        robot.brakeTemporarily(this);
-        robot.driveDistance(0.3, robot.SPEED, this);
-        robot.turnToHeading(270, this);
-
+        else{
+            telemetry.addData("right", " red");
+            telemetry.update();
+            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+        }
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){

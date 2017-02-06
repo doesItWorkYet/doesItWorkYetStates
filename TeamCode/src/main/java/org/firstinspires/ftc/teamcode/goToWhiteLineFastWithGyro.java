@@ -56,7 +56,7 @@ public class goToWhiteLineFastWithGyro extends LinearOpMode {
         robot.brakeTemporarily(this);
         telemetry.addData("Turn: ", "Starting");
         telemetry.update();
-        robot.turnToHeadingAutoSpeedSet(robot.RIGHT_MOTOR, -48, 0.5, 0.05, robot.TURNING_P, 2, this);
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -48, 0.5, 0.05, robot.TURNING_P, 2, this);
         telemetry.addData("Turn: ", "Done");
         telemetry.update();
         robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

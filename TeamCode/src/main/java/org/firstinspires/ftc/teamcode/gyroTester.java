@@ -50,6 +50,7 @@ public class gyroTester extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
+        robot.calibrateGyro(this);
        while(opModeIsActive()){
            double desiredAngle = 90;
            double angle = robot.gyro.getIntegratedZValue();

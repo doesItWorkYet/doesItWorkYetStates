@@ -137,7 +137,7 @@ public class HardwareMapLucyV4 {
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final double BRIGHTNESS_WHITE_THRESHOLD = 12.0;
+    final double BRIGHTNESS_WHITE_THRESHOLD = 8.0;
     final int USE_RGB = 1999;
     final int USE_BRIGHTNESS = 5050;
 
@@ -180,7 +180,7 @@ public class HardwareMapLucyV4 {
     public final double OPTICAL_SENSOR_THRESHOLD = .028;
 
     final int ARMLET_STORE_POSITION =  20;
-    final int ARMLET_DEPLOY_POSITION = 160;
+    final int ARMLET_DEPLOY_POSITION = 180;
     final int BACKWARD = 1;
     final int FORWARD = 0;
 
@@ -262,21 +262,8 @@ public class HardwareMapLucyV4 {
             gyro = (ModernRoboticsI2cGyro) hwMap.gyroSensor.get("gyro");
             distSensor = hwMap.opticalDistanceSensor.get("distSensor");
             fastColorSensor = new TCS34725_ColorSensor(hwMap, "rawGroundColorSensor");
-
-
-
-
-
             //last line in this fails to initialize, so keep this usless part here
             manager = (SensorManager) hwMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-
-
-
-
-
-
-
-
     }
     public void zero(OpMode mode) throws InterruptedException {
 
@@ -615,40 +602,19 @@ public class HardwareMapLucyV4 {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-
-
-    public void beaconApproach(int side, OpMode mode) {
-        if (side == BEACON_LEFT) {
-            beaconPresserLeft.setPosition(ARMLET_DEPLOY_POSITION);
-            while (!leftBeaconPresserSensor.isPressed() && !safety(mode)) {
-                setDriveMotorPower(BEACON_PRESSING_POWER);
-            }
-            stop();
-
-        }
-        if (side == BEACON_RIGHT) {
-            beaconPresserRight.setPosition(ARMLET_DEPLOY_POSITION);
-            while (!rightBeaconPresserSensor.isPressed() && !safety(mode)) {
-                setDriveMotorPower(BEACON_PRESSING_POWER);
-            }
-
-            stop();
-
-        }
-    }
     public void deployBeaconPressers(){
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_PRESS_POSITION);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_PRESS_POSITION);
     }
 
     public void deployArmlets(){
-        armletRight.setPosition(ARMLET_DEPLOY_POSITION);
-        armletLeft.setPosition(ARMLET_DEPLOY_POSITION);
+        armletRight.setPosition(ARMLET_DEPLOY_POSITION/180.0);
+        armletLeft.setPosition(ARMLET_DEPLOY_POSITION/180.0);
     }
 
     public void storeArmlets(){
-        armletLeft.setPosition(ARMLET_STORE_POSITION);
-        armletRight.setPosition(ARMLET_STORE_POSITION);
+        armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
+        armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
     }
 
     public boolean safety(OpMode mode){
@@ -722,17 +688,7 @@ public class HardwareMapLucyV4 {
         }
     }
 
-    public void turnToHeadingWithError(int motor, double heading, double startPower, double endPower, int iterations, OpMode mode){
-        double deltaPower = startPower - endPower;
-
-        for(int i = 0; i < iterations; i ++){
-            //mode.telemetry.addData("Motor power: ", )
-            turnToHeading(motor, heading, endPower + (iterations-i)*deltaPower/iterations, mode);
-        }
-    }
-
-
-    public void turnToHeadingAutoSpeedSet(int motor, int heading, double maxPower, double minPower, double p, double accuracy, OpMode mode){
+    public void turnToHeadingProportionalControl(int motor, int heading, double maxPower, double minPower, double p, double accuracy, OpMode mode){
         double error = heading + gyro.getIntegratedZValue();
         if(motor == LEFT_MOTOR) {
             rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -771,6 +727,27 @@ public class HardwareMapLucyV4 {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         waitCycle(mode);
+    }
+
+    public void followHeadingProportionalControl(int heading, double highPower, double normalPower, double p, OpMode mode){
+        double error;
+        double deltaMotorPower = highPower - normalPower;
+        leftMotor.setPower(normalPower);
+        rightMotor.setPower(normalPower);
+        while(!safety(mode)) {
+            if (highPower > 0) {
+                error = heading + gyro.getIntegratedZValue();
+                if (error > 0) {
+                    double power = (Math.abs(error) * p) * 180 * deltaMotorPower;
+                    //increase right power
+                    leftMotor.setPower(power);
+                }
+                else{
+
+                }
+            }
+        }
+
     }
 
     public void followingHeadingToWhiteLine(int heading, double highPower, double normalPower, OpMode mode){
@@ -942,45 +919,4 @@ public class HardwareMapLucyV4 {
             }
         }
     }
-
-    public void followLineStraightBlue(double initialSpeed, double maxCorrection, OpMode mode){
-        double kp = KP_VALUE;
-        double brightness = fastColorSensor.getBrightness();
-        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
-
-        while (!safety(mode)) {
-            brightness = fastColorSensor.getBrightness();
-            double error = brightness-threshold;
-            double correction = kp*error*maxCorrection;
-            rightMotor.setPower(initialSpeed+correction);
-            leftMotor.setPower(initialSpeed-correction);
-        }
-        brakeTemporarily(mode);
-    }
-
-    public void followLineStraightRed(double initialSpeed, double maxCorrection, OpMode mode){
-        double kp = KP_VALUE;
-        double brightness = fastColorSensor.getBrightness();
-        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
-
-        while (!safety(mode)) {
-            brightness = fastColorSensor.getBrightness();
-            double error = brightness-threshold;
-            double correction = kp*error*maxCorrection;
-            rightMotor.setPower(initialSpeed-correction);
-            leftMotor.setPower(initialSpeed+correction);
-        }
-        brakeTemporarily(mode);
-    }
-
-    public void beginSyncFlyWheels (double power, double rps, OpMode mode){
-        flyWheel1.setMaxSpeed((int) (TICKS_PER_REV_ANDYMARK * rps));
-        flyWheel2.setMaxSpeed((int) (TICKS_PER_REV_ANDYMARK * rps));
-        //flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        waitCycle(mode);
-        flyWheel1.setPower(power);
-        flyWheel2.setPower(power);
-    }
-
 }

@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="Turn 90 with gyro test", group="Testing")  // @Autonomous(...) is the other common choice
@@ -51,7 +50,7 @@ public class turn90DegreesGyroTest extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
 
-        robot.turnToHeadingAutoSpeedSet(robot.LEFT_MOTOR, -90, .5, .05, .5/180.0, 4, this);
+        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -90, .5, .05, .5/180.0, 4, this);
     }
 
 }
