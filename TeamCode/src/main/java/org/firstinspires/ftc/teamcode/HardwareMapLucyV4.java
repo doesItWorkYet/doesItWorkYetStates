@@ -921,4 +921,61 @@ public class HardwareMapLucyV4 {
             }
         }
     }
+
+    public void driveToHeadingProportional(double heading, double basePower, double highPower, OpMode mode){
+        double maxChange = Math.abs(gyro.getIntegratedZValue()-heading);
+        double powerChange = (highPower-basePower);
+        if(maxChange==0)return;
+        if(basePower>0&&highPower>0) {
+            while (gyro.getIntegratedZValue() < heading && !safety(mode)) {
+                double neededChange = Math.abs(gyro.getIntegratedZValue() - heading);
+                double power = (neededChange / maxChange * powerChange) + basePower;
+                rightMotor.setPower(basePower);
+                leftMotor.setPower(power);
+                mode.telemetry.addData("right motor power: ", rightMotor.getPower());
+                mode.telemetry.addData("left motor power: ", leftMotor.getPower());
+                mode.telemetry.addData("current heading: ", gyro.getIntegratedZValue());
+                mode.telemetry.addData("desired heading: ", heading);
+                mode.telemetry.update();
+            }
+            while (gyro.getIntegratedZValue() > heading && !safety(mode)) {
+                double neededChange = Math.abs(gyro.getIntegratedZValue() - heading);
+                double power = (neededChange / maxChange * powerChange) + basePower;
+                rightMotor.setPower(power);
+                leftMotor.setPower(basePower);
+                mode.telemetry.addData("right motor power: ", rightMotor.getPower());
+                mode.telemetry.addData("left motor power: ", leftMotor.getPower());
+                mode.telemetry.addData("current heading: ", gyro.getIntegratedZValue());
+                mode.telemetry.addData("desired heading: ", heading);
+                mode.telemetry.update();
+            }
+        }
+        if(basePower<0&&highPower<0){
+            while (gyro.getIntegratedZValue() > heading && !safety(mode)) {
+                double neededChange = Math.abs(gyro.getIntegratedZValue() - heading);
+                double power = (neededChange / maxChange * powerChange) + basePower;
+                rightMotor.setPower(basePower);
+                leftMotor.setPower(power);
+                mode.telemetry.addData("right motor power: ", rightMotor.getPower());
+                mode.telemetry.addData("left motor power: ", leftMotor.getPower());
+                mode.telemetry.addData("current heading: ", gyro.getIntegratedZValue());
+                mode.telemetry.addData("desired heading: ", heading);
+                mode.telemetry.update();
+            }
+            while (gyro.getIntegratedZValue() < heading && !safety(mode)) {
+                double neededChange = Math.abs(gyro.getIntegratedZValue() - heading);
+                double power = (neededChange / maxChange * powerChange) + basePower;
+                rightMotor.setPower(power);
+                leftMotor.setPower(basePower);
+                mode.telemetry.addData("right motor power: ", rightMotor.getPower());
+                mode.telemetry.addData("left motor power: ", leftMotor.getPower());
+                mode.telemetry.addData("current heading: ", gyro.getIntegratedZValue());
+                mode.telemetry.addData("desired heading: ", heading);
+                mode.telemetry.update();
+            }
+        }
+        mode.telemetry.addData("Done!", "");
+        mode.telemetry.update();
+        brakeTemporarily(mode);
+    }
 }
