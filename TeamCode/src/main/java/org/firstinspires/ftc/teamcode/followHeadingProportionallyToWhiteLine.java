@@ -35,7 +35,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Follow heading proportionally test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Follow heading proportionally to white line", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class followHeadingProportionallyToWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;

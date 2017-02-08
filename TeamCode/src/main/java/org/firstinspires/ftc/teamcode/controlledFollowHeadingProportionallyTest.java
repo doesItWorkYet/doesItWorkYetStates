@@ -35,9 +35,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
+@TeleOp(name="Follow Heading Proportionally Controlled test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
 public class controlledFollowHeadingProportionallyTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
