@@ -73,59 +73,29 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
 
+        // code starts
         robot.deployBeaconPressers();
-        while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD){
-            robot.driveToHeadingProportional(90, 0.5, 0.7, this);
-        }
-        robot.beginSynchronousDriving(1, 0.4);
-        while(!robot.safety(this));
-        robot.endSynchronousDriving(this);
-        if(getLeftColor() == robot.BEACON_RED){
-            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-        }
-        else{
-            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-        }
-        robot.setDriveMotorPower(.3);
-        long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + 600){
-            waitOneFullHardwareCycle();
-        }
-        robot.stop();
-        robot.setDriveMotorPower(-.3);
-        start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + 300){
-            waitOneFullHardwareCycle();
-        }
-        robot.stop();
+        robot.driveToHeadingProportional(-90, 0.5, 0.7, this);
+        // find white line here
+        robot.followLineStraightRed(0.35, 0.2, this);
+        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
+        robot.pressBeacon(0.3, 600, this);
 
+        // round two
         robot.deployBeaconPressers();
-        robot.driveToHeadingProportional(0, -0.5, -0.7, this);
+        robot.driveToHeadingProportional(0, -0.2, -0.8, this);
+        robot.driveDistanceFollowingHeading(0, 0.8, 0.6, 3, this);
         robot.beginSynchronousDriving(1, 0.4);
-        while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD);
+        while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD){
+            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+            telemetry.update();
+        }
         robot.endSynchronousDriving(this);
-        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, 90, -0.6, -0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.beginSynchronousDriving(1, 0.4);
-        while(!robot.safety(this));
-        robot.endSynchronousDriving(this);
-        if(getLeftColor() == robot.BEACON_RED){
-            robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
-        }
-        else{
-            robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-        }
-        robot.setDriveMotorPower(.3);
-        long startTwo = System.currentTimeMillis();
-        while(System.currentTimeMillis() < startTwo + 600){
-            waitOneFullHardwareCycle();
-        }
-        robot.stop();
-        robot.setDriveMotorPower(-.3);
-        start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < startTwo + 300){
-            waitOneFullHardwareCycle();
-        }
-        robot.stop();
+        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -45, -0.6, -0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -90, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        robot.followLineStraightRed(0.35, 0.2, this);
+        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
+        robot.pressBeacon(0.3, 600, this);
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){

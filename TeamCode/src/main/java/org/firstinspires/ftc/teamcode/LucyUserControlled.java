@@ -99,7 +99,8 @@ public class LucyUserControlled extends LinearOpMode {
             if(gamepad2.a){
                 flyWheelDeflectorPosition++;
                 if (flyWheelDeflectorPosition > 3) { flyWheelDeflectorPosition = 3; }
-                switch (flyWheelDeflectorPosition) {
+                robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
+               /* switch (flyWheelDeflectorPosition) {
                     case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
                     case -1: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
@@ -112,13 +113,14 @@ public class LucyUserControlled extends LinearOpMode {
                             break;
                     case 3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                             break;
-                }
+                }*/
                 while(gamepad2.a);
             }
             if(gamepad2.b){
                 flyWheelDeflectorPosition--;
                 if (flyWheelDeflectorPosition < -3) { flyWheelDeflectorPosition = -3; }
-                switch (flyWheelDeflectorPosition) {
+                robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
+                /*switch (flyWheelDeflectorPosition) {
                     case -3: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
                     case -2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
@@ -132,6 +134,7 @@ public class LucyUserControlled extends LinearOpMode {
                     case 2: robot.setTargetDistanceForParticalShooter(flyWheelDeflectorPosition, this);
                         break;
                 }
+                */
                 while(gamepad2.b);
             }
 

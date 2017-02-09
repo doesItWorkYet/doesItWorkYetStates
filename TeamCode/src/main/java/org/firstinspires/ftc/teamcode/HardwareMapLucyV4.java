@@ -149,7 +149,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 5;
     final double FLY_WHEEL_MED_SPEED = 2.5;
     final double FLY_WHEEL_LOW_SPEED = 1;
-    final double FLY_WHEEL_DEFLECOTR_NEUTRAL = 100.0;
+    final double FLY_WHEEL_DEFLECTOR_NEUTRAL = 100.0;
 
 
     //sensors
@@ -269,7 +269,7 @@ public class HardwareMapLucyV4 {
 
         beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
-        flyWheelDeflector.setPosition(FLY_WHEEL_DEFLECOTR_NEUTRAL/180.0);
+        flyWheelDeflector.setPosition(FLY_WHEEL_DEFLECTOR_NEUTRAL /180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
         indexer.setDirection(Servo.Direction.REVERSE);
 
@@ -352,46 +352,48 @@ public class HardwareMapLucyV4 {
             // set speed as well
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(FAR_LEFT_ANGLE);
+            setFlywheelDeflectorAngle(FAR_LEFT_ANGLE, modeType);
         }
         if (mode == SHOOT_MEDIUM_LEFT) {
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE);
+            setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE, modeType);
         }
         if (mode == SHOOT_NEAR_LEFT) {
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE);
+            setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE, modeType);
         }
         if (mode == SHOOT_UP) {
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(SHOOT_UP_ANGLE);
+            setFlywheelDeflectorAngle(SHOOT_UP_ANGLE, modeType);
         }
         if(mode == SHOOT_FAR_RIGHT){
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE);
+            setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE, modeType);
         }
         if(mode == SHOOT_MEDIUM_RIGHT){
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE);
+            setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE, modeType);
         }
         if(mode == SHOOT_NEAR_RIGHT){
             //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
             //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE);
+            setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE, modeType);
         }
         //modeType.telemetry.addData("Fly Wheel 1 Position: ", flyWheel1.getCurrentPosition());
         //modeType.telemetry.addData("Fly Wheel 2 Position: ", flyWheel2.getCurrentPosition());
         //modeType.telemetry.update();
     }
 
-    public void setFlywheelDeflectorAngle(double angleFromCenter){
+    public void setFlywheelDeflectorAngle(double angleFromCenter, OpMode mode){
         angleFromCenter = DEFLECTOR_GEAR_RATIO*angleFromCenter;
-        flyWheelDeflector.setPosition((FLY_WHEEL_DEFLECOTR_NEUTRAL + angleFromCenter)/180.0);
+        flyWheelDeflector.setPosition((FLY_WHEEL_DEFLECTOR_NEUTRAL + angleFromCenter)/180.0);
+        mode.telemetry.addData("Deflector position: ", flyWheelDeflector.getPosition());
+        mode.telemetry.update();
     }
 
 
@@ -985,5 +987,61 @@ public class HardwareMapLucyV4 {
         mode.telemetry.addData("Done!", "");
         mode.telemetry.update();
         brakeTemporarily(mode);
+    }
+
+    public void followLineStraightRed(double initialSpeed, double maxCorrection, OpMode mode){
+        // follows left edge of line
+        double kp = KP_VALUE;
+        double brightness = fastColorSensor.getBrightness();
+        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
+
+        while (!safety(mode)) {
+            brightness = fastColorSensor.getBrightness();
+            double error = brightness-threshold;
+            double correction = kp*error*maxCorrection;
+            rightMotor.setPower(initialSpeed+correction);
+            leftMotor.setPower(initialSpeed-correction);
+        }
+        brakeTemporarily(mode);
+    }
+
+    public void followLineStraightBlue(double initialSpeed, double maxCorrection, OpMode mode){
+        // follows right edge of line
+        double kp = KP_VALUE;
+        double brightness = fastColorSensor.getBrightness();
+        double threshold = BRIGHTNESS_WHITE_THRESHOLD;
+
+        while (!safety(mode)) {
+            brightness = fastColorSensor.getBrightness();
+            double error = brightness-threshold;
+            double correction = kp*error*maxCorrection;
+            rightMotor.setPower(initialSpeed-correction);
+            leftMotor.setPower(initialSpeed+correction);
+        }
+        brakeTemporarily(mode);
+    }
+
+    public void pressBeacon(double power, long timeInMillis, OpMode mode){
+        setDriveMotorPower(power);
+        long start = System.currentTimeMillis();
+        while(System.currentTimeMillis() < start + timeInMillis){
+            waitCycle(mode);
+        }
+        stop();
+        setDriveMotorPower(-power);
+        start = System.currentTimeMillis();
+        while(System.currentTimeMillis() < start + timeInMillis/2){
+            waitCycle(mode);
+        }
+        stop();
+    }
+
+    public void selectBeaconColor(double leftColor, double teamColor){
+        if(leftColor == teamColor){
+            beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+        }
+        else{
+            beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+        }
     }
 }

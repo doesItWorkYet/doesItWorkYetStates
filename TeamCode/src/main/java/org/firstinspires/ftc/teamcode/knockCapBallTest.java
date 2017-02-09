@@ -51,9 +51,11 @@ public class knockCapBallTest extends LinearOpMode {
         //Wait for start and reset the runtime count
         waitForStart();
         //potentially shoot as well
-        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 7, this);
+        robot.driveDistanceFollowingHeading(0, 0.6, 0.5, 1.5, this);
+
+        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 6, this);
         robot.brakeTemporarily(this);
-        robot.driveDistanceFollowingHeading(0, 0.5, 0.4, 0.5, this);
+        robot.pressBeacon(0.7, 500, this);
 
     }
 
