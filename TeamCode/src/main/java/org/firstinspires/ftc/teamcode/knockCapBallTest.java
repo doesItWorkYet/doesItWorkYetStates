@@ -36,11 +36,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Fast Color Sensor Test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Knock cap ball test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class colorSensorTest extends LinearOpMode {
+public class knockCapBallTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
-    TCS34725_ColorSensor colorSensor;
     @Override
     public void runOpMode() throws InterruptedException {
         //Update Telemetry with initialization
@@ -51,11 +50,10 @@ public class colorSensorTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-       while(opModeIsActive()){
-           telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
-           telemetry.update();
-           idle();
-       }
+        //potentially shoot as well
+        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 7, this);
+        robot.brakeTemporarily(this);
+        robot.driveDistanceFollowingHeading(0, 0.5, 0.4, 0.5, this);
 
     }
 

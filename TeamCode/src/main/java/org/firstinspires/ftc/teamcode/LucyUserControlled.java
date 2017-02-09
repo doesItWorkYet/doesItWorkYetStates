@@ -74,10 +74,10 @@ public class LucyUserControlled extends LinearOpMode {
         //Declare variables for use in runtime loop
         double rps1 = 1;
         double rps2 = 1;
-        int flyWheelPower = 3;
+        double flyWheelPower = 3;
         int flyWheelDeflectorPosition = 1;
         int flyWheelDeflectorPosition2 = 1;
-        boolean reverse = false;
+        boolean isGoingUp = false;
         boolean sweepForwardOnOrOff = false;
         boolean sweepReverseOnOrOff = false;
         boolean driveDirection = false;
@@ -297,19 +297,45 @@ public class LucyUserControlled extends LinearOpMode {
 */
             //Deploy the beacon presser
             if(gamepad1.dpad_up){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_PRESS_POSITION/180.0);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_PRESS_POSITION/180.0);
             }
             //Store the beacon pesser
             if(gamepad1.dpad_down){
-                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION);
-                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION);
+                robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+                robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
             }
-            //if(gamepad2.dpad_right) flyWheelPower++;
-            //if(gamepad2.dpad_left) flyWheelPower--;
+            if(isGoingUp&&gamepad2.dpad_right){
+                while(gamepad2.dpad_left);
+                if(flyWheelPower<=1&&flyWheelPower>=0.1) flyWheelPower += 0.1;
+                if(flyWheelPower>1){
+                    isGoingUp = false;
+                    flyWheelPower = 1;
+                }
+                telemetry.addData("Fly wheel 1 power: ", robot.flyWheel1.getPower());
+                telemetry.addData("Fly wheel 2 power: ", robot.flyWheel2.getPower());
+                telemetry.addData("Fly wheel 1 position: ", robot.flyWheel1.getCurrentPosition());
+                telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
+                telemetry.update();
+            }
+            if(!isGoingUp&&gamepad2.dpad_left){
+                while(gamepad2.dpad_left);
+                if(flyWheelPower>=0.1&&flyWheelPower<=1) flyWheelPower -= 0.1;
+                if(flyWheelPower<0.1){
+                    isGoingUp = true;
+                    flyWheelPower = 0.1;
+                }
+                telemetry.addData("Fly wheel 1 power: ", robot.flyWheel1.getPower());
+                telemetry.addData("Fly wheel 2 power: ", robot.flyWheel2.getPower());
+                telemetry.addData("Fly wheel 1 position: ", robot.flyWheel1.getCurrentPosition());
+                telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
+                telemetry.update();
+            }
             if(gamepad2.x) {
-                robot.flyWheel2.setPower(robot.FLY_WHEEL_HIGH_SPEED);
-                robot.flyWheel1.setPower(robot.FLY_WHEEL_HIGH_SPEED);
+                robot.flyWheel2.setPower(flyWheelPower);
+                robot.flyWheel1.setPower(flyWheelPower);
+                //robot.flyWheel1.setMaxSpeed((int)(5*flyWheelPower)*robot.TICKS_PER_REV_ANDYMARK);
+                //robot.flyWheel2.setMaxSpeed((int)(5*flyWheelPower)*robot.TICKS_PER_REV_ANDYMARK);
                 telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
                 telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
                 telemetry.update();
