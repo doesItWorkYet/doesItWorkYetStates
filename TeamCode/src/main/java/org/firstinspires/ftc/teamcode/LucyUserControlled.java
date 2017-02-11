@@ -72,9 +72,16 @@ public class LucyUserControlled extends LinearOpMode {
         runtime.reset();
 
         //Declare variables for use in runtime loop
+        RpsCounter flyWheelCounter1 = new RpsCounter(robot.flyWheel1, 28*2, 200);
+        RpsCounter flyWheelCounter2 = new RpsCounter(robot.flyWheel2, 28*2, 200);
+//        RpsCounter rightMotorCounter = new RpsCounter(robot.rightMotor, robot.TICKS_PER_REV_ANDYMARK);
+//        RpsCounter leftMotorCounter = new RpsCounter(robot.leftMotor, robot.TICKS_PER_REV_ANDYMARK);
+//        RpsCounter rightSpoolCounter = new RpsCounter(robot.extendotronRight, robot.TICKS_PER_REV_ANDYMARK);
+//        RpsCounter leftSpoolCounter = new RpsCounter(robot.extendotronLeft, robot.TICKS_PER_REV_ANDYMARK);
+//        RpsCounter sweepCounter = new RpsCounter(robot.sweep, robot.TICKS_PER_REV_ANDYMARK);
         double rps1 = 1;
         double rps2 = 1;
-        double flyWheelPower = 3;
+        double flyWheelPower = 1;
         int flyWheelDeflectorPosition = 1;
         int flyWheelDeflectorPosition2 = 1;
         boolean isGoingUp = false;
@@ -86,10 +93,13 @@ public class LucyUserControlled extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            //telemetry.addData("flyWheel1", "RPS: "+ flyWheel1Counter.getRPS());
-            //telemetry.addData("flyWheel2", "RPS: "+ flyWheel2Counter.getRPS());
+            telemetry.addData("Flywheel1 RPS: ", flyWheelCounter1.getRps());
+            telemetry.addData("Flywheel2 RPS: ", flyWheelCounter2.getRps());
+            //telemetry.addData("Right Motor RPS: ", rightMotorCounter.getRps());
+            //telemetry.addData("Left Motor RPS: ", leftMotorCounter.getRps());
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
-            telemetry.update();
+            flyWheelCounter1.update();
+            flyWheelCounter2.update();
             //robot.setFlywheelDeflectorAngle(10*gamepad2.left_stick_x); NOOOO WHY
 
             //robot.setFlywheelDeflectorAngle(20.0*gamepad2.left_stick_x,this);
@@ -308,32 +318,24 @@ public class LucyUserControlled extends LinearOpMode {
                 robot.beaconPresserLeft.setPosition(robot.BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
                 robot.beaconPresserRight.setPosition(robot.BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
             }
-            if(isGoingUp&&gamepad2.dpad_right){
-                while(gamepad2.dpad_left);
-                if(flyWheelPower<=1&&flyWheelPower>=0.1) flyWheelPower += 0.1;
-                if(flyWheelPower>1){
-                    isGoingUp = false;
-                    flyWheelPower = 1;
+
+            if(gamepad2.dpad_left){
+                if(flyWheelPower >.1){
+                    flyWheelPower-=.1;
                 }
+                while (gamepad2.dpad_left);
+            }
+            if(gamepad2.dpad_right){
+                if(flyWheelPower < 1){
+                    flyWheelPower += .1;
+                }
+                while(gamepad2.dpad_right);
+            }
                 telemetry.addData("Fly wheel 1 power: ", robot.flyWheel1.getPower());
                 telemetry.addData("Fly wheel 2 power: ", robot.flyWheel2.getPower());
                 telemetry.addData("Fly wheel 1 position: ", robot.flyWheel1.getCurrentPosition());
                 telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
-                telemetry.update();
-            }
-            if(!isGoingUp&&gamepad2.dpad_left){
-                while(gamepad2.dpad_left);
-                if(flyWheelPower>=0.1&&flyWheelPower<=1) flyWheelPower -= 0.1;
-                if(flyWheelPower<0.1){
-                    isGoingUp = true;
-                    flyWheelPower = 0.1;
-                }
-                telemetry.addData("Fly wheel 1 power: ", robot.flyWheel1.getPower());
-                telemetry.addData("Fly wheel 2 power: ", robot.flyWheel2.getPower());
-                telemetry.addData("Fly wheel 1 position: ", robot.flyWheel1.getCurrentPosition());
-                telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
-                telemetry.update();
-            }
+
             if(gamepad2.x) {
                 robot.flyWheel2.setPower(flyWheelPower);
                 robot.flyWheel1.setPower(flyWheelPower);
@@ -341,7 +343,6 @@ public class LucyUserControlled extends LinearOpMode {
                 //robot.flyWheel2.setMaxSpeed((int)(5*flyWheelPower)*robot.TICKS_PER_REV_ANDYMARK);
                 telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
                 telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
-                telemetry.update();
                 /*
                 if(flyWheelPower>3) flyWheelPower = 3;
                 if(flyWheelPower<1) flyWheelPower = 1;

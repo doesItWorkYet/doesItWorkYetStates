@@ -53,6 +53,10 @@ public class encoderTest extends LinearOpMode {
        while(opModeIsActive()){
            telemetry.addData("Encoder Right Value: ", robot.rightMotor.getCurrentPosition());
            telemetry.addData("Encoder Left Value: ", robot.leftMotor.getCurrentPosition());
+           telemetry.addData("Encoder Flywheel1: ", robot.flyWheel1.getCurrentPosition());
+           telemetry.addData("Encoder Flywheel2: ", robot.flyWheel2.getCurrentPosition());
+           telemetry.addData("Encoder Right Spool: ", robot.extendotronRight.getCurrentPosition());
+           telemetry.addData("Encoder Left Spool: ", robot.extendotronLeft.getCurrentPosition());
            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
            telemetry.addData("Angle: ", robot.gyro.getIntegratedZValue());
            telemetry.update();
