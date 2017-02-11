@@ -73,17 +73,36 @@ public class controlledFollowHeadingProportionallyTest extends LinearOpMode {
                 basePower = -0.5;
                 highPower = -0.7;
             }
-            if (gamepad1.dpad_up) heading++;
-            if (gamepad1.dpad_down) heading--;
-            if (gamepad1.dpad_right) highPower += 0.1;
-            if (gamepad1.dpad_left) highPower -= 0.1;
-            if (gamepad1.left_bumper) basePower += 0.1;
-            if (gamepad1.left_trigger > 0.1) basePower -= 0.1;
+            if (gamepad1.dpad_up) {
+                heading += 5;
+                while(gamepad1.dpad_up);
+            }
+            if (gamepad1.dpad_down) {
+                heading -= 5;
+                while(gamepad1.dpad_down);
+            }
+            if (gamepad1.dpad_right) {
+                highPower += 0.1;
+                while(gamepad1.dpad_right);
+            }
+            if (gamepad1.dpad_left) {
+                highPower -= 0.1;
+                while(gamepad1.dpad_left);
+            }
+            if (gamepad1.left_bumper) {
+                basePower += 0.1;
+                while(gamepad1.left_bumper);
+            }
+            if (gamepad1.left_trigger > 0.1) {
+                basePower -= 0.1;
+                while(gamepad1.left_trigger > 0.1);
+            }
             if (highPower > 1) highPower = 1;
             if (basePower > 1) basePower = 1;
             if (highPower < -1) highPower = -1;
             if (basePower < -1) basePower = -1;
             while (opModeIsActive() && gamepad1.right_trigger > 0.1) {
+                while(gamepad1.right_trigger > 0.1);
                 robot.driveToHeadingProportional(heading, highPower, basePower, this);
             }
             telemetry.addData("base power: ", basePower);

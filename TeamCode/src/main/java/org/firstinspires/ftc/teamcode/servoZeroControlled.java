@@ -83,12 +83,12 @@ public class servoZeroControlled extends LinearOpMode {
            robot.flyWheelDeflector.setPosition(deflectorPosition/180.0);
            telemetry.addData("---Positions", "---");
            telemetry.addData("---------------", "");
-           telemetry.addData("Indexer", robot.indexer.getPosition()*180);
-           telemetry.addData("Deflector", robot.flyWheelDeflector.getPosition()*180);
-           telemetry.addData("Beacon Presser Left", robot.beaconPresserLeft.getPosition()*180);
-           telemetry.addData("Beacon Presser Right", robot.beaconPresserRight.getPosition()*180);
-           telemetry.addData("Left Arm", robot.armletLeft.getPosition()*180);
-           telemetry.addData("Right Arm", robot.armletRight.getPosition()*180);
+           telemetry.addData("LB Indexer", robot.indexer.getPosition()*180);
+           telemetry.addData("RB Deflector", robot.flyWheelDeflector.getPosition()*180);
+           telemetry.addData("B Beacon Presser Left", robot.beaconPresserLeft.getPosition()*180);
+           telemetry.addData("A Beacon Presser Right", robot.beaconPresserRight.getPosition()*180);
+           telemetry.addData("Y Left Arm", robot.armletLeft.getPosition()*180);
+           telemetry.addData("X Right Arm", robot.armletRight.getPosition()*180);
            telemetry.addData("---------------", "");
            telemetry.update();
 

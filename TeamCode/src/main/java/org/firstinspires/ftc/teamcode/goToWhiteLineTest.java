@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Knock cap ball test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="Go to white line test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class knockCapBallTest extends LinearOpMode {
+public class goToWhiteLineTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,11 +50,32 @@ public class knockCapBallTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        //potentially shoot as well
-        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 6, this);
+        robot.calibrateGyro(this);
+        telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+        telemetry.update();
+        robot.driveDistanceFollowingHeadingProportional(-33, 0.8, 0.5, 4, this);
+        telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+        telemetry.update();
+        robot.followingHeadingToWhiteLine(-33, 0.4, 0.3, this);
+        telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+        telemetry.update();
         robot.brakeTemporarily(this);
-        //robot.pressBeacon(0.7, 500, this);
-
+        telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -60, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+        telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -85, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        while(opModeIsActive()){
+            telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+            telemetry.update();
+        }
     }
 
 }

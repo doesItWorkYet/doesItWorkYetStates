@@ -36,9 +36,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Knock cap ball test", group="Testing")  // @Autonomous(...) is the other common choice
+@Autonomous(name="follow white line", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class knockCapBallTest extends LinearOpMode {
+public class followWhiteLine extends LinearOpMode {
     HardwareMapLucyV4 robot;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,10 +50,9 @@ public class knockCapBallTest extends LinearOpMode {
         robot.zero(this);
         //Wait for start and reset the runtime count
         waitForStart();
-        //potentially shoot as well
-        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 6, this);
-        robot.brakeTemporarily(this);
-        //robot.pressBeacon(0.7, 500, this);
+        robot.followLineStraightRed(0.15, 0.08, this);
+        idle();
+
 
     }
 

@@ -9,8 +9,9 @@ import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
-@Autonomous(name="Get Beacon Proportional Test Red", group = "Testing")
-public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
+
+@Autonomous(name="Get Beacon Fast Test", group = "Testing")
+public class getFirstBeaconFastTest extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -74,6 +75,7 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
 
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
+
         waitForStart();
         robot.calibrateGyro(this);
 
@@ -94,7 +96,7 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
         // TODO - add shooting of particles here
         // 3. Follow white line until proximity sensor detects beacon
         // find white line here
-        robot.followLineStraightRed(0.35, 0.2, this);
+        robot.followHeadingProportionalControl(-90, 0.4, 0.3, robot.TURNING_P, this);
         // 4. Select beacon presser according to color and punch it
         robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
         robot.pressBeacon(0.3, 600, this);
@@ -105,16 +107,11 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
         robot.driveToHeadingProportional(0, -0.8, -0.6, this);
         // 6. Drive straight for 3', then continue to white line
         robot.driveDistanceFollowingHeadingProportional(0, 0.8, 0.6, 3.0, this);
-        robot.beginSynchronousDriving(1, 0.4);
-        while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD){
-            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
-            telemetry.update();
-        }
-        robot.endSynchronousDriving(this);
+        robot.followingHeadingToWhiteLine(0, 0.4, 0.3, this);
         // 7. turn to white line and follow white line until proximity sensor detects beacon
         robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -45, -0.6, -0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
         robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -90, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.followLineStraightRed(0.35, 0.2, this);
+        robot.followHeadingProportionalControl(-90, 0.4, 0.3, robot.TURNING_P, this);
         // 8. Select beacon presser according to color and punch it
         robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
         robot.pressBeacon(0.3, 600, this);

@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name="Fast Color Sensor Test", group="Testing")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class colorSensorTest extends LinearOpMode {
+public class ColorSensorTest extends LinearOpMode {
     HardwareMapLucyV4 robot;
     TCS34725_ColorSensor colorSensor;
     @Override

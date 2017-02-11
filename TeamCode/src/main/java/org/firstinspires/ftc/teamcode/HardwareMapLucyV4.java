@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.*;
 
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
-import java.util.concurrent.locks.Condition;
-
 /**
  * Created by root on 12/19/16.
  */
@@ -28,13 +26,13 @@ public class HardwareMapLucyV4 {
     public final int SHOOT_FAR_LEFT = 3;
     private final double DEFLECTOR_GEAR_RATIO = 2;
     //angles
-    private final int FAR_RIGHT_ANGLE = -35;
-    private final int MEDIUM_RIGHT_ANGLE = -25;
-    private final int NEAR_RIGHT_ANGLE = -15;
+    private final int FAR_RIGHT_ANGLE = -20;
+    private final int MEDIUM_RIGHT_ANGLE = -10;
+    private final int NEAR_RIGHT_ANGLE = -5;
     private final int SHOOT_UP_ANGLE = 0;
-    private final int FAR_LEFT_ANGLE = 35;
-    private final int MEDIUM_LEFT_ANGLE = 25;
-    private final int NEAR_LEFT_ANGLE = 15;
+    private final int FAR_LEFT_ANGLE = 5;
+    private final int MEDIUM_LEFT_ANGLE = 10;
+    private final int NEAR_LEFT_ANGLE = 20;
 
     public final double ANDY_MARK_PPR = 28;
 
@@ -112,10 +110,10 @@ public class HardwareMapLucyV4 {
     //private double FLY_WHEEL_DEFLECTOR_POWER = .8;
 
     //Beacon Presser Positions
-    final int BEACON_PRESSER_LEFT_STORE_POSITION = 80;
-    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 80;
-    final int BEACON_PRESSER_LEFT_PRESS_POSITION = 100;
-    final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 100;
+    final int BEACON_PRESSER_LEFT_STORE_POSITION = 35;
+    final int BEACON_PRESSER_RIGHT_STORE_POSITION = 57;
+    final int BEACON_PRESSER_LEFT_PRESS_POSITION = 139;
+    final int BEACON_PRESSER_RIGHT_PRESS_POSITION = 160;
 
     //Beacon Wall Approach Speed
     final double BEACON_PRESSING_POWER = .5;
@@ -142,11 +140,11 @@ public class HardwareMapLucyV4 {
     final double DEFLECTOR_POSITION_1 = 35.0;
     final double DEFLECTOR_POSITION_2 = 70.0;
     final double DEFLECTOR_POSITION_3 = 180.0;
-    final double KP_VALUE = 1/0.3; //based on white threshold and grey threshold
+    final double KP_VALUE = 1/5.0; //based on white threshold and grey threshold
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final double BRIGHTNESS_WHITE_THRESHOLD = 8.0;
+    final double BRIGHTNESS_WHITE_THRESHOLD = 10.0;
     final int USE_RGB = 1999;
     final int USE_BRIGHTNESS = 5050;
 
@@ -158,7 +156,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 5;
     final double FLY_WHEEL_MED_SPEED = 2.5;
     final double FLY_WHEEL_LOW_SPEED = 1;
-    final double FLY_WHEEL_DEFLECTOR_NEUTRAL = 100.0;
+    final double FLY_WHEEL_DEFLECTOR_NEUTRAL = 108;
 
 
     //sensors
@@ -188,8 +186,10 @@ public class HardwareMapLucyV4 {
 
     public final double OPTICAL_SENSOR_THRESHOLD = .028;
 
-    final int ARMLET_STORE_POSITION =  20;
-    final int ARMLET_DEPLOY_POSITION = 180;
+    final int RIGHT_ARMLET_STORE_POSITION =  92;
+    final int RIGHT_ARMLET_DEPLOY_POSITION = 180;
+    final int LEFT_ARMLET_STORE_POSITION = 96;
+    final int LEFT_ARMLET_DEPLOY_POSITION = 180;
     final int BACKWARD = 1;
     final int FORWARD = 0;
 
@@ -291,20 +291,20 @@ public class HardwareMapLucyV4 {
         sweep.setPower(0);
         extendotronLeft.setPower(0);
         extendotronRight.setPower(0);
-        flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendotronLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendotronRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitCycle(mode);
-        armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
-        armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
+        armletLeft.setPosition(LEFT_ARMLET_STORE_POSITION /180.0);
+        armletRight.setPosition(RIGHT_ARMLET_STORE_POSITION /180.0);
 
         leftMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
         rightMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
-        flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
-        flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
+        //flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
+        //flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
 
         flyWheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flyWheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -320,6 +320,7 @@ public class HardwareMapLucyV4 {
 
         extendotronLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendotronRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendotronRight.setDirection(DcMotorSimple.Direction.REVERSE);
         //flyWheel1.setMaxSpeed((int) (FLY_WHEEL_REVS_PER_SEC*TICKS_PER_REV_ANDYMARK));
         //flyWheel2.setMaxSpeed((int) (FLY_WHEEL_REVS_PER_SEC*TICKS_PER_REV_ANDYMARK));
         extendotronLeft.setMaxSpeed((int) (EXTENDOTRON_REVS_PER_SEC*TICKS_PER_REV_ANDYMARK));
@@ -334,8 +335,7 @@ public class HardwareMapLucyV4 {
 
 
 
-        mode.telemetry.addData("Caliabrating: ", "Done!");;
-        mode.telemetry.update();
+
 /*
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -348,6 +348,8 @@ public class HardwareMapLucyV4 {
         mode.telemetry.addData("Gyro: ", "Calibrating");
         mode.telemetry.update();
         gyro.calibrate();
+        waitCycle(mode);
+        while(!gyro.isCalibrating()) waitCycle(mode);
         while(gyro.isCalibrating() && !safety(mode)){
             waitCycle(mode);
 
@@ -357,49 +359,44 @@ public class HardwareMapLucyV4 {
 
     }
 
-    public void setTargetDistanceForParticalShooter(int mode, OpMode modeType) {
-        //modeType.telemetry.addData("Fly Wheel 1 Position: ", flyWheel1.getCurrentPosition());
-        //modeType.telemetry.addData("Fly Wheel 2 Position: ", flyWheel2.getCurrentPosition());
-        //modeType.telemetry.update();
-        if (mode == SHOOT_FAR_LEFT) {
-            // set speed as well
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(FAR_LEFT_ANGLE, modeType);
+    public void setTargetDistanceForParticleShooter(int mode, OpMode modeType) {
+        switch(mode){
+            case (SHOOT_FAR_LEFT):
+                setFlywheelDeflectorAngle(FAR_LEFT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                break;
+            case (SHOOT_MEDIUM_LEFT):
+                setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                break;
+            case (SHOOT_NEAR_LEFT):
+                setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                break;
+            case (SHOOT_UP):
+                setFlywheelDeflectorAngle(SHOOT_UP_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*3);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*3);
+                break;
+            case (SHOOT_NEAR_RIGHT):
+                setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                break;
+            case (SHOOT_MEDIUM_RIGHT):
+                setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                break;
+            case (SHOOT_FAR_RIGHT):
+                setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE, modeType);
+                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                break;
         }
-        if (mode == SHOOT_MEDIUM_LEFT) {
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE, modeType);
-        }
-        if (mode == SHOOT_NEAR_LEFT) {
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE, modeType);
-        }
-        if (mode == SHOOT_UP) {
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(SHOOT_UP_ANGLE, modeType);
-        }
-        if(mode == SHOOT_FAR_RIGHT){
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_HIGH_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE, modeType);
-        }
-        if(mode == SHOOT_MEDIUM_RIGHT){
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_MED_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE, modeType);
-        }
-        if(mode == SHOOT_NEAR_RIGHT){
-            //flyWheel1.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            //flyWheel2.setMaxSpeed((int)FLY_WHEEL_LOW_SPEED*TICKS_PER_REV_ANDYMARK);
-            setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE, modeType);
-        }
-        //modeType.telemetry.addData("Fly Wheel 1 Position: ", flyWheel1.getCurrentPosition());
-        //modeType.telemetry.addData("Fly Wheel 2 Position: ", flyWheel2.getCurrentPosition());
-        //modeType.telemetry.update();
     }
 
     public void setFlywheelDeflectorAngle(double angleFromCenter, OpMode mode){
@@ -626,18 +623,18 @@ public class HardwareMapLucyV4 {
     }
 
     public void deployBeaconPressers(){
-        beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_PRESS_POSITION);
-        beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_PRESS_POSITION);
+        beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_PRESS_POSITION/180.0);
+        beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_PRESS_POSITION/180.0);
     }
 
     public void deployArmlets(){
-        armletRight.setPosition(ARMLET_DEPLOY_POSITION/180.0);
-        armletLeft.setPosition(ARMLET_DEPLOY_POSITION/180.0);
+        armletLeft.setPosition(LEFT_ARMLET_DEPLOY_POSITION /180.0);
+        armletRight.setPosition(RIGHT_ARMLET_DEPLOY_POSITION /180.0);
     }
 
     public void storeArmlets(){
-        armletLeft.setPosition(ARMLET_STORE_POSITION/180.0);
-        armletRight.setPosition(ARMLET_STORE_POSITION/180.0);
+        armletLeft.setPosition(LEFT_ARMLET_STORE_POSITION /180.0);
+        armletRight.setPosition(RIGHT_ARMLET_STORE_POSITION /180.0);
     }
 
     public boolean safety(OpMode mode){
@@ -984,6 +981,7 @@ public class HardwareMapLucyV4 {
 
     public void turnToHeading(int desiredHeading, OpMode mode) {
         gyro.calibrate();
+
         while (gyro.isCalibrating() && !safety(mode)) { }
 
         if (desiredHeading > 0) {
@@ -1096,13 +1094,13 @@ public class HardwareMapLucyV4 {
     public void pressBeacon(double power, long timeInMillis, OpMode mode){
         setDriveMotorPower(power);
         long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + timeInMillis){
+        while(System.currentTimeMillis() < start + timeInMillis && !safety(mode)){
             waitCycle(mode);
         }
         stop();
         setDriveMotorPower(-power);
         start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + timeInMillis/2){
+        while(System.currentTimeMillis() < start + timeInMillis/2 && !safety(mode)){
             waitCycle(mode);
         }
         stop();
@@ -1117,19 +1115,5 @@ public class HardwareMapLucyV4 {
         }
     }
 
-    public void getRps(DcMotor motor, long timeToWaitInMillis, long waitTimeInMillis, OpMode mode){
-        long start = System.currentTimeMillis();
-        double seconds = waitTimeInMillis*1000;
-        double position = motor.getCurrentPosition();
-        while(System.currentTimeMillis() < start+waitTimeInMillis);
-        double deltaPosition = motor.getCurrentPosition()-position;
-        int ticks = (int)(deltaPosition/seconds);
-        int rps = ticks/TICKS_PER_REV_ANDYMARK;
-        mode.telemetry.addData("RPS: ", rps);
-        mode.telemetry.update();
-    }
 
-    class rpsCounter{
-
-    }
 }
