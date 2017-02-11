@@ -51,7 +51,7 @@ public class followHeadingProportionallyToWhiteLine extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive() && robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD) {
-            robot.driveToHeadingProportional(90, 0.5, 0.7, this);
+            robot.driveToHeadingProportional(90, 0.7, 0.5, this);
         }
 
     }

@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.*;
 
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
+import java.util.concurrent.locks.Condition;
+
 /**
  * Created by root on 12/19/16.
  */
@@ -227,6 +229,7 @@ public class HardwareMapLucyV4 {
             flyWheel1 = hwMap.dcMotor.get("flyWheel1");
             flyWheel2 = hwMap.dcMotor.get("flyWheel2");
             indexer = hwMap.servo.get("indexer");
+            indexer.setDirection(Servo.Direction.REVERSE);
             flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
             flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -271,7 +274,7 @@ public class HardwareMapLucyV4 {
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         flyWheelDeflector.setPosition(FLY_WHEEL_DEFLECTOR_NEUTRAL /180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
-        indexer.setDirection(Servo.Direction.REVERSE);
+        //indexer.setDirection(Servo.Direction.REVERSE);
 
         //reset
         flyWheel1.setPower(0);
@@ -862,6 +865,64 @@ public class HardwareMapLucyV4 {
             }
         }
     }
+
+    public void driveDistanceFollowingHeadingProportional(int heading, double highPower, double normalPower, double feet, OpMode mode){
+        int deltaHeading = gyro.getIntegratedZValue() - heading;
+        DcMotor distanceMotor = (deltaHeading <= 0) ? this.leftMotor : this.rightMotor;
+
+        double circumferenceInFeet = ROBOT_WHEEL_CIRCUMFERENCE * 100.0 / 2.54 / 12.0;
+        long ticks = (long)((feet/circumferenceInFeet)*TICKS_PER_REV_ANDYMARK);
+        long endingTick = (long)(distanceMotor.getCurrentPosition() + highPower/Math.abs(highPower)*ticks);
+
+        double maxChange = Math.abs(deltaHeading);
+        double deltaPower = Math.abs(highPower - normalPower);
+
+        while(!safety(mode) && distanceMotor.getCurrentPosition() < endingTick) {
+            double currentHeading = -gyro.getIntegratedZValue();
+            double error = heading - currentHeading; // error is key
+            // calculate the difference (error) between current heading and desired heading
+            mode.telemetry.addData("Heading: ", heading);
+            mode.telemetry.addData("No white line", "");
+            mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+            double powerChange = 0.5 * (error / maxChange * deltaPower);
+            this.leftMotor.setPower(normalPower + powerChange);
+            rightMotor.setPower(normalPower - powerChange);
+            mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+            mode.telemetry.addData("Speed Left: ", this.leftMotor.getPower());
+            mode.telemetry.addData("Right position: ", rightMotor.getCurrentPosition());
+            mode.telemetry.addData("Left position: ", this.leftMotor.getCurrentPosition());
+            mode.telemetry.addData("Turning: ", error < 0 ? "Left" : "Right");
+            mode.telemetry.update();
+            waitCycle(mode);
+        }
+        /*if(highPower < 0){ // driving backwards
+            while(!safety(mode)&&leftMotor.getCurrentPosition() > endingTick) {
+                double currentHeading = -gyro.getIntegratedZValue();
+                double error = heading - currentHeading;
+                double newHighPower = (error/maxChange * deltaPower) + normalPower;
+                mode.telemetry.addData("Heading: ", heading);
+                mode.telemetry.addData("No white line", "");
+                mode.telemetry.addData("Color value: ", fastColorSensor.getBrightness());
+                if (currentHeading >= heading) {
+                    leftMotor.setPower(newHighPower);
+                    rightMotor.setPower(normalPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Right");
+                } else if (currentHeading < heading) {
+                    leftMotor.setPower(normalPower);
+                    rightMotor.setPower(newHighPower);
+                    mode.telemetry.addData("Speed Right: ", rightMotor.getPower());
+                    mode.telemetry.addData("Speed Left: ", leftMotor.getPower());
+                    mode.telemetry.addData("Turning: ", "Left");
+                }
+                mode.telemetry.update();
+                waitCycle(mode);
+            }
+        }
+    */
+    }
+
     public void turnToHeading(int motor, double heading, double power, OpMode mode){
 
         if(motor == LEFT_MOTOR){
@@ -932,7 +993,7 @@ public class HardwareMapLucyV4 {
         }
     }
 
-    public void driveToHeadingProportional(double heading, double basePower, double highPower, OpMode mode){
+    public void driveToHeadingProportional(double heading, double highPower, double basePower, OpMode mode){
         double maxChange = Math.abs(gyro.getIntegratedZValue()-heading);
         double powerChange = (highPower-basePower);
         if(maxChange==0)return;

@@ -32,8 +32,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -86,7 +84,7 @@ public class controlledFollowHeadingProportionallyTest extends LinearOpMode {
             if (highPower < -1) highPower = -1;
             if (basePower < -1) basePower = -1;
             while (opModeIsActive() && gamepad1.right_trigger > 0.1) {
-                robot.driveToHeadingProportional(heading, basePower, highPower, this);
+                robot.driveToHeadingProportional(heading, highPower, basePower, this);
             }
             telemetry.addData("base power: ", basePower);
             telemetry.addData("high power: ", highPower);
