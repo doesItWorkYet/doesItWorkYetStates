@@ -761,12 +761,13 @@ public class HardwareMapLucyV4 {
             if (highPower > 0) {
                 error = heading + gyro.getIntegratedZValue();
                 if (error > 0) {
-                    double power = (Math.abs(error) * p) * 180 * deltaMotorPower;
+                    double power = (Math.abs(error) * p) * deltaMotorPower;
                     //increase left power
-                    leftMotor.setPower(power);
+                    leftMotor.setPower(power + normalPower);
+                    rightMotor.setPower(normalPower);
                 }
                 else{
-                    double power = (Math.abs(error) * p) * 180 * deltaMotorPower;
+                    double power = (Math.abs(error) * p) * deltaMotorPower;
                     //increase right power
                     rightMotor.setPower(power);
                 }
