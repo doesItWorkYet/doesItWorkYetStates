@@ -30,9 +30,9 @@ public class HardwareMapLucyV4 {
     private final int MEDIUM_RIGHT_ANGLE = -10;
     private final int NEAR_RIGHT_ANGLE = -5;
     private final int SHOOT_UP_ANGLE = 0;
-    private final int FAR_LEFT_ANGLE = 5;
+    private final int NEAR_LEFT_ANGLE = 5;
     private final int MEDIUM_LEFT_ANGLE = 10;
-    private final int NEAR_LEFT_ANGLE = 20;
+    private final int FAR_LEFT_ANGLE = 20;
 
     public final double ANDY_MARK_PPR = 28;
 
@@ -120,7 +120,7 @@ public class HardwareMapLucyV4 {
 
     //Indexer Positions
     final double INDEXER_LOAD_POSITION = 0.0;
-    final double INDEXER_FIRE_POSITION = 70.0;
+    final double INDEXER_FIRE_POSITION = 40.0;
 
     //Motor Tick Values
     final int TICKS_PER_REV_ANDYMARK = 1120;
@@ -402,8 +402,6 @@ public class HardwareMapLucyV4 {
     public void setFlywheelDeflectorAngle(double angleFromCenter, OpMode mode){
         angleFromCenter = DEFLECTOR_GEAR_RATIO*angleFromCenter;
         flyWheelDeflector.setPosition((FLY_WHEEL_DEFLECTOR_NEUTRAL + angleFromCenter)/180.0);
-        mode.telemetry.addData("Deflector position: ", flyWheelDeflector.getPosition());
-        mode.telemetry.update();
     }
 
 
@@ -687,9 +685,9 @@ public class HardwareMapLucyV4 {
         flyWheel2.setPower(FLY_WHEEL_POWER);
         flyWheel1.setPower(FLY_WHEEL_POWER);
         delay(600, mode);
-        indexer.setPosition(INDEXER_FIRE_POSITION);
+        indexer.setPosition(INDEXER_FIRE_POSITION/180.0);
         delay(500, mode);
-        indexer.setPosition(INDEXER_LOAD_POSITION);
+        indexer.setPosition(INDEXER_LOAD_POSITION/180.0);
         flyWheel1.setPower(MOTOR_OFF);
         flyWheel2.setPower(MOTOR_OFF);
         if(mode instanceof LinearOpMode){

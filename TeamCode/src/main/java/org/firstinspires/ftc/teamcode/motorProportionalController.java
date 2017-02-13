@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 /**
  * Created by root on 2/11/17.
  */
-public class motorProprtionalController {
+public class MotorProportionalController {
     HardwareMapLucyV4 robot;
     RpsCounter rpsCounter;
     DcMotor motor;
@@ -15,7 +15,7 @@ public class motorProprtionalController {
     double tuningP;
 
 
-    public motorProprtionalController(DcMotor motorObj,long ticksPerRevolution,double maxRps, double p){
+    public MotorProportionalController(DcMotor motorObj, long ticksPerRevolution, double maxRps, double p){
         this.motor = motorObj;
         this.ticksPerRev = ticksPerRevolution;
         this.maxRps = maxRps;

@@ -97,6 +97,7 @@ public class LucyUserControlled extends LinearOpMode {
             //telemetry.addData("Right Motor RPS: ", rightMotorCounter.getRps());
             //telemetry.addData("Left Motor RPS: ", leftMotorCounter.getRps());
             telemetry.addData("Deflector Position: ", flyWheelDeflectorPosition);
+            telemetry.addData("Deflector Angle: ", robot.flyWheelDeflector.getPosition());
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
             flyWheelCounter1.update();
             flyWheelCounter2.update();
@@ -193,19 +194,41 @@ public class LucyUserControlled extends LinearOpMode {
 //                if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
 //                    driveRightController.stationaryRuntime();
 //                }
-                if(gamepad1.left_stick_y > 0.8){
-                    driveLeftController.accelationRuntime(true);
-                    driveRightController.accelationRuntime(true);
+                if(gamepad1.left_stick_y > 0.8 && gamepad1.right_stick_x<0.4 && gamepad1.right_stick_x>-0.4){
+                    robot.rightMotor.setPower(1);
+                    robot.leftMotor.setPower(1);
                 }
-                if(gamepad1.left_stick_y < -0.8){
-                    driveLeftController.accelationRuntime(false);
-                    driveRightController.accelationRuntime(false);
+                if(gamepad1.left_stick_y < -0.8 && gamepad1.right_stick_x<0.4 && gamepad1.right_stick_x>-0.4){
+                    robot.rightMotor.setPower(-1);
+                    robot.leftMotor.setPower(-1);
                 }
-                if(gamepad1.right_stick_x > 0.8){
-                    driveLeftController.maxPower = driveRightController.maxPower - 0.3;
+                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x>0.8){
+                    robot.rightMotor.setPower(1);
+                    robot.leftMotor.setPower(0.45);
                 }
-                if(gamepad1.right_stick_x < -0.8){
-                    driveRightController.maxPower = driveLeftController.maxPower - 0.3;
+                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x<-0.8){
+                    robot.rightMotor.setPower(0.45);
+                    robot.leftMotor.setPower(1);
+                }
+                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x>0.8){
+                    robot.rightMotor.setPower(-1);
+                    robot.leftMotor.setPower(-0.45);
+                }
+                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x<-0.8){
+                    robot.rightMotor.setPower(-0.45);
+                    robot.leftMotor.setPower(-1);
+                }
+                if(gamepad1.right_stick_x > 0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
+                    robot.leftMotor.setPower(1);
+                    robot.rightMotor.setPower(-1);
+                }
+                if(gamepad1.right_stick_x < -0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
+                    robot.rightMotor.setPower(1);
+                    robot.leftMotor.setPower(-1);
+                }
+                if(gamepad1.right_stick_x <0.4 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4 && gamepad1.right_stick_x>-0.4){
+                    robot.rightMotor.setPower(0);
+                    robot.leftMotor.setPower(0);
                 }
                 while (gamepad1.dpad_left) {
                     idle();

@@ -36,8 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="autonomousScrimmage", group="Testing")  // @Autonomous(...) is the other common choice
-@Disabled
+@Autonomous(name="Gyro Wire Implementation test", group="Testing")  // @Autonomous(...) is the other common choice
+//@Disabled
 public class gyroWireImplementation extends LinearOpMode {
     HardwareMapLucyV4 robot;
     Wire sensor;
@@ -67,7 +67,7 @@ public class gyroWireImplementation extends LinearOpMode {
         telemetry.update();
         int heading = 0;
        while(opModeIsActive()){
-           sensor.requestFrom(0x03,1);
+           sensor.requestFrom(0,2);
            if(sensor.responseCount() > 0){
                sensor.getResponse();
                if(sensor.isRead()){
@@ -89,6 +89,7 @@ public class gyroWireImplementation extends LinearOpMode {
                 sensor.getResponse();
                 if(sensor.isRead()){
                    value = sensor.readHL();
+                    telemetry.addData("Calibrating!", "");
                     telemetry.addData("Value: ", value);
                     telemetry.update();
                     if(value == 0x00) return;
