@@ -71,8 +71,6 @@ public class LucyUserControlled extends LinearOpMode {
         runtime.reset();
 
         //Declare variables for use in runtime loop
-        RpsCounter flyWheelCounter1 = new RpsCounter(robot.flyWheel1, 28*2, 200);
-        RpsCounter flyWheelCounter2 = new RpsCounter(robot.flyWheel2, 28*2, 200);
 //        RpsCounter rightMotorCounter = new RpsCounter(robot.rightMotor, robot.TICKS_PER_REV_ANDYMARK);
 //        RpsCounter leftMotorCounter = new RpsCounter(robot.leftMotor, robot.TICKS_PER_REV_ANDYMARK);
 //        RpsCounter rightSpoolCounter = new RpsCounter(robot.extendotronRight, robot.TICKS_PER_REV_ANDYMARK);
@@ -91,16 +89,16 @@ public class LucyUserControlled extends LinearOpMode {
         boolean samDriveMode = false;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            robot.flyWheel1ProportionalController.update();
+            robot.flyWheel2ProportionalController.update();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Flywheel1 RPS: ", flyWheelCounter1.getRps());
-            telemetry.addData("Flywheel2 RPS: ", flyWheelCounter2.getRps());
+            telemetry.addData("Flywheel1 RPS: ", robot.flyWheel1ProportionalController.rpsCounter.getRps());
+            telemetry.addData("Flywheel2 RPS: ", robot.flyWheel2ProportionalController.rpsCounter.getRps());
             //telemetry.addData("Right Motor RPS: ", rightMotorCounter.getRps());
             //telemetry.addData("Left Motor RPS: ", leftMotorCounter.getRps());
             telemetry.addData("Deflector Position: ", flyWheelDeflectorPosition);
             telemetry.addData("Deflector Angle: ", robot.flyWheelDeflector.getPosition());
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
-            flyWheelCounter1.update();
-            flyWheelCounter2.update();
 
 
             if(gamepad2.a){
@@ -167,6 +165,34 @@ public class LucyUserControlled extends LinearOpMode {
                 }
             }
             if(!samDriveMode) {
+                if(gamepad1.left_stick_y>0.1) {
+                    if(gamepad1.right_stick_x>0.1) {
+                        robot.rightMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x / 2));
+                        robot.leftMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+                    }
+                    if(gamepad1.right_stick_x<-0.1){
+                        robot.rightMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+                        robot.leftMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
+                    }
+                    else{
+                        robot.rightMotor.setPower(gamepad1.left_stick_y);
+                        robot.leftMotor.setPower(gamepad1.left_stick_y);
+                    }
+                }
+                if(gamepad1.left_stick_y<-0.1){
+                    if(gamepad1.right_stick_x>0.1){
+                        robot.rightMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+                        robot.leftMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
+                    }
+                    if(gamepad1.right_stick_x<-0.1){
+                        robot.rightMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
+                        robot.leftMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+                    }
+                    else{
+                        robot.rightMotor.setPower(gamepad1.left_stick_y);
+                        robot.leftMotor.setPower(gamepad1.left_stick_y);
+                    }
+                }
 //                if (gamepad1.left_trigger > .1) {
 //                    if (slowModeToggle) robot.leftMotor.setPower(robot.MAIN_MOTOR_MAX_POWER / 2.0);
 //                    else driveLeftController.accelationRuntime(true);
@@ -194,42 +220,43 @@ public class LucyUserControlled extends LinearOpMode {
 //                if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
 //                    driveRightController.stationaryRuntime();
 //                }
-                if(gamepad1.left_stick_y > 0.8 && gamepad1.right_stick_x<0.4 && gamepad1.right_stick_x>-0.4){
-                    robot.rightMotor.setPower(1);
-                    robot.leftMotor.setPower(1);
-                }
-                if(gamepad1.left_stick_y < -0.8 && gamepad1.right_stick_x<0.4 && gamepad1.right_stick_x>-0.4){
-                    robot.rightMotor.setPower(-1);
-                    robot.leftMotor.setPower(-1);
-                }
-                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x>0.8){
-                    robot.rightMotor.setPower(1);
-                    robot.leftMotor.setPower(0.45);
-                }
-                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x<-0.8){
-                    robot.rightMotor.setPower(0.45);
-                    robot.leftMotor.setPower(1);
-                }
-                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x>0.8){
-                    robot.rightMotor.setPower(-1);
-                    robot.leftMotor.setPower(-0.45);
-                }
-                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x<-0.8){
-                    robot.rightMotor.setPower(-0.45);
-                    robot.leftMotor.setPower(-1);
-                }
-                if(gamepad1.right_stick_x > 0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
-                    robot.leftMotor.setPower(1);
-                    robot.rightMotor.setPower(-1);
-                }
-                if(gamepad1.right_stick_x < -0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
-                    robot.rightMotor.setPower(1);
-                    robot.leftMotor.setPower(-1);
-                }
-                if(gamepad1.right_stick_x <0.4 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4 && gamepad1.right_stick_x>-0.4){
-                    robot.rightMotor.setPower(0);
-                    robot.leftMotor.setPower(0);
-                }
+//                if(gamepad1.left_stick_y > 0.1 && gamepad1.right_stick_x < 0.4 && gamepad1.right_stick_x > -0.4){
+//                    robot.rightMotor.setPower(gamepad1.left_stick_y);
+//                    robot.leftMotor.setPower(gamepad1.left_stick_y);
+//                }
+//                if(gamepad1.left_stick_y < -0.1 && gamepad1.right_stick_x < 0.4 && gamepad1.right_stick_x > -0.4){
+//                    robot.rightMotor.setPower(gamepad1.left_stick_y);
+//                    robot.leftMotor.setPower(gamepad1.left_stick_y);
+//                }
+//                if(gamepad1.left_stick_y > 0.8 && gamepad1.right_stick_x > 0.8){
+//                    robot.rightMotor.setPower(1);
+//                    robot.leftMotor.setPower(0.45);
+//                }
+//                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x<-0.8){
+//                    robot.rightMotor.setPower(0.45);
+//                    robot.leftMotor.setPower(1);
+//                }
+//                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x>0.8){
+//                    robot.rightMotor.setPower(-1);
+//                    robot.leftMotor.setPower(-0.45);
+//                }
+//                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x<-0.8){
+//                    robot.rightMotor.setPower(-0.45);
+//                    robot.leftMotor.setPower(-1);
+//                }
+//                if(gamepad1.right_stick_x > 0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
+//                    robot.leftMotor.setPower(1);
+//                    robot.rightMotor.setPower(-1);
+//                }
+//                if(gamepad1.right_stick_x < -0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
+//                    robot.rightMotor.setPower(1);
+//                    robot.leftMotor.setPower(-1);
+//                }
+//                if(gamepad1.right_stick_x <0.4 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4 && gamepad1.right_stick_x>-0.4){
+//                    robot.rightMotor.setPower(0);
+//                    robot.leftMotor.setPower(0);
+//                }
+
                 while (gamepad1.dpad_left) {
                     idle();
                     samDriveMode = true;
@@ -284,21 +311,25 @@ public class LucyUserControlled extends LinearOpMode {
                 telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
 
             if(gamepad2.x) {
-                robot.flyWheel2.setPower(flyWheelPower);
-                robot.flyWheel1.setPower(1);
-                telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
-                telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
+                if(robot.flyWheel1.getPower() == 0)
+                robot.setTargetDistanceForParticleShooter(flyWheelDeflectorPosition, this);
+                //robot.flyWheel2ProportionalController.setPower(flyWheelPower);
+                //robot.flyWheel1ProportionalController.setPower(flyWheelPower);
+//                telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
+//                telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
+
             }
 
             if(!gamepad2.x){
-                robot.flyWheel1.setPower(0);
-                robot.flyWheel2.setPower(0);
+                robot.flyWheel1ProportionalController.setPower(0);
+                robot.flyWheel2ProportionalController.setPower(0);
             }
-
+            robot.flyWheel1ProportionalController.update();
+            robot.flyWheel2ProportionalController.update();
             if(gamepad2.right_stick_x < -0.8){
                 if(gamepad2.x) {
-                    robot.flyWheel1.setPower(-flyWheelPower);
-                    robot.flyWheel2.setPower(-flyWheelPower);
+                    robot.flyWheel1ProportionalController.setPower(-flyWheelPower);
+                    robot.flyWheel2ProportionalController.setPower(-flyWheelPower);
                 }
             }
 

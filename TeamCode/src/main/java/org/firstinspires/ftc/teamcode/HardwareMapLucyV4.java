@@ -26,13 +26,18 @@ public class HardwareMapLucyV4 {
     public final int SHOOT_FAR_LEFT = 3;
     private final double DEFLECTOR_GEAR_RATIO = 2;
     //angles
-    private final int FAR_RIGHT_ANGLE = -20;
-    private final int MEDIUM_RIGHT_ANGLE = -10;
+    private final int FAR_RIGHT_ANGLE = -17;
+    private final int MEDIUM_RIGHT_ANGLE = -12;
     private final int NEAR_RIGHT_ANGLE = -5;
     private final int SHOOT_UP_ANGLE = 0;
     private final int NEAR_LEFT_ANGLE = 5;
-    private final int MEDIUM_LEFT_ANGLE = 10;
-    private final int FAR_LEFT_ANGLE = 20;
+    private final int MEDIUM_LEFT_ANGLE = 12;
+    private final int FAR_LEFT_ANGLE = 17;
+    //speeds
+    private final double FAR_SPEED = 0.9;
+    private final double MED_SPEED = 0.85;
+    private final double NEAR_SPEED = 0.75;
+    private final double UP_SPEED = 0.25;
 
     public final double ANDY_MARK_PPR = 28;
 
@@ -206,7 +211,8 @@ public class HardwareMapLucyV4 {
     final double FEET_TO_TRAVEL_FROM_WALL = 1.5;
     final double TURNING_RPS = .3;
     final int DIST_LINE_TO_LINE_FAST = 1;
-
+    public MotorProportionalController flyWheel1ProportionalController;
+    public MotorProportionalController flyWheel2ProportionalController;
     public OpticalDistanceSensor distSensor = null;
 
     public HardwareMapLucyV4(){
@@ -235,11 +241,15 @@ public class HardwareMapLucyV4 {
             //flywheel init
             flyWheel1 = hwMap.dcMotor.get("flyWheel1");
             flyWheel2 = hwMap.dcMotor.get("flyWheel2");
+            flyWheel1ProportionalController = new MotorProportionalController(flyWheel1, (int)ANDY_MARK_PPR*2, 35, 1/20.0);
+            flyWheel2ProportionalController = new MotorProportionalController(flyWheel2, (int)ANDY_MARK_PPR*2, 35, 1/20.0);
+
             indexer = hwMap.servo.get("indexer");
             indexer.setDirection(Servo.Direction.REVERSE);
             flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
             flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
-
+            flyWheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            flyWheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             flyWheelDeflector = hwMap.servo.get("flyWheelDeflector");
             flyWheelDeflector.setDirection(Servo.Direction.REVERSE);
 
@@ -265,7 +275,7 @@ public class HardwareMapLucyV4 {
             beaconPresserRight.setDirection(Servo.Direction.REVERSE);
 
             sweep = hwMap.dcMotor.get("sweep");
-            sweep.setDirection(DcMotor.Direction.REVERSE);
+            sweep.setDirection(DcMotor.Direction.FORWARD);
 
             //sensors
             dim = hwMap.deviceInterfaceModule.get("DIM");
@@ -291,8 +301,8 @@ public class HardwareMapLucyV4 {
         sweep.setPower(0);
         extendotronLeft.setPower(0);
         extendotronRight.setPower(0);
-        //flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendotronLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -303,8 +313,8 @@ public class HardwareMapLucyV4 {
 
         leftMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
         rightMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
-        //flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
-        //flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*10);
+//        flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+//        flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
 
         flyWheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flyWheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -363,38 +373,38 @@ public class HardwareMapLucyV4 {
         switch(mode){
             case (SHOOT_FAR_LEFT):
                 setFlywheelDeflectorAngle(FAR_LEFT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                flyWheel1ProportionalController.setPower(FAR_SPEED);
+                flyWheel2ProportionalController.setPower(FAR_SPEED);
                 break;
             case (SHOOT_MEDIUM_LEFT):
                 setFlywheelDeflectorAngle(MEDIUM_LEFT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                flyWheel1ProportionalController.setPower(MED_SPEED);
+                flyWheel2ProportionalController.setPower(MED_SPEED);
                 break;
             case (SHOOT_NEAR_LEFT):
                 setFlywheelDeflectorAngle(NEAR_LEFT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                flyWheel1ProportionalController.setPower(NEAR_SPEED);
+                flyWheel2ProportionalController.setPower(NEAR_SPEED);
                 break;
             case (SHOOT_UP):
                 setFlywheelDeflectorAngle(SHOOT_UP_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*3);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*3);
+                flyWheel1ProportionalController.setPower(UP_SPEED);
+                flyWheel2ProportionalController.setPower(UP_SPEED);
                 break;
             case (SHOOT_NEAR_RIGHT):
                 setFlywheelDeflectorAngle(NEAR_RIGHT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*5);
+                flyWheel1ProportionalController.setPower(NEAR_SPEED);
+                flyWheel2ProportionalController.setPower(NEAR_SPEED);
                 break;
             case (SHOOT_MEDIUM_RIGHT):
                 setFlywheelDeflectorAngle(MEDIUM_RIGHT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*15);
+                flyWheel1ProportionalController.setPower(MED_SPEED);
+                flyWheel2ProportionalController.setPower(MED_SPEED);
                 break;
             case (SHOOT_FAR_RIGHT):
                 setFlywheelDeflectorAngle(FAR_RIGHT_ANGLE, modeType);
-                flyWheel1.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
-                flyWheel2.setMaxSpeed((int)ANDY_MARK_PPR*2*30);
+                flyWheel1ProportionalController.setPower(FAR_SPEED);
+                flyWheel2ProportionalController.setPower(FAR_SPEED);
                 break;
         }
     }
@@ -684,7 +694,7 @@ public class HardwareMapLucyV4 {
     public void shoot(OpMode mode){
         flyWheel2.setPower(FLY_WHEEL_POWER);
         flyWheel1.setPower(FLY_WHEEL_POWER);
-        delay(600, mode);
+        delay(1000, mode);
         indexer.setPosition(INDEXER_FIRE_POSITION/180.0);
         delay(500, mode);
         indexer.setPosition(INDEXER_LOAD_POSITION/180.0);

@@ -20,7 +20,7 @@ public class MotorProportionalController {
         this.ticksPerRev = ticksPerRevolution;
         this.maxRps = maxRps;
         this.tuningP = p;
-        rpsCounter = new RpsCounter(motor,(int)ticksPerRev,200);
+        rpsCounter = new RpsCounter(motor,(int)ticksPerRev,50);
     }
 
     public void setPower(double power){
@@ -29,8 +29,8 @@ public class MotorProportionalController {
     }
 
     public void update(){
+        rpsCounter.update();
         if(desiredRps != 0) {
-            rpsCounter.update();
             double currentRps = rpsCounter.getRps();
             double error = this.desiredRps - currentRps;
             double newPower = desiredRps/maxRps + error * tuningP;

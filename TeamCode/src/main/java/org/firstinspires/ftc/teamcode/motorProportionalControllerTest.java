@@ -49,8 +49,8 @@ public class motorProportionalControllerTest extends LinearOpMode {
         robot.zero(this);
 //        MotorProportionalController rightMotor = new MotorProportionalController(robot.rightMotor, robot.ANDY_MARK_PPR*2, 3, robot.TURNING_P);
 //        MotorProportionalController leftMotor = new MotorProportionalController(robot.leftMotor, robot.ANDY_MARK_PPR*2, 3, robot.TURNING_P);
-        MotorProportionalController flyWheel1 = new MotorProportionalController(robot.flyWheel1, (long)robot.ANDY_MARK_PPR*2, 25, robot.TURNING_P);
-        MotorProportionalController flyWheel2 = new MotorProportionalController(robot.flyWheel2, (long)robot.ANDY_MARK_PPR*2, 25, robot.TURNING_P);
+        MotorProportionalController flyWheel1 = new MotorProportionalController(robot.flyWheel1, (long)robot.ANDY_MARK_PPR*2, 25, 1/20.0);
+        MotorProportionalController flyWheel2 = new MotorProportionalController(robot.flyWheel2, (long)robot.ANDY_MARK_PPR*2, 25, 1/20.0);
         //Wait for start and reset the runtime count
         double flyWheelPower = 0;
         waitForStart();
@@ -63,6 +63,11 @@ public class motorProportionalControllerTest extends LinearOpMode {
 //            telemetry.addData("Right Motor RPS: ", rightMotor.rpsCounter.getRps());
             telemetry.addData("Fly Wheel 1 RPS: ", flyWheel1.rpsCounter.getRps());
             telemetry.addData("Fly Wheel 2 RPS: ", flyWheel2.rpsCounter.getRps());
+            telemetry.addData("Fly Wheel 1 Power: ", robot.flyWheel1.getPower());
+            telemetry.addData("Fly Wheel 2 Power: ", robot.flyWheel2.getPower());
+            telemetry.addData("Fly Wheel 1 Max RPS: ", robot.flyWheel1.getMaxSpeed()/(robot.ANDY_MARK_PPR*2));
+            telemetry.addData("Fly Wheel 2 Max RPS: ", robot.flyWheel2.getMaxSpeed()/(robot.ANDY_MARK_PPR*2));
+            telemetry.addData("Fly Wheel Power: ", flyWheelPower);
             telemetry.update();
 //            if(gamepad1.right_trigger > 0.8){
 //                rightMotor.setPower(0.5);
@@ -73,18 +78,20 @@ public class motorProportionalControllerTest extends LinearOpMode {
             if(gamepad1.dpad_up){
                 flyWheelPower += 0.25;
                 if(flyWheelPower>=1)flyWheelPower = 1;
+                while(gamepad1.dpad_up) idle();
             }
             if(gamepad1.dpad_down){
                 flyWheelPower -= 0.25;
                 if(flyWheelPower<=0)flyWheelPower = 0;
+                while(gamepad1.dpad_down) idle();
             }
             if(gamepad1.x){
-                flyWheel1.setPower(flyWheelPower);
                 flyWheel2.setPower(flyWheelPower);
+                flyWheel1.setPower(flyWheelPower);
             }
             if(!gamepad1.x){
-                flyWheel1.setPower(0);
                 flyWheel2.setPower(0);
+                flyWheel1.setPower(0);
             }
 
         }
