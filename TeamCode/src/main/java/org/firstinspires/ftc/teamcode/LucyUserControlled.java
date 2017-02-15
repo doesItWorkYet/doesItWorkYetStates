@@ -44,7 +44,7 @@ public class LucyUserControlled extends LinearOpMode {
     boolean slowModeToggle = false;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
-    private motorController driveLeftController, driveRightController;
+    private MotorController driveLeftController, driveRightController;
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Hello World!");
@@ -63,8 +63,8 @@ public class LucyUserControlled extends LinearOpMode {
         idle();
         telemetry.addData("Status", "Robot zeros");
         telemetry.update();
-        driveLeftController = new motorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
-        driveRightController = new motorController(robot.rightMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY);
+        driveLeftController = new MotorController(robot.leftMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY,.5);
+        driveRightController = new MotorController(robot.rightMotor,robot.ACCELERATION_COEFFICIENT,robot.START_VELOCITY,.5);
         //RPMCounter flyWheel1Counter = new RPMCounter(robot.flyWheel1, robot.TICKS_PER_REV_ANDYMARK);
         //RPMCounter flyWheel2Counter = new RPMCounter(robot.flyWheel2, robot.TICKS_PER_REV_ANDYMARK);
         waitForStart();
@@ -94,6 +94,7 @@ public class LucyUserControlled extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Flywheel1 RPS: ", robot.flyWheel1ProportionalController.rpsCounter.getRps());
             telemetry.addData("Flywheel2 RPS: ", robot.flyWheel2ProportionalController.rpsCounter.getRps());
+            telemetry.addData("Left Joystick: ", gamepad1.left_stick_y);
             //telemetry.addData("Right Motor RPS: ", rightMotorCounter.getRps());
             //telemetry.addData("Left Motor RPS: ", leftMotorCounter.getRps());
             telemetry.addData("Deflector Position: ", flyWheelDeflectorPosition);
@@ -159,108 +160,18 @@ public class LucyUserControlled extends LinearOpMode {
                 if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
                     driveLeftController.stationaryRuntime();
                 }
-                while(gamepad1.dpad_left){
-                    idle();
-                    samDriveMode = false;
-                }
+
             }
             if(!samDriveMode) {
-                if(gamepad1.left_stick_y>0.1) {
-                    if(gamepad1.right_stick_x>0.1) {
-                        robot.rightMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x / 2));
-                        robot.leftMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
-                    }
-                    if(gamepad1.right_stick_x<-0.1){
-                        robot.rightMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
-                        robot.leftMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
-                    }
-                    else{
-                        robot.rightMotor.setPower(gamepad1.left_stick_y);
-                        robot.leftMotor.setPower(gamepad1.left_stick_y);
-                    }
-                }
-                if(gamepad1.left_stick_y<-0.1){
-                    if(gamepad1.right_stick_x>0.1){
-                        robot.rightMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
-                        robot.leftMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
-                    }
-                    if(gamepad1.right_stick_x<-0.1){
-                        robot.rightMotor.setPower(gamepad1.left_stick_y - (gamepad1.right_stick_x/2));
-                        robot.leftMotor.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
-                    }
-                    else{
-                        robot.rightMotor.setPower(gamepad1.left_stick_y);
-                        robot.leftMotor.setPower(gamepad1.left_stick_y);
-                    }
-                }
-//                if (gamepad1.left_trigger > .1) {
-//                    if (slowModeToggle) robot.leftMotor.setPower(robot.MAIN_MOTOR_MAX_POWER / 2.0);
-//                    else driveLeftController.accelationRuntime(true);
-//                }
-//                //Drive Right Motor in Reverse
-//                if (gamepad1.right_trigger > .1) {
-//                    if (slowModeToggle) robot.rightMotor.setPower(robot.MAIN_MOTOR_MAX_POWER / 2.0);
-//                    else driveRightController.accelationRuntime(true);
-//                }
-//                //Drive Left Motor Forward
-//                if (gamepad1.left_bumper) {
-//                    if (slowModeToggle) robot.leftMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER / 2.0);
-//                    else driveLeftController.accelationRuntime(false);
-//                }
-//                //Drive Right Motor Forward
-//                if (gamepad1.right_bumper) {
-//                    if (slowModeToggle) robot.rightMotor.setPower(-robot.MAIN_MOTOR_MAX_POWER / 2.0);
-//                    else driveRightController.accelationRuntime(false);
-//                }
-//                //If neither the left trigger or bumper is pressed, the left motor should be stationary
-//                if(gamepad1.left_trigger <= .1 && !gamepad1.left_bumper){
-//                    driveLeftController.stationaryRuntime();
-//                }
-//                //If neither the right trigger or bumper is pressed, the right motor should be stationary
-//                if(gamepad1.right_trigger <= .1 && !gamepad1.right_bumper) {
-//                    driveRightController.stationaryRuntime();
-//                }
-//                if(gamepad1.left_stick_y > 0.1 && gamepad1.right_stick_x < 0.4 && gamepad1.right_stick_x > -0.4){
-//                    robot.rightMotor.setPower(gamepad1.left_stick_y);
-//                    robot.leftMotor.setPower(gamepad1.left_stick_y);
-//                }
-//                if(gamepad1.left_stick_y < -0.1 && gamepad1.right_stick_x < 0.4 && gamepad1.right_stick_x > -0.4){
-//                    robot.rightMotor.setPower(gamepad1.left_stick_y);
-//                    robot.leftMotor.setPower(gamepad1.left_stick_y);
-//                }
-//                if(gamepad1.left_stick_y > 0.8 && gamepad1.right_stick_x > 0.8){
-//                    robot.rightMotor.setPower(1);
-//                    robot.leftMotor.setPower(0.45);
-//                }
-//                if(gamepad1.left_stick_y>0.8 && gamepad1.right_stick_x<-0.8){
-//                    robot.rightMotor.setPower(0.45);
-//                    robot.leftMotor.setPower(1);
-//                }
-//                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x>0.8){
-//                    robot.rightMotor.setPower(-1);
-//                    robot.leftMotor.setPower(-0.45);
-//                }
-//                if(gamepad1.left_stick_y<-0.8 && gamepad1.right_stick_x<-0.8){
-//                    robot.rightMotor.setPower(-0.45);
-//                    robot.leftMotor.setPower(-1);
-//                }
-//                if(gamepad1.right_stick_x > 0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
-//                    robot.leftMotor.setPower(1);
-//                    robot.rightMotor.setPower(-1);
-//                }
-//                if(gamepad1.right_stick_x < -0.8 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4){
-//                    robot.rightMotor.setPower(1);
-//                    robot.leftMotor.setPower(-1);
-//                }
-//                if(gamepad1.right_stick_x <0.4 && gamepad1.left_stick_y<0.4 && gamepad1.left_stick_y>-0.4 && gamepad1.right_stick_x>-0.4){
-//                    robot.rightMotor.setPower(0);
-//                    robot.leftMotor.setPower(0);
-//                }
-
-                while (gamepad1.dpad_left) {
-                    idle();
-                    samDriveMode = true;
-                }
+//                driveLeftController.setPower(gamepad1.left_stick_y + gamepad1.right_stick_x);
+//                driveLeftController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
+//                driveRightController.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+//                driveRightController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
+                robot.leftMotor.setPower((gamepad1.left_stick_y + gamepad1.right_stick_x)/2.0);
+                robot.rightMotor.setPower((gamepad1.left_stick_y - gamepad1.right_stick_x)/2.0);
+            }
+            while (gamepad1.dpad_left) {
+                samDriveMode =(samDriveMode==true)? false:true;
             }
 
 
@@ -311,8 +222,14 @@ public class LucyUserControlled extends LinearOpMode {
                 telemetry.addData("Fly wheel 2 position: ", robot.flyWheel2.getCurrentPosition());
 
             if(gamepad2.x) {
-                if(robot.flyWheel1.getPower() == 0)
-                robot.setTargetDistanceForParticleShooter(flyWheelDeflectorPosition, this);
+                if(gamepad2.dpad_left){
+                    robot.flyWheel1ProportionalController.setPower(1);
+                    robot.flyWheel2ProportionalController.setPower(1);
+                }
+                else {
+                    if (robot.flyWheel1.getPower() == 0)
+                        robot.setTargetDistanceForParticleShooter(flyWheelDeflectorPosition, this);
+                }
                 //robot.flyWheel2ProportionalController.setPower(flyWheelPower);
                 //robot.flyWheel1ProportionalController.setPower(flyWheelPower);
 //                telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
@@ -381,7 +298,7 @@ public class LucyUserControlled extends LinearOpMode {
     }
 
     long oneSecond = 1000;
-    class motorController{
+    class MotorController {
         DcMotor motor;
         double accelerationCoefficient;
         double startPower;
@@ -394,10 +311,11 @@ public class LucyUserControlled extends LinearOpMode {
         double decelerateSeconds = 2.0;
         double decelerateStartPower = 0.0;
 
-        public motorController(DcMotor motor, double accelerationCoefficient, double startVelocity){
+        public MotorController(DcMotor motor,double accelerationCoefficient,double startVelocity,double maxPower){
             this.motor = motor;
             this.accelerationCoefficient = accelerationCoefficient;
             this.startPower = startVelocity;
+            this.maxPower = maxPower;
         }
 
         public void setPower(double amount) {
@@ -448,36 +366,8 @@ public class LucyUserControlled extends LinearOpMode {
             }
         }
 
-        public void setStartPower(double velocity){
-            this.startPower = velocity;
-        }
-
-        public void setAccelerationCoefficient(double coefficient){
-            this.accelerationCoefficient = coefficient;
-        }
-    }
-
-    class RPMCounter{
-        private DcMotor motor;
-        private int ticksPerRevolution = 0;
-        private int lastPosition = 0;
-        long lastTimeCalled;
-        public RPMCounter(DcMotor motor, int ticksPerRevolution){
-           this.motor = motor;
-            this.ticksPerRevolution = ticksPerRevolution;
-            lastTimeCalled = System.currentTimeMillis();
-       }
-
-        public int getRPS(){
-            long deltaTime = System.currentTimeMillis() - lastTimeCalled;
-            lastTimeCalled = System.currentTimeMillis();
-            lastPosition = motor.getCurrentPosition();
-            long deltaPostion = motor.getCurrentPosition() - lastPosition;
-            int ticksPerSecond = (int)(deltaPostion/(double)(deltaTime));
-            int rps = (int)(ticksPerSecond/(double)(ticksPerRevolution));
-            return rps;
-        }
 
     }
+
 
 }

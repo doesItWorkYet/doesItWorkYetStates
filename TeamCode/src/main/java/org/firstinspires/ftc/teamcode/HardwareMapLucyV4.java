@@ -26,7 +26,7 @@ public class HardwareMapLucyV4 {
     public final int SHOOT_FAR_LEFT = 3;
     private final double DEFLECTOR_GEAR_RATIO = 2;
     //angles
-    private final int FAR_RIGHT_ANGLE = -17;
+    private final int FAR_RIGHT_ANGLE = -15;
     private final int MEDIUM_RIGHT_ANGLE = -12;
     private final int NEAR_RIGHT_ANGLE = -5;
     private final int SHOOT_UP_ANGLE = 0;
@@ -34,10 +34,10 @@ public class HardwareMapLucyV4 {
     private final int MEDIUM_LEFT_ANGLE = 12;
     private final int FAR_LEFT_ANGLE = 17;
     //speeds
-    private final double FAR_SPEED = 0.9;
-    private final double MED_SPEED = 0.85;
-    private final double NEAR_SPEED = 0.75;
-    private final double UP_SPEED = 0.25;
+    private final double FAR_SPEED = 0.85;
+    private final double MED_SPEED = 0.75;
+    private final double NEAR_SPEED = 0.6;
+    private final double UP_SPEED = 0.35;
 
     public final double ANDY_MARK_PPR = 28;
 
