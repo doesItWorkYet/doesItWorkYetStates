@@ -167,10 +167,11 @@ public class LucyUserControlled extends LinearOpMode {
 //                driveLeftController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
 //                driveRightController.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
 //                driveRightController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
-                robot.leftMotor.setPower((gamepad1.left_stick_y + gamepad1.right_stick_x)/2.0);
-                robot.rightMotor.setPower((gamepad1.left_stick_y - gamepad1.right_stick_x)/2.0);
+                robot.leftMotor.setPower(-(gamepad1.left_stick_y + gamepad1.right_stick_x)/2.0);
+                robot.rightMotor.setPower(-(gamepad1.left_stick_y - gamepad1.right_stick_x)/2.0);
             }
-            while (gamepad1.dpad_left) {
+            if (gamepad1.dpad_left) {
+                while(gamepad1.dpad_left);
                 samDriveMode =(samDriveMode==true)? false:true;
             }
 

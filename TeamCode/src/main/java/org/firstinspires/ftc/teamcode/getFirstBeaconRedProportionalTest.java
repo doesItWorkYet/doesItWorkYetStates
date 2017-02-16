@@ -84,20 +84,20 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
         robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -60, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
         robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -85, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
 
+        // 2. Shoot two particles into center vortex in passing
+        // TODO - add shooting of particles here
+        // 3. Follow white line until proximity sensor detects beacon
+        // find white line here
+        robot.followLineStraightRed(0.15, 0.08, this);
+        // 4. Select beacon presser according to color and punch it
+        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
+        robot.pressBeacon(0.3, 600, this);
+
         while(opModeIsActive()){
             telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
             telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
             telemetry.update();
         }
-
-        // 2. Shoot two particles into center vortex in passing
-        // TODO - add shooting of particles here
-        // 3. Follow white line until proximity sensor detects beacon
-        // find white line here
-        robot.followLineStraightRed(0.35, 0.2, this);
-        // 4. Select beacon presser according to color and punch it
-        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
-        robot.pressBeacon(0.3, 600, this);
 
         // round two
         robot.deployBeaconPressers();

@@ -34,10 +34,10 @@ public class HardwareMapLucyV4 {
     private final int MEDIUM_LEFT_ANGLE = 12;
     private final int FAR_LEFT_ANGLE = 17;
     //speeds
-    private final double FAR_SPEED = 0.85;
-    private final double MED_SPEED = 0.75;
-    private final double NEAR_SPEED = 0.6;
-    private final double UP_SPEED = 0.35;
+    private final double FAR_SPEED = 0.87;
+    private final double MED_SPEED = 0.85;
+    private final double NEAR_SPEED = 0.78;
+    private final double UP_SPEED = 0.65;
 
     public final double ANDY_MARK_PPR = 28;
 
@@ -99,8 +99,8 @@ public class HardwareMapLucyV4 {
     //cap ball lifter motors
     public DcMotor extendotronLeft = null;
     public DcMotor extendotronRight = null;
-    public final double EXTENDOTRON_LIFT_SPEED = 1;
-    public final double EXTENDOTRON_DROP_SPEED = -0.5;
+    public final double EXTENDOTRON_DROP_SPEED = 1;
+    public final double EXTENDOTRON_LIFT_SPEED = -0.5;
     public final double EXTENDOTRON_REVS_PER_SEC = 2;
 
     //T-Rex arms
