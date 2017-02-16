@@ -9,9 +9,8 @@ import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
-
-@Autonomous(name="Get Beacon Fast Test", group = "Testing")
-public class getFirstBeaconFastTest extends LinearVisionOpMode {
+@Autonomous(name = "Get Red Beacon Test", group = "Testing")
+public class getBeaconRedTest extends LinearVisionOpMode {
     private double redTolerance = 0;
     private double blueTolerance = 0;
 
@@ -45,7 +44,7 @@ public class getFirstBeaconFastTest extends LinearVisionOpMode {
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(600, 600));
+        this.setFrameSize(new Size(2000, 2000));
         telemetry.addData("Frame", "set");
         telemetry.update();
         /**
@@ -75,46 +74,20 @@ public class getFirstBeaconFastTest extends LinearVisionOpMode {
 
         cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
         cameraControl.setAutoExposureCompensation();
-
         waitForStart();
-        robot.calibrateGyro(this);
-
-        robot.driveDistanceFollowingHeadingProportional(-33, 0.8, 0.5, 4, this);
-        robot.followingHeadingToWhiteLine(-33, 0.4, 0.3, this);
-        robot.brakeTemporarily(this);
-
-        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -60, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -85, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-
-        while(opModeIsActive()){
-            telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
-            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
-            telemetry.update();
-        }
-
-        // 2. Shoot two particles into center vortex in passing
-        // TODO - add shooting of particles here
-        // 3. Follow white line until proximity sensor detects beacon
-        // find white line here
-        robot.followHeadingProportionalControl(-90, 0.4, 0.3, robot.TURNING_P, this);
-        // 4. Select beacon presser according to color and punch it
-        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED, this);
-        robot.pressBeacon(0.3, 600, this);
-
-        // round two
         robot.deployBeaconPressers();
-        // 5. Back up to a heading of 0°
-        robot.driveToHeadingProportional(0, -0.8, -0.6, this);
-        // 6. Drive straight for 3', then continue to white line
-        robot.driveDistanceFollowingHeadingProportional(0, 0.8, 0.6, 3.0, this);
-        robot.followingHeadingToWhiteLine(0, 0.4, 0.3, this);
-        // 7. turn to white line and follow white line until proximity sensor detects beacon
-        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -45, -0.6, -0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -90, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.followHeadingProportionalControl(-90, 0.4, 0.3, robot.TURNING_P, this);
-        // 8. Select beacon presser according to color and punch it
+        telemetry.addData("go to wall", "");
+        telemetry.update();
+        robot.driveStraightUntilWall(0.45, robot.OPTICAL_SENSOR_THRESHOLD, this);
+        telemetry.addData("at wall", "");
+        telemetry.update();
         robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED, this);
+        telemetry.addData("get beacon", "");
+        telemetry.update();
+
         robot.pressBeacon(0.3, 600, this);
+        telemetry.addData("done", "");
+        telemetry.update();
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){

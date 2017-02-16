@@ -58,6 +58,8 @@ public class LucyUserControlled extends LinearOpMode {
         robot.zero(this);
         robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rightMotor.setDirection(DcMotor.Direction.FORWARD);
+        robot.leftMotor.setDirection(DcMotor.Direction.REVERSE);
         //robot.flyWheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //robot.flyWheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         idle();
@@ -167,8 +169,8 @@ public class LucyUserControlled extends LinearOpMode {
 //                driveLeftController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
 //                driveRightController.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
 //                driveRightController.accelationRuntime((gamepad1.left_stick_y>0)?true:false);
-                robot.leftMotor.setPower(-(gamepad1.left_stick_y + gamepad1.right_stick_x)/2.0);
-                robot.rightMotor.setPower(-(gamepad1.left_stick_y - gamepad1.right_stick_x)/2.0);
+                robot.leftMotor.setPower((gamepad1.left_stick_y - gamepad1.right_stick_x)/2.0);
+                robot.rightMotor.setPower((gamepad1.left_stick_y + gamepad1.right_stick_x)/2.0);
             }
             if (gamepad1.dpad_left) {
                 while(gamepad1.dpad_left);
@@ -231,11 +233,6 @@ public class LucyUserControlled extends LinearOpMode {
                     if (robot.flyWheel1.getPower() == 0)
                         robot.setTargetDistanceForParticleShooter(flyWheelDeflectorPosition, this);
                 }
-                //robot.flyWheel2ProportionalController.setPower(flyWheelPower);
-                //robot.flyWheel1ProportionalController.setPower(flyWheelPower);
-//                telemetry.addData("Fly Wheel 1 Speed", robot.flyWheel1.getPower());
-//                telemetry.addData("Fly Wheel 2 Speed", robot.flyWheel2.getPower());
-
             }
 
             if(!gamepad2.x){
@@ -275,6 +272,7 @@ public class LucyUserControlled extends LinearOpMode {
             //drive settings
             if (!driveDirection) {
                 if (gamepad1.x) {
+                    while(gamepad1.x);
                     robot.rightMotor.setDirection(DcMotor.Direction.REVERSE);
                     robot.leftMotor.setDirection(DcMotor.Direction.FORWARD);
                     driveDirection = true;
@@ -282,6 +280,7 @@ public class LucyUserControlled extends LinearOpMode {
             }
             if (driveDirection) {
                 if (gamepad1.x) {
+                    while(gamepad1.x);
                     robot.rightMotor.setDirection(DcMotor.Direction.FORWARD);
                     robot.leftMotor.setDirection(DcMotor.Direction.REVERSE);
                     driveDirection = false;

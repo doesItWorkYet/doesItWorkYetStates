@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
+import android.graphics.Path;
 import android.hardware.SensorManager;
+import android.provider.Settings;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.Range;
 
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
@@ -189,7 +192,7 @@ public class HardwareMapLucyV4 {
     String RED = "Red";
     HardwareMap hwMap = null;
 
-    public final double OPTICAL_SENSOR_THRESHOLD = .028;
+    public final double OPTICAL_SENSOR_THRESHOLD = .03;
 
     final int RIGHT_ARMLET_STORE_POSITION =  92;
     final int RIGHT_ARMLET_DEPLOY_POSITION = 180;
@@ -434,16 +437,16 @@ public class HardwareMapLucyV4 {
         rightMotor.setPower(0); //release motors
     }
 
-    public void driveStraightUntilWall(double speed, double opticalSensorThreshold, long timeToQuit, OpMode mode){
+    public void driveStraightUntilWall(double speed, double opticalSensorThreshold, OpMode mode){
         double lightLevel = distSensor.getLightDetected();
-        leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
-        rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
-
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        waitCycle(mode);
+        leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
+        rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
+        waitCycle(mode);
         setDriveMotorPower(speed);
-        while(distSensor.getLightDetected() < opticalSensorThreshold && System.currentTimeMillis() < timeToQuit && !safety(mode)){
+        while(distSensor.getLightDetected() < opticalSensorThreshold && !timeSafety(mode)){
 
         };
         stop();
@@ -645,6 +648,17 @@ public class HardwareMapLucyV4 {
         armletRight.setPosition(RIGHT_ARMLET_STORE_POSITION /180.0);
     }
 
+    public boolean timeSafety(OpMode mode){
+        if (mode instanceof LinearVisionOpMode) {
+            if(((LinearVisionOpMode) mode).opModeIsActive()) return false;
+            else return true;
+        }
+        else if (mode instanceof LinearOpMode) {
+            if(((LinearOpMode) mode).opModeIsActive()) return false;
+            else return true;
+        }
+        return false;
+    }
     public boolean safety(OpMode mode){
         boolean isOpModeActive;
         boolean wallIsNear = false;
@@ -720,7 +734,7 @@ public class HardwareMapLucyV4 {
         double error = heading + gyro.getIntegratedZValue();
         if(motor == LEFT_MOTOR) {
             rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            while (Math.abs(error) > accuracy && !safety(mode)) {
+            while (Math.abs(error) > accuracy) {
                 double power = error * p;
                 if(power < 0 && Math.abs(power) < minPower){
                     power = -minPower;
@@ -728,14 +742,16 @@ public class HardwareMapLucyV4 {
                 if(power > 0 && power < minPower){
                     power = minPower;
                 }
-                leftMotor.setPower(power);
+
+                leftMotor.setPower(Double.isNaN(power) ? 0.0 : Range.clip(power, -1, 1));
+
                 waitCycle(mode);
                 error = heading + gyro.getIntegratedZValue();
             }
         }
         if(motor == RIGHT_MOTOR){
             leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            while (Math.abs(error) > accuracy && !safety(mode)) {
+            while (Math.abs(error) > accuracy) {
                 double power = error * p;
                 if(power < 0 && Math.abs(power) < minPower){
                     power = -minPower;
@@ -743,7 +759,7 @@ public class HardwareMapLucyV4 {
                 if(power > 0 && power < minPower){
                     power = minPower;
                 }
-                rightMotor.setPower(-power);
+                rightMotor.setPower(Double.isNaN(power) ? 0.0 : Range.clip(-power, -1, 1));
                 waitCycle(mode);
                 error = heading + gyro.getIntegratedZValue();
             }
@@ -1102,26 +1118,41 @@ public class HardwareMapLucyV4 {
     public void pressBeacon(double power, long timeInMillis, OpMode mode){
         setDriveMotorPower(power);
         long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + timeInMillis && !safety(mode)){
+        while(System.currentTimeMillis() < start + timeInMillis && !timeSafety(mode)){
             waitCycle(mode);
         }
         stop();
+        waitCycle(mode);
         setDriveMotorPower(-power);
         start = System.currentTimeMillis();
-        while(System.currentTimeMillis() < start + timeInMillis/2 && !safety(mode)){
+        waitCycle(mode);
+        while(System.currentTimeMillis() < (long)(start + timeInMillis/2.0) && !timeSafety(mode)){
             waitCycle(mode);
         }
         stop();
     }
 
-    public void selectBeaconColor(double leftColor, double teamColor){
+    public void selectBeaconColor(double leftColor, double teamColor, OpMode mode){
         if(leftColor == teamColor){
             beaconPresserLeft.setPosition(BEACON_PRESSER_LEFT_STORE_POSITION/180.0);
+            mode.telemetry.addData("Team Color on Left", "");
+            mode.telemetry.update();
         }
         else{
             beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
+            mode.telemetry.addData("Team Color on Right", "");
+            mode.telemetry.update();
+
         }
     }
 
+    public void delay(long timeInMills, OpMode mode, boolean h){
+        //delay using timeSafety
+        long curTime = System.currentTimeMillis();
+        while(System.currentTimeMillis() < curTime + timeInMills && timeSafety(mode)){
+            waitCycle(mode);
+        }
+
+    }
 
 }

@@ -76,48 +76,98 @@ public class getFirstBeaconRedProportionalTest extends LinearVisionOpMode {
         cameraControl.setAutoExposureCompensation();
         waitForStart();
         robot.calibrateGyro(this);
-
+        robot.deployBeaconPressers();
+        telemetry.addData("Start", "");
+        telemetry.update();
         robot.driveDistanceFollowingHeadingProportional(-33, 0.8, 0.5, 4, this);
-        robot.followingHeadingToWhiteLine(-33, 0.4, 0.3, this);
+        robot.followingHeadingToWhiteLine(-33, 0.3, 0.2, this);
+        telemetry.addData("Find Line", "");
+        telemetry.update();
         robot.brakeTemporarily(this);
-
-        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -60, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -85, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-
+        telemetry.addData("Start turn", "");
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -60, 0.3, 0.2, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("turn two start", "");
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -80, 0.3, 0.2, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("End Turn", "");
+        telemetry.update();
         // 2. Shoot two particles into center vortex in passing
         // TODO - add shooting of particles here
         // 3. Follow white line until proximity sensor detects beacon
         // find white line here
-        robot.followLineStraightRed(0.15, 0.08, this);
+//        robot.followLineStraightRed(0.15, 0.08, this);
+        telemetry.addData("Go to wall", "");
+        telemetry.update();
+        robot.driveStraightUntilWall(0.45, robot.OPTICAL_SENSOR_THRESHOLD, this);
+        telemetry.addData("Stop at wall", "");
+        telemetry.update();
         // 4. Select beacon presser according to color and punch it
-        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
+        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED, this);
+        telemetry.addData("Color Selected", "");
+        telemetry.update();
+        robot.delay(500, this, true);
         robot.pressBeacon(0.3, 600, this);
+        telemetry.addData("Got beacon", "");
+        telemetry.update();
 
-        while(opModeIsActive()){
-            telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
-            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
-            telemetry.update();
-        }
 
         // round two
         robot.deployBeaconPressers();
+        telemetry.addData("Start round two", "");
+        telemetry.update();
         // 5. Back up to a heading of 0°
-        robot.driveToHeadingProportional(0, -0.8, -0.6, this);
+        telemetry.addData("Back up", "");
+        telemetry.update();
+        robot.driveDistanceFollowingHeading(-80, -0.8, -0.7, -0.5, this);
+        telemetry.addData("turn", "");
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, 0, 0.4, 0.3, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("Go over white line", "");
+        telemetry.update();
         // 6. Drive straight for 3', then continue to white line
         robot.driveDistanceFollowingHeadingProportional(0, 0.8, 0.6, 3.0, this);
+        telemetry.addData("Go to white line", "");
+        telemetry.update();
         robot.beginSynchronousDriving(1, 0.4);
         while(robot.fastColorSensor.getBrightness()<robot.BRIGHTNESS_WHITE_THRESHOLD){
             telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
             telemetry.update();
         }
         robot.endSynchronousDriving(this);
+        telemetry.addData("found line", "");
+//        telemetry.update();
+//        robot.driveDistanceFollowingHeading(0, 0.5, 0.4, 0.08, this);
+//        robot.brakeTemporarily(this);
+//        telemetry.addData("go further", "");
         // 7. turn to white line and follow white line until proximity sensor detects beacon
-        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -45, -0.6, -0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -90, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
-        robot.followLineStraightRed(0.35, 0.2, this);
+        telemetry.addData("turn 1", "");
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.RIGHT_MOTOR, -45, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("turn 2", "");
+        telemetry.update();
+        robot.turnToHeadingProportionalControl(robot.LEFT_MOTOR, -75, 0.6, 0.4, robot.TURNING_P, robot.HEADING_ACCURACY, this);
+        telemetry.addData("go to wall", "");
+        telemetry.update();
+        robot.driveStraightUntilWall(0.5, robot.OPTICAL_SENSOR_THRESHOLD-0.005, this);
+        telemetry.addData("at wall", "");
+        telemetry.addData("select color", "");
+        telemetry.update();
         // 8. Select beacon presser according to color and punch it
-        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED);
+        robot.selectBeaconColor(getLeftColor(), robot.BEACON_RED, this);
+        telemetry.addData("get beacon", "");
+        telemetry.update();
+        robot.delay(450, this, true);
         robot.pressBeacon(0.3, 600, this);
+        telemetry.addData("done", "");
+        telemetry.update();
+        while(opModeIsActive()){
+            telemetry.addData("Heading: ", robot.gyro.getIntegratedZValue());
+            telemetry.addData("Brightness: ", robot.fastColorSensor.getBrightness());
+            telemetry.update();
+            waitOneFullHardwareCycle();
+        }
+
     }
 
     private Beacon.BeaconAnalysis getAnalysis(){
