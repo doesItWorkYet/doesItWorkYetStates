@@ -29,17 +29,18 @@ public class HardwareMapLucyV4 {
     public final int SHOOT_FAR_LEFT = 3;
     private final double DEFLECTOR_GEAR_RATIO = 2;
     //angles
-    private final int FAR_RIGHT_ANGLE = -15;
-    private final int MEDIUM_RIGHT_ANGLE = -12;
+    private final int FAR_RIGHT_ANGLE = -17;
+    private final int MEDIUM_RIGHT_ANGLE = -13;
     private final int NEAR_RIGHT_ANGLE = -5;
     private final int SHOOT_UP_ANGLE = 0;
     private final int NEAR_LEFT_ANGLE = 5;
     private final int MEDIUM_LEFT_ANGLE = 12;
     private final int FAR_LEFT_ANGLE = 17;
+    final double FLY_WHEEL_DEFLECTOR_NEUTRAL = 103;
     //speeds
     private final double FAR_SPEED = 0.87;
-    private final double MED_SPEED = 0.85;
-    private final double NEAR_SPEED = 0.78;
+    private final double MED_SPEED = 0.8;
+    private final double NEAR_SPEED = 0.7;
     private final double UP_SPEED = 0.65;
 
     public final double ANDY_MARK_PPR = 28;
@@ -152,7 +153,7 @@ public class HardwareMapLucyV4 {
 
     final double WHITE_FUDGE_FACTOR = .2;
     final int COLOR_SENSOR_NUM_TIMES_CHECK_BACKGROUND_COLOR = 100;
-    final double BRIGHTNESS_WHITE_THRESHOLD = 10.0;
+    final double BRIGHTNESS_WHITE_THRESHOLD = 7.3;
     final int USE_RGB = 1999;
     final int USE_BRIGHTNESS = 5050;
 
@@ -164,7 +165,7 @@ public class HardwareMapLucyV4 {
     final double FLY_WHEEL_HIGH_SPEED = 5;
     final double FLY_WHEEL_MED_SPEED = 2.5;
     final double FLY_WHEEL_LOW_SPEED = 1;
-    final double FLY_WHEEL_DEFLECTOR_NEUTRAL = 108;
+
 
 
     //sensors
@@ -192,7 +193,7 @@ public class HardwareMapLucyV4 {
     String RED = "Red";
     HardwareMap hwMap = null;
 
-    public final double OPTICAL_SENSOR_THRESHOLD = .03;
+    public final double OPTICAL_SENSOR_THRESHOLD = .02;
 
     final int RIGHT_ARMLET_STORE_POSITION =  92;
     final int RIGHT_ARMLET_DEPLOY_POSITION = 180;
@@ -294,6 +295,8 @@ public class HardwareMapLucyV4 {
         beaconPresserRight.setPosition(BEACON_PRESSER_RIGHT_STORE_POSITION/180.0);
         flyWheelDeflector.setPosition(FLY_WHEEL_DEFLECTOR_NEUTRAL /180.0);
         indexer.setPosition(INDEXER_LOAD_POSITION /180.0);
+        armletLeft.setPosition(LEFT_ARMLET_STORE_POSITION /180.0);
+        armletRight.setPosition(RIGHT_ARMLET_STORE_POSITION /180.0);
         //indexer.setDirection(Servo.Direction.REVERSE);
 
         //reset
@@ -311,8 +314,6 @@ public class HardwareMapLucyV4 {
         extendotronLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendotronRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitCycle(mode);
-        armletLeft.setPosition(LEFT_ARMLET_STORE_POSITION /180.0);
-        armletRight.setPosition(RIGHT_ARMLET_STORE_POSITION /180.0);
 
         leftMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
         rightMotor.setMaxSpeed(TICKS_PER_REV_ANDYMARK*3);
@@ -441,18 +442,19 @@ public class HardwareMapLucyV4 {
         double lightLevel = distSensor.getLightDetected();
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        waitCycle(mode);
+
         leftMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
         rightMotor.setMaxSpeed((int)(TICKS_PER_REV_ANDYMARK*speed));
         waitCycle(mode);
         setDriveMotorPower(speed);
         while(distSensor.getLightDetected() < opticalSensorThreshold && !timeSafety(mode)){
-
+            waitCycle(mode);
         };
         stop();
         brakeTemporarily(mode);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        waitCycle(mode);
     }
 
     public void beginSynchronousDriving(double rps, double power){
@@ -1149,7 +1151,7 @@ public class HardwareMapLucyV4 {
     public void delay(long timeInMills, OpMode mode, boolean h){
         //delay using timeSafety
         long curTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() < curTime + timeInMills && timeSafety(mode)){
+        while(System.currentTimeMillis() < curTime + timeInMills && !timeSafety(mode)){
             waitCycle(mode);
         }
 

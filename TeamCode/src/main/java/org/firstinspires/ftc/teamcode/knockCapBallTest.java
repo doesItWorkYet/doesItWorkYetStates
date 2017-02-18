@@ -48,10 +48,18 @@ public class knockCapBallTest extends LinearOpMode {
         robot = new HardwareMapLucyV4();
         robot.init(hardwareMap);
         robot.zero(this);
-        //Wait for start and reset the runtime count
+        robot.calibrateGyro(this);
+
+            telemetry.addData("Heading: ", -robot.gyro.getIntegratedZValue());
+            telemetry.update();
+
         waitForStart();
+        robot.calibrateGyro(this);
+        //Wait for start and reset the runtime count
+
+
         //potentially shoot as well
-        robot.driveDistanceFollowingHeading(0, 0.8, 0.65, 6, this);
+        robot.driveDistanceFollowingHeading(0, 0.7, 0.5, 4, this);
         robot.brakeTemporarily(this);
         //robot.pressBeacon(0.7, 500, this);
 

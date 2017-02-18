@@ -108,7 +108,7 @@ public class LucyUserControlled extends LinearOpMode {
                 flyWheelDeflectorPosition++;
                 if (flyWheelDeflectorPosition > 3) { flyWheelDeflectorPosition = 3; }
                 robot.setTargetDistanceForParticleShooter(flyWheelDeflectorPosition, this);
-                while(gamepad2.a && !robot.safety(this));
+                while(gamepad2.a);
             }
             if(gamepad2.b){
                 flyWheelDeflectorPosition--;
@@ -179,7 +179,7 @@ public class LucyUserControlled extends LinearOpMode {
 
 
             //When the A button is pressed, turn the sweep motor in the positive direction
-            if(gamepad1.a) {
+            if(gamepad1.a || gamepad2.dpad_left) {
                 robot.sweep.setPower(1);
             }
             //When the B button is pressed, turn the sweep motor in the negative direction
@@ -187,7 +187,7 @@ public class LucyUserControlled extends LinearOpMode {
                 robot.sweep.setPower(-1);
             }
             //If neither the A or B button are pressed, turn off the sweep motor
-            if(!gamepad1.a & !gamepad1.b) {
+            if(!gamepad1.a & !gamepad1.b && !gamepad2.dpad_left) {
                 robot.sweep.setPower(0);
             }
             //Move slower

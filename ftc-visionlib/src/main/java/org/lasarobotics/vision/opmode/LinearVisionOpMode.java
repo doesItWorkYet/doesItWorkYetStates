@@ -23,7 +23,7 @@ public abstract class LinearVisionOpMode extends VisionOpMode {
     private final ElapsedTime timer = new ElapsedTime();
     private Threader threader = null;
     private Thread thread = null;
-    private volatile boolean opModeStarted = false;
+    public volatile boolean opModeStarted = false;
     private Mat rgba;
     private Mat gray;
     private boolean hasNewFrame = false;
